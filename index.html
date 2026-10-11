@@ -330,6 +330,18 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
 @media(max-width:520px){.wgrid{grid-template-columns:1fr 1fr}.wd.w2{grid-column:span 2}}
 .rt td:first-child{white-space:nowrap}
 .wh{justify-content:flex-start;gap:8px}.wh .wctl{margin-left:auto}
+/* v6 focus session */
+#focus{position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;flex-direction:column;align-items:center;overflow:auto;padding:20px 16px 40px}
+#focus[hidden]{display:none}
+#focus::before{content:"";position:fixed;inset:0;background:radial-gradient(900px 600px at 50% 20%,color-mix(in srgb,var(--c,var(--acc)) 22%,transparent),transparent 70%);pointer-events:none}
+.fwrap{position:relative;width:min(560px,100%);margin:auto}
+.fsteps{display:flex;gap:6px;margin-bottom:18px}.fsteps i{flex:1;height:4px;border-radius:3px;background:color-mix(in srgb,var(--ink) 12%,transparent)}.fsteps i.on{background:var(--c,var(--acc))}
+.tring{position:relative;width:min(300px,76vw);aspect-ratio:1;margin:8px auto 14px}.tring svg{width:100%;height:100%;transform:rotate(-90deg)}.tring .tx{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.tring .tx b{font-size:clamp(40px,12vw,62px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1}
+.tring circle{fill:none;stroke-width:8;stroke-linecap:round}
+.durs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.q5{display:flex;gap:8px;margin:6px 0 12px}.q5 button{flex:1;padding:10px 0;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);font:inherit;font-weight:700;cursor:pointer}.q5 button.on{background:var(--c,var(--acc));color:#08101c;border-color:transparent}
+#focus .f{display:block}#focus input[type=text],#focus input[type=number],#focus textarea{width:100%}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -369,6 +381,7 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
 <div id="modal"><div id="mbox"></div></div>
 <div id="toasts" aria-live="polite"></div>
 <input type="file" id="impfile" accept=".json,application/json" class="hide">
+<div id="focus" hidden></div>
 <section id="wpage"></section>
 <script>
 /* ===== NeuroOrbitSynapse: utilities ===== */
@@ -1111,7 +1124,7 @@ function fxLoop(now){const dt=Math.min(.05,(now-fxLast)/1000||.016);fxLast=now;f
  if(FXP.length||FXR.length||FXT.length||FXB.length)requestAnimationFrame(fxLoop);else{fxOn=false;fxx.clearRect(0,0,FXW,FXH)}}
 function glowFx(x,y,r,c,a){fxx.globalAlpha=a*.8;fxx.drawImage(spr(rgbOf(c)),x-r,y-r,r*2,r*2);fxx.globalAlpha=1}
 /* ===== UI core: icons, toast, theme, actions, log ops, badges ===== */
-const IC={help:'<circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 114 2c-1 .7-1.500 1.200-1.500 2.500M12 17h.01"/>',opt:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',home:'<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>',goals:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',ins:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',jour:'<path d="M5 3h12a2 2 0 012 2v16H7a2 2 0 01-2-2V3zM9 8h6M9 12h6"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12l5 5 9-10"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',snd:'<path d="M4 9v6h4l5 4V5L8 9H4zM16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/>',mute:'<path d="M4 9v6h4l5 4V5L8 9H4zM17 9l5 6M22 9l-5 6"/>',fs:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',fsx:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',reset:'<path d="M4 4v6h6M20 20v-6h-6M5 14a8 8 0 0014 3M19 10A8 8 0 005 7"/>',bell:'<path d="M6 17V11a6 6 0 0112 0v6l2 2H4l2-2zM10 21h4"/>',dl:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16v4z"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',pause:'<path d="M8 5v14M16 5v14"/>',skip:'<path d="M5 5l10 7-10 7V5zM19 5v14"/>',flame:'<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',star:'<path d="M12 3l2.7 6 6.3.6-4.8 4.3 1.5 6.3L12 17l-5.7 3.2 1.5-6.3L3 9.6 9.3 9z"/>',back:'<path d="M15 5l-7 7 7 7"/>',fwd:'<path d="M9 5l7 7-7 7"/>'};
+const IC={play:'<path d="M7 5l12 7-12 7z"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 114 2c-1 .7-1.500 1.200-1.500 2.500M12 17h.01"/>',opt:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',home:'<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>',goals:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',ins:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',jour:'<path d="M5 3h12a2 2 0 012 2v16H7a2 2 0 01-2-2V3zM9 8h6M9 12h6"/>',set:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12l5 5 9-10"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',snd:'<path d="M4 9v6h4l5 4V5L8 9H4zM16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/>',mute:'<path d="M4 9v6h4l5 4V5L8 9H4zM17 9l5 6M22 9l-5 6"/>',fs:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',fsx:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',reset:'<path d="M4 4v6h6M20 20v-6h-6M5 14a8 8 0 0014 3M19 10A8 8 0 005 7"/>',bell:'<path d="M6 17V11a6 6 0 0112 0v6l2 2H4l2-2zM10 21h4"/>',dl:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16v4z"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',pause:'<path d="M8 5v14M16 5v14"/>',skip:'<path d="M5 5l10 7-10 7V5zM19 5v14"/>',flame:'<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',star:'<path d="M12 3l2.7 6 6.3.6-4.8 4.3 1.5 6.3L12 17l-5.7 3.2 1.5-6.3L3 9.6 9.3 9z"/>',back:'<path d="M15 5l-7 7 7 7"/>',fwd:'<path d="M9 5l7 7-7 7"/>'};
 const ic=(n,s)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${s?`style="width:${s}px;height:${s}px"`:''} aria-hidden="true">${IC[n]||(GI[n]?`<path d="${GI[n]}"/>`:'')}</svg>`;
 function toast(msg,undo){const box=$('#toasts');if(!box)return;const t=document.createElement('div');t.className='toast';t.innerHTML=`<span>${esc(msg)}</span>`;
  if(undo){const b=document.createElement('button');b.textContent='Undo';b.onclick=()=>{undo();t.remove()};t.appendChild(b)}
@@ -1245,7 +1258,7 @@ function todayRow(it){const g=it.g,st=it.st,q=isB(g),done=st.s==='done',slip=st.
  if(slip)right=`<span class="pill quit">Slipped</span><button class="btn sm ghost" data-act="done" data-id="${g.id}">Redo</button>`;
  else if(st.s==='skipped')right=`<span class="pill">Rest</span>`;
  else if(canTick)right=q?`<div class="qa">${done?'':`<button class="btn danger sm" data-act="slip" data-id="${g.id}">Slip</button>`}<button class="chk ${done?'on':''}" data-act="done" data-id="${g.id}" aria-label="${done?'Undo':'Mark clean'}" title="${q?'Clean day':'Done'}">${ic('check')}</button></div>`
-  :`<div class="qa">${!done&&st.s!=='rest'?`<button class="btn ghost sm" data-act="skip" data-id="${g.id}" title="Planned rest">${ic('skip')}</button>`:''}<button class="chk ${done?'on':''}" data-act="done" data-id="${g.id}" aria-label="${done?'Undo':'Mark done'}">${ic('check')}</button></div>`;
+  :`<div class="qa">${!done&&st.s!=='rest'?`<button class="btn ghost sm" data-act="focus" data-id="${g.id}" title="Start a focus session" aria-label="Start a focus session">${ic('play')}</button>`+`<button class="btn ghost sm" data-act="skip" data-id="${g.id}" title="Planned rest">${ic('skip')}</button>`:''}<button class="chk ${done?'on':''}" data-act="done" data-id="${g.id}" aria-label="${done?'Undo':'Mark done'}">${ic('check')}</button></div>`;
  else if(st.s==='notstarted')right=`<span class="pill">${fmtD(g.start)}</span>`;
  return `<div class="titem ${done?'done':''} ${q?'quit':''} ${g.priority==='must'?'must':''} ${JF[g.id]>Date.now()?'fired':''}" style="--c:${g.color}"><div class="dot" data-act="open" data-id="${g.id}" style="cursor:pointer">${gI(g,18)}</div><div style="min-width:0;flex:1"><div class="nm" data-act="open" data-id="${g.id}">${esc(g.name)}${g.priority==='must'?' <span class="pill must">Must</span>':''}</div><div class="sub">${esc(stLabel(g,st)||schedText(g))}</div></div>${right}</div>`}
 function renderToday(){const k=todayKey(),items=todayItems(k),el=$('#today');
@@ -1451,6 +1464,61 @@ ACT.fmsave=()=>{const f=FM;if(!f.name.trim()){toast('Give the goal a name first.
   toast(ng.start>k?`${ng.name} will activate on ${fmtLong(ng.start)}`:`${ng.name} planted. Fire it today to start the circuit.`);setTimeout(()=>{const r=rt(ng);fireGoal(ng,.8)},400)}
  save();closeModal();checkBadges();if(UI.view==='home')renderHome();else renderAll()}
 
+/* ===== focus session: prepare, run a timer, reflect, then it logs the rep ===== */
+const FOC=(()=>{let F=null,wl=null,iv=null;
+ const el=()=>$('#focus'),elapsed=()=>F?F.acc+(F.paused||!F.t0?0:Date.now()-F.t0):0,fmt=s=>pad(Math.floor(s/60))+':'+pad(s%60);
+ async function lock(on){try{if(on&&navigator.wakeLock){wl=await navigator.wakeLock.request('screen')}else if(wl){wl.release();wl=null}}catch(e){}}
+ function open(id){const g=gById(id);if(!g)return;if(isB(g)){openDrawer(id,'log');return}
+  if(UI.fs)setFS(false);closeDrawer(true);F={id,phase:'prep',intent:'',mins:g.defMin>0?g.defMin:30,acc:0,t0:0,paused:false,dist:0,q:3,e:3,note:'',vals:{},ck:(g.chk[todayKey()]||[]).slice(),rang:false};
+  el().hidden=false;document.body.style.overflow='hidden';sfx('open');render()}
+ function close(){if(iv)clearInterval(iv);iv=null;lock(false);F=null;el().hidden=true;el().innerHTML='';document.body.style.overflow=''}
+ const steps=()=>{const p={prep:0,run:1,reflect:2}[F.phase];return `<div class="fsteps">${[0,1,2].map(i=>`<i class="${i<=p?'on':''}"></i>`).join('')}</div>`};
+ const keep=()=>{const n=$('#f-note');if(n)F.note=n.value;const i=$('#f-int');if(i)F.intent=i.value;$$('#focus [data-ff]').forEach(x=>F.vals[x.dataset.ff]=x.value)};
+ function render(){if(!F)return;const g=gById(F.id);if(!g)return close();const e=el();e.style.setProperty('--c',g.color);let h=`<div class="fwrap">${steps()}`;
+  if(F.phase==='prep'){const n=g.tasks.length;
+   h+=`<div class="xs mute">Step 1 of 3, prepare</div><h2 style="margin:4px 0 2px">${esc(g.name)}</h2><p class="sm mute" style="margin:0 0 12px">${g.cue?'Cue: '+esc(g.cue)+'. ':''}Preparation is part of the work. Tick what is ready, set one clear target, then go.</p>
+   ${n?`<div class="card"><b>What have I prepared? <span class="mute">(${F.ck.length}/${n})</span></b><div class="bar" style="margin:8px 0"><i style="width:${F.ck.length/n*100}%;background:${g.color}"></i></div>${g.tasks.map((t,i)=>`<label class="togg" style="margin:6px 0" data-act="fck" data-i="${i}"><span class="sw ${F.ck.includes(i)?'on':''}"></span><span>${esc(t)}</span></label>`).join('')}</div>`:'<div class="card sm" style="border-left:3px solid var(--c)">No prep checklist yet. Add some in the goal\'s Plan tab, because prepared sessions usually score higher.</div>'}
+   <label class="f">My target for this session</label><input type="text" id="f-int" value="${esc(F.intent)}" placeholder="e.g. Finish 20 pages, or 3 clean setups only">
+   <div class="xs mute" style="margin-top:12px;text-align:center">How long?</div><div class="durs">${[10,15,25,30,45,60,90].map(m=>`<button class="btn sm ${F.mins===m?'pri':''}" data-act="fmins" data-v="${m}">${m} min</button>`).join('')}<input type="number" id="f-cm" min="1" max="600" style="width:90px" placeholder="custom"></div>
+   <div class="row" style="margin-top:14px"><button class="btn" data-act="fcancel">Cancel</button><button class="btn pri" style="flex:2" data-act="fgo">Start ${F.mins} min focus</button></div>`}
+  else if(F.phase==='run'){const tot=F.mins*60,left=Math.max(0,tot-Math.floor(elapsed()/1000)),C=2*Math.PI*46,pr=Math.min(1,elapsed()/1000/tot);
+   h+=`<div class="xs mute" style="text-align:center">Step 2 of 3, focus</div><h2 style="text-align:center;margin:4px 0">${esc(g.name)}</h2>${F.intent?`<p class="sm mute" style="text-align:center;margin:0">Target: ${esc(F.intent)}</p>`:''}
+   <div class="tring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" stroke="rgba(255,255,255,.1)"/><circle id="f-arc" cx="50" cy="50" r="46" stroke="${g.color}" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pr)}"/></svg><div class="tx"><div><b id="f-t">${fmt(left)}</b><div class="sm mute" id="f-s">${F.paused?'Paused':left===0?'Time is up, keep going or finish':'Stay with it'}</div></div></div></div>
+   <div class="row wrapr" style="justify-content:center"><button class="btn" data-act="fpause">${F.paused?'Resume':'Pause'}</button><button class="btn" data-act="fplus">+5 min</button><button class="btn" data-act="fdist">Distracted <b id="f-d">${F.dist}</b></button></div>
+   <div class="row" style="margin-top:12px"><button class="btn danger" data-act="fabort">Abandon</button><button class="btn pri" style="flex:2" data-act="ffinish">Finish and reflect</button></div>
+   <p class="xs mute" style="text-align:center;margin-top:10px">Tap Distracted every time your attention slips. It is data for your Insights, not a penalty.</p>`}
+  else{const mins=Math.max(1,Math.round(elapsed()/60000));
+   h+=`<div class="xs mute">Step 3 of 3, reflect</div><h2 style="margin:4px 0">${mins} minute${mins>1?'s':''} of focus</h2>${F.intent?`<p class="sm mute" style="margin:0 0 8px">Target was: ${esc(F.intent)}</p>`:''}
+   <div class="sm mute">Did I hit my target? Focus quality</div><div class="q5">${[1,2,3,4,5].map(n=>`<button data-act="fq" data-v="${n}" class="${F.q===n?'on':''}">${n}</button>`).join('')}</div>
+   <div class="sm mute">Energy</div><div class="q5">${[1,2,3,4,5].map(n=>`<button data-act="fe" data-v="${n}" class="${F.e===n?'on':''}">${n}</button>`).join('')}</div>
+   ${g.fields.filter(f=>f.type==='number'||f.type==='text').map(f=>`<label class="f">${esc(f.label)}${f.unit?' ('+esc(f.unit)+')':''}</label><input data-ff="${f.id}" type="${f.type==='number'?'number':'text'}" ${f.type==='number'?'step="any"':''} value="${esc(F.vals[f.id]||'')}" placeholder="${f.ex!==''&&f.ex!=null?'e.g. '+esc(f.ex):''}">`).join('')}
+   ${g.tasks.length?`<div class="sm mute" style="margin-top:8px">Checklist</div>${g.tasks.map((t,i)=>`<label class="togg" style="margin:6px 0" data-act="fck" data-i="${i}"><span class="sw ${F.ck.includes(i)?'on':''}"></span><span>${esc(t)}</span></label>`).join('')}`:''}
+   <label class="f">Note</label><textarea id="f-note" rows="2" placeholder="What worked, what pulled me away">${esc(F.note)}</textarea>
+   <div class="row" style="margin-top:12px"><button class="btn" data-act="fdiscard">Discard</button><button class="btn pri" style="flex:2" data-act="fsave">Save session</button></div>`}
+  e.innerHTML=h+'</div>'}
+ function tick(){if(!F||F.phase!=='run')return;const g=gById(F.id),tot=F.mins*60,s=Math.floor(elapsed()/1000),left=Math.max(0,tot-s),t=$('#f-t');if(!t)return;t.textContent=fmt(left);
+  const C=2*Math.PI*46,a=$('#f-arc');if(a)a.setAttribute('stroke-dashoffset',C*(1-Math.min(1,s/tot)));
+  if(left===0&&!F.rang){F.rang=true;sfx('badge');navigator.vibrate&&navigator.vibrate([200,100,200]);const st=$('#f-s');if(st)st.textContent='Time is up, keep going or finish';if(document.hidden)notify('Focus complete',g.name+': '+F.mins+' minutes done',{tag:'focus'+g.id})}}
+ const armed2=(b,t)=>{if(b.dataset.arm){return true}b.dataset.arm=1;const o=b.textContent;b.textContent=t;setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.textContent=o}},2500);return false};
+ ACT.fmins=el=>{keep();F.mins=+el.dataset.v;render()};
+ ACT.fcancel=()=>close();
+ ACT.fdiscard=el=>{if(armed2(el,'Tap again to discard'))close()};ACT.fabort=el=>{if(armed2(el,'Tap again to abandon'))close()};
+ ACT.fgo=()=>{keep();const cm=+($('#f-cm')||{}).value;if(cm>0)F.mins=Math.min(600,cm);F.phase='run';F.t0=Date.now();F.acc=0;F.paused=false;lock(true);if(iv)clearInterval(iv);iv=setInterval(tick,400);render();sfx('tap')};
+ ACT.fpause=()=>{if(F.paused){F.t0=Date.now();F.paused=false}else{F.acc+=Date.now()-F.t0;F.paused=true}render()};
+ ACT.fplus=()=>{F.mins+=5;F.rang=false;render()};
+ ACT.fdist=()=>{F.dist++;const x=$('#f-d');if(x)x.textContent=F.dist;sfx('untick')};
+ ACT.ffinish=()=>{if(!F.paused){F.acc+=Date.now()-F.t0;F.paused=true}F.phase='reflect';if(iv)clearInterval(iv);lock(false);sfx('bell');render()};
+ ACT.fq=el=>{keep();F.q=+el.dataset.v;render()};ACT.fe=el=>{keep();F.e=+el.dataset.v;render()};
+ ACT.fck=el=>{keep();const i=+el.dataset.i,j=F.ck.indexOf(i);j<0?F.ck.push(i):F.ck.splice(j,1);sfx('tick');render()};
+ ACT.fsave=()=>{keep();const g=gById(F.id),k=todayKey(),secs=Math.floor(elapsed()/1000),f={};Object.keys(F.vals).forEach(id=>{if(F.vals[id]!=='')f[id]=F.vals[id]});
+  const o={min:Math.max(1,Math.round(secs/60)),q:F.q,en:F.e,note:F.note,intent:F.intent,focusSecs:secs,dist:F.dist};if(Object.keys(f).length)o.f=Object.assign({},(g.logs[k]||{}).f,f);
+  const old=logDone(g,k,o);g.chk[k]=F.ck.slice();const m=o.min;close();afterLog(g);toast('Session saved: '+m+' min. '+doneCount(g)+' reps wired in.',undoer(g,k,old))};
+ setInterval(()=>{if(F&&F.phase==='run')tick()},1000);
+ document.addEventListener('visibilitychange',()=>{if(F&&F.phase==='run'&&!document.hidden&&!wl)lock(true)});
+ return{open,close,active:()=>!!F}})();
+ACT.focus=el=>FOC.open(el.dataset.id);
+ACT.newbuild=()=>{if(UI.fs)setFS(false);openForm(null)};
+ACT.newquit=()=>{if(UI.fs)setFS(false);openForm(null);FM=blankGoal('break');FM.isNew=true;renderForm()};
 /* ===== Goals / Calendar / Insights / Journal ===== */
 document.addEventListener('change',e=>{const el=e.target;if(el.dataset&&el.dataset.inp==='fm'&&['start','dur'].includes(el.dataset.p)&&FM)renderForm()});
 const GVW={f:'all',s:'group'};
@@ -1459,7 +1527,7 @@ function goalCard(g){const s=gStats(g),st=dueState(g),q=isB(g),t=todayKey(),dayN
  const stt={done:q?'Clean today':'Done today',due:'Due today',optional:'Optional today',rest:'Rest day',slip:'Slipped today',skipped:'Rest',notstarted:'Starts '+fmtD(g.start),ended:'Round ended',paused:'Paused'}[st.s];
  const pace=!q&&gActive(g,t)&&s.pace?`<span class="pill ${s.pace==='behind'?'must':s.pace==='ahead'?'ok':''}">${s.pace==='behind'?'Behind '+Math.abs(s.delta):s.pace==='ahead'?'Ahead +'+s.delta:'On pace'}</span>`:'';
  const pg=q?Math.round(clamp(dayN/lenDays(g),0,1)*100):Math.round(s.prog*100);
- const act=can&&gActive(g,t)?`<div class="row" style="gap:8px;margin-top:10px"><button class="btn sm ${st.s==='done'?'':'pri'}" data-act="done" data-id="${g.id}">${st.s==='done'?'Undo':(q?'Clean day':'Mark done')}</button>${q&&st.s!=='slip'?`<button class="btn sm danger" data-act="slip" data-id="${g.id}">I slipped</button>`:''}<button class="btn sm ghost" data-act="open" data-id="${g.id}">Details</button></div>`:'';
+ const live=gActive(g,t),act=`<div class="row wrapr" style="gap:8px;margin-top:10px">${live&&!q&&st.s!=='slip'?`<button class="btn sm pri" data-act="focus" data-id="${g.id}">${ic('play',12)} Focus</button>`:''}${can&&live?`<button class="btn sm ${q&&st.s!=='done'?'pri':''}" data-act="done" data-id="${g.id}">${st.s==='done'?'Undo':(q?'Clean day':'Mark done')}</button>`:''}${can&&live&&q&&st.s!=='slip'?`<button class="btn sm danger" data-act="slip" data-id="${g.id}">I slipped</button>`:''}<button class="btn sm" data-act="logopen" data-id="${g.id}">Log</button><button class="btn sm ghost" data-act="open" data-id="${g.id}">Open</button></div>`;
  return `<div class="card gcard" data-act="open" data-id="${g.id}" style="--c:${g.color}"><div class="ring">${ringSvg(s.level,g.color)}<b>${Math.round(s.level*100)}</b></div><div style="min-width:0;flex:1"><div class="row" style="gap:7px"><span class="gico">${gI(g,16)}</span><div class="b" style="font-size:16px;min-width:0">${esc(g.name)}</div></div><div class="sm mute">${esc(schedText(g))}${g.win?'  |  '+esc(g.win[0]+'-'+g.win[1]):''}</div>
   <div class="row wrapr" style="gap:6px;margin-top:6px">${g.priority==='must'?'<span class="pill must">Must</span>':`<span class="pill">${PRI[g.priority].n}</span>`}<span class="pill ${st.s==='done'?'ok':st.s==='slip'?'quit':''}">${stt}</span>${gActive(g,t)?`<span class="pill">Day ${dayN}/${lenDays(g)}</span>`:`<span class="pill">${fmtD(g.start)} to ${fmtD(g.end)}</span>`}${pace}</div>
   <div class="gbar"><div class="bar"><i style="width:${pg}%;background:${g.color}"></i></div><span class="xs mute">${q?`${s.done} clean day${s.done===1?'':'s'}, ${pg}% of round`:`${s.done}/${s.expT} reps, ${pg}% of plan`}</span></div>
@@ -1475,10 +1543,11 @@ function renderGoals(){const k=todayKey(),all=S.goals,gs=all.filter(g=>goalsFilt
  const chips=[['all','All',all.length],['active','Active',A.length],['today','Due today',due.length],['build','Build',all.filter(g=>!isB(g)).length],['quit','Quit',all.filter(isB).length],['must','Must',all.filter(g=>g.priority==='must').length],['upcoming','Upcoming',all.filter(g=>!g.paused&&g.start>k).length],['done','Finished',all.filter(g=>!g.paused&&g.end<k).length],['paused','Paused',all.filter(g=>g.paused).length]].filter(c=>c[2]||c[0]==='all');
  let body;if(GVW.s==='group')body=sec('Habits you are building',b)+sec('Habits you are quitting',q)+sec('Starting soon',up)+sec('Finished rounds',en)+sec('Paused',pa);
  else body=`<div class="grid g2 ggrid" style="margin-top:14px">${gs.slice().sort(GSORT[GVW.s]).map(goalCard).join('')}</div>`;
- $('#goalsc').innerHTML=`<div class="row wrapr"><div><h2 class="vt">Goals</h2><div class="mute sm">${all.length} goal${all.length===1?'':'s'}. Tap one to log, review or edit.</div></div><span class="sp"></span><button class="btn pri" data-act="newgoal">${ic('plus')} New goal</button></div>
+ $('#goalsc').innerHTML=`<div class="row wrapr"><div><h2 class="vt">Goals</h2><div class="mute sm">${all.length} goal${all.length===1?'':'s'}. Tap one to log, review or edit.</div></div><span class="sp"></span><button class="btn pri" data-act="newbuild">${ic('plus')} Build a habit</button><button class="btn" data-act="newquit">${ic('plus')} Quit a habit</button></div>
  ${all.length?`<div class="gsum">${[[A.length,'active'],[dn.length+'/'+(dn.length+due.length),'done today'],[mustP.length,'Must pending'],[beh.length,'behind pace'],[Math.round(overallStrength()*100)+'%','brain strength']].map(x=>`<div class="kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>
  <div class="row wrapr" style="gap:8px;margin-top:14px"><div class="chips" style="flex:1">${chips.map(c=>`<button class="chip ${GVW.f===c[0]?'on':''}" data-act="gfilt" data-v="${c[0]}">${c[1]}${c[0]==='all'?'':` <span class="mute">${c[2]}</span>`}</button>`).join('')}</div><label class="row" style="gap:6px"><span class="xs mute">Sort</span><select data-chg="gsort" style="width:auto">${[['group','Grouped'],['priority','Priority'],['strength','Strength'],['progress','Progress'],['streak','Streak'],['ends','Ends soonest'],['name','Name']].map(o=>`<option value="${o[0]}" ${GVW.s===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></label></div>`:'<div class="card" style="margin-top:16px">No goals yet. Add your first one to start wiring.</div>'}
  ${all.length&&!gs.length?'<div class="card mute sm" style="margin-top:14px">No goals match this filter.</div>':''}${body}`}
+ACT.logopen=el=>openDrawer(el.dataset.id,'log');
 /* ===== Calendar: month overview, week habit grid, agenda, year heat map ===== */
 UI.cal.hide=[];UI.cal.ag=14;
 const MON=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
