@@ -314,22 +314,7 @@ body.shk #app{animation:shk .4s}
 
 @media(max-width:520px){.ggrid{grid-template-columns:1fr}}
 .msum .click{cursor:pointer;border-radius:10px;transition:.15s}.msum .click:hover{background:color-mix(in srgb,var(--acc) 12%,transparent)}
-/* v6 widgets */
-.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.wd{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:color-mix(in srgb,var(--panel) 86%,transparent);min-width:0}.wd.w2{grid-column:span 2}
-.wh{display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:8px;min-height:22px}.wctl{display:flex;gap:2px}.wctl .ibtn{width:26px;height:26px}
-.wring{display:flex;align-items:center;gap:12px}.wring svg{width:70px;height:70px;flex:none}.wring b{display:block;font-size:24px;letter-spacing:-.02em}.wring span{font-size:12px;color:var(--mute)}
-.wbig b{font-size:34px;letter-spacing:-.03em;display:block;line-height:1}.wbig span{font-size:12px;color:var(--mute)}
-.wnext{display:flex;align-items:center;gap:10px;color:var(--c)}.wnext .b{color:var(--ink)}
-.wrow{display:flex;align-items:center;gap:8px;padding:5px 0;color:var(--c)}.wrow .wn{flex:1;color:var(--ink);font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wrow .wn.dn{opacity:.5;text-decoration:line-through}
-.wweek{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.wweek button{background:none;border:0;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;cursor:pointer;padding:2px}.wweek span{font-size:11px;color:var(--mute)}.wweek i{width:100%;max-width:38px;aspect-ratio:1;border-radius:10px;border:1px solid var(--line)}.wweek .td i{outline:2px solid var(--acc);outline-offset:1px}.wweek em{font-style:normal;font-size:10.5px;color:var(--mute);min-height:12px}
-.wq{font-size:15px;line-height:1.45}.wmsg{font-size:13px;color:var(--mute);padding:6px 0}
-.wphd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-#wpage{display:none}body.wmode #wpage{display:block;max-width:760px;margin:0 auto;padding:16px 14px 40px;position:relative;z-index:3}
-body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(script){display:none!important}
-@media(max-width:520px){.wgrid{grid-template-columns:1fr 1fr}.wd.w2{grid-column:span 2}}
 .rt td:first-child{white-space:nowrap}
-.wh{justify-content:flex-start;gap:8px}.wh .wctl{margin-left:auto}
 /* v6 focus session */
 #focus{position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;flex-direction:column;align-items:center;overflow:auto;padding:20px 16px 40px}
 #focus[hidden]{display:none}
@@ -370,6 +355,7 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
  .gc2 > .row.wrapr:last-child{margin-left:0!important;margin-right:0!important}
  .gc2 .gh{min-height:0}
 }
+#failbar{position:fixed;left:10px;right:10px;bottom:76px;z-index:300;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--bad);border-radius:14px;background:color-mix(in srgb,var(--panel) 94%,transparent);backdrop-filter:blur(10px);font-size:13px}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -394,7 +380,7 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
     <div id="emptymap"><div><h3 class="serif">Plant your first neuron</h3><p class="mute">Pick a goal template or build your own. Each goal becomes a living node that grows as you repeat it.</p><button class="btn pri" data-act="newgoal">Add your first goal</button></div></div>
     <button id="fsx" data-act="fsx" aria-label="Exit full screen"></button></div>
    <aside id="today"></aside>
-  </div><div id="widgets"></div></div></section>
+  </div></div></section>
  <section class="view" id="v-goals"><div class="wrap" id="goalsc"></div></section>
  <section class="view" id="v-cal"><div class="wrap" id="calc"></div></section>
  <section class="view" id="v-ins"><div class="wrap" id="insc"></div></section>
@@ -410,7 +396,6 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
 <div id="toasts" aria-live="polite"></div>
 <input type="file" id="impfile" accept=".json,application/json" class="hide">
 <div id="focus" hidden></div>
-<section id="wpage"></section>
 <script>
 /* ===== NeuroOrbitSynapse: utilities ===== */
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -1175,8 +1160,12 @@ function go(v){if(!VIEWS.some(x=>x[0]===v))v='home';if(UI.fs)setFS(false);UI.vie
 ACT.nav=el=>{sfx('nav');go(el.dataset.v)};
 ACT.snd=()=>{S.set.snd.on=!S.set.snd.on;save();buildNav();if(S.set.snd.on)sfx('tap')};
 ACT.closeall=()=>{closeDrawer();closeModal()};
-function renderView(){const v=UI.view;({home:renderHome,goals:renderGoals,cal:renderCal,ins:renderIns,jour:renderJour,guide:renderGuide,set:renderSet})[v]()}
-function renderAll(){if(document.body.classList.contains('wmode'))renderWPage();renderView();if(UI.drawer.id)renderDrawer(true)}
+function renderView(){const v=UI.view;try{({home:renderHome,goals:renderGoals,cal:renderCal,ins:renderIns,jour:renderJour,guide:renderGuide,set:renderSet})[v]()}catch(e){console.error(e);showFail(e)}}
+function showFail(e){let b=$('#failbar');if(!b){b=document.createElement('div');b.id='failbar';document.body.appendChild(b)}b.innerHTML=`<div><b>Something did not load.</b> <span class="xs">${esc(String(e&&e.message||e).slice(0,140))}</span></div><div class="row" style="gap:8px"><button class="btn sm" data-act="repair">Repair and reload</button><button class="btn sm ghost" data-act="failx">Dismiss</button></div>`}
+ACT.failx=()=>{const b=$('#failbar');if(b)b.remove()};
+ACT.repair=async()=>{try{S.set.view='home';S.set.splashDay='';S.set.synAll=false;S.set.synGoal='';saveNow()}catch(e){}try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}location.reload()};
+addEventListener('error',e=>{if(e&&e.message&&!/ResizeObserver/.test(e.message))showFail(e.error||e.message)});addEventListener('unhandledrejection',e=>{});
+function renderAll(){renderView();if(UI.drawer.id)renderDrawer(true)}
 /* ---- log operations ---- */
 function afterLog(g,kind){save();checkBadges();renderAll();renderMapInfo()}
 function milestone(g){const s=streakInfo(g).n,u=streakInfo(g).unit;if(u!=='d')return;if([3,7,14,21,30,50,66,100].includes(s)){sfx('badge');toast(`${g.name}: ${s}-day streak`);rt(g).flash=1;RINGS.push({x:rt(g).x,y:rt(g).y,z:rt(g).z,r0:10,max:200*UNIT,life:1.2,c:'#ffd23f',w:1})}}
@@ -1304,7 +1293,8 @@ function renderToday(){const k=todayKey(),items=todayItems(k),el=$('#today');
 ACT.dly=el=>{const k=todayKey();S.daily[k]=Object.assign({},S.daily[k],{[el.dataset.k]:+el.dataset.v});sfx('tick');save();renderToday()};
 CHG.dlysleep=el=>{const k=todayKey();S.daily[k]=Object.assign({},S.daily[k],{sleep:el.value===''?null:+el.value});save();checkBadges()};
 CHG.dlynote=el=>{const k=todayKey();S.daily[k]=Object.assign({},S.daily[k],{note:el.value});save()};
-function renderHome(){renderHero();buildMapCtl();renderToday();renderWidgets();$('#emptymap').classList.toggle('on',!S.goals.length);renderMapInfo();setTimeout(size,20)}
+const tryR=f=>{try{f()}catch(e){console.error(e);showFail(e)}};
+function renderHome(){tryR(renderHero);tryR(buildMapCtl);tryR(renderToday);$('#emptymap').classList.toggle('on',!S.goals.length);renderMapInfo();setTimeout(size,20)}
 
 /* ===== Goal drawer ===== */
 let DRAFT=null;
@@ -1954,7 +1944,6 @@ function renderSet(){const s=S.set,N=s.notif,perm=notifPerm(),standalone=matchMe
   <h3 class="h3" style="margin-top:16px">Custom reminders</h3>${S.reminders.map((r,i)=>`<div class="row sm" style="padding:6px 0;border-bottom:1px solid var(--line)"><label class="togg" data-act="remtog" data-i="${i}"><span class="sw ${r.on?'on':''}"></span></label><b>${r.time}</b><span style="flex:1">${esc(r.msg||(r.goal&&gById(r.goal)?gById(r.goal).name:'Reminder'))}</span><button class="btn sm ghost" data-act="remdel" data-i="${i}">${ic('trash')}</button></div>`).join('')||'<div class="xs mute">None yet.</div>'}
   <div class="row wrapr" style="margin-top:8px"><input type="time" id="rm-t" value="09:00" style="max-width:120px"><input type="text" id="rm-m" placeholder="Message" style="flex:1;min-width:140px"><select id="rm-g" style="max-width:180px"><option value="">No goal</option>${S.goals.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select><button class="btn sm" data-act="remadd">Add</button></div>
   <h3 class="h3" style="margin-top:16px">Phone calendar</h3><div class="row wrapr"><button class="btn" data-act="icsall">${ic('dl')} Download all reminders (.ics)</button></div><p class="xs mute">Opens in Google Calendar or your calendar app as repeating events with alerts, so your phone reminds you even when this app is closed. Each goal's Plan tab also has one-tap Google Calendar links.</p></div>
- <div class="card" style="margin-top:14px"><h3>Home screen widgets</h3><p class="sm mute" style="margin-top:0">Widgets live on the Home tab: tap Edit widgets to add, remove and reorder them. For your phone home screen, open the widget page and add it as a shortcut. Browsers do not allow real home-screen widgets for web apps, so this is a one-tap compact page that opens straight away.</p><div class="row wrapr"><a class="btn pri" href="?view=widget" target="_blank" rel="noopener">Open widget page</a><button class="btn" data-act="wcopy">Copy its link</button></div><p class="xs mute">Android Chrome: open the widget page, menu, Add to Home screen. Long-pressing the installed app icon also shows a Widgets shortcut.</p></div>
  <div class="card" style="margin-top:14px"><h3>Install as an app</h3>${standalone?'<div class="sm">Running as an installed app.</div>':`<button class="btn pri" data-act="install">Install NeuroOrbitSynapse</button><p class="xs mute">On Android Chrome you can also use the menu, then Install app.</p>`}</div>
  <div class="card" style="margin-top:14px"><h3>Your data</h3><p class="sm mute" style="margin-top:0">Everything is stored in this browser only.${lastEx==null?' You have not exported a backup yet.':lastEx>14?` Last backup was ${lastEx} days ago. Time for a fresh one.`:` Last backup ${lastEx} day(s) ago.`}</p>
   <div class="row wrapr"><button class="btn pri" data-act="exjson">${ic('dl')} Backup (JSON)</button><button class="btn" data-act="excsv">${ic('dl')} Logs (CSV)</button><button class="btn" data-act="exmd">${ic('dl')} Report (Markdown)</button><button class="btn" data-act="copymd">Copy report for Claude</button><button class="btn" data-act="imp">Import file</button><button class="btn ghost" data-act="persist">Protect storage</button></div>
@@ -1962,37 +1951,6 @@ function renderSet(){const s=S.set,N=s.notif,perm=notifPerm(),standalone=matchMe
   <div class="row wrapr" style="margin-top:12px"><button class="btn danger" data-act="cleanstart">Clean start (keep settings)</button><button class="btn danger ghost" data-act="resetall">Reset everything</button></div></div>`}
 
 
-ACT.wcopy=()=>{copyText(location.origin+location.pathname+'?view=widget');toast('Widget page link copied')};
-/* ===== widgets: add, remove and reorder on Home; the same set runs as a compact widget page (?view=widget) ===== */
-const WCAT={ring:['Today','Done against due, as a ring',1],next:['Next up','The goal to do next, one tap to finish',1],today:['Today list','Tick today\'s goals',2],week:['This week','Seven days at a glance',2],streak:['Streaks','Perfect-day streak and your best run',1],strength:['Brain strength','Overall and your top goals',1],heat:['Heatmap','Last 12 weeks',2],month:['Month','Progress and completion this month',1],quote:['Quote','A line to start the day',1],jot:['Quick note','Write a journal line in one go',2]};
-const WDEF=['ring','next','week','streak'];
-const wList=()=>{const a=S.set.widgets;return Array.isArray(a)?a.filter(x=>WCAT[x]):WDEF.slice()};
-function wRing(p,c,txt,sub){const r=34,C=2*Math.PI*r;return `<div class="wring"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="${r}" fill="none" stroke="color-mix(in srgb,var(--ink) 10%,transparent)" stroke-width="8"/><circle cx="40" cy="40" r="${r}" fill="none" stroke="${c}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(C*clamp(p,0,1)).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 40 40)"/></svg><div><b>${txt}</b><span>${sub}</span></div></div>`}
-function wBody(id){const t=todayKey();
- if(id==='ring'){const it=todayItems(t).filter(i=>['due','done','slip','optional'].includes(i.st.s)&&i.st.s!=='optional'),d=it.filter(i=>i.st.s==='done').length;return it.length?wRing(d/it.length,'var(--acc)',d+'/'+it.length,d===it.length?'All done today':(it.length-d)+' to go'):wRing(0,'var(--acc)','0','Nothing due')}
- if(id==='next'){const n=nextUp();if(!n)return `<div class="wmsg">${S.goals.length?'All clear. Rest or get ahead.':'Add a goal to begin.'}</div>`;const g=n.g,q=isB(g);return `<div class="wnext" style="--c:${g.color}"><span class="gico lg">${gI(g,24)}</span><div style="min-width:0;flex:1"><div class="b">${esc(g.name)}</div><div class="xs mute">${esc(n.w&&n.w.s==='now'?'Window open now':schedText(g))}</div></div><button class="btn sm pri" data-act="done" data-id="${g.id}">${q?'Clean':'Done'}</button></div>`}
- if(id==='today'){const it=todayItems(t).filter(i=>['due','done','slip'].includes(i.st.s)).slice(0,6);return it.length?it.map(({g,st})=>`<div class="wrow" style="--c:${g.color}"><span class="gico">${gI(g,15)}</span><span class="wn ${st.s==='done'?'dn':''}">${esc(g.name)}</span><button class="chk ${st.s==='done'?'on':''}" data-act="done" data-id="${g.id}" aria-label="Toggle">${ic('check',14)}</button></div>`).join(''):'<div class="wmsg">Nothing due today.</div>'}
- if(id==='week'){const ws=weekStart(t);return `<div class="wweek">${MON.map((m,i)=>{const k=addD(ws,i),x=oppDone(S.goals,k,k),r=x.o?x.d/x.o:null;return `<button class="${k===t?'td':''}" data-act="rec" data-g="all" data-k="day:${k}" data-tip="${fmtD(k,{weekday:'short',day:'numeric',month:'short'})}\n${x.d} of ${x.o} done"><span>${m[0]}</span><i style="${k>t||r==null?'':`background:color-mix(in srgb,var(--acc) ${Math.round(15+r*85)}%,transparent)`}"></i><em>${k>t?'':x.o?x.d+'/'+x.o:''}</em></button>`}).join('')}</div>`}
- if(id==='streak'){const best=S.goals.filter(g=>!g.paused&&g.start<=t).map(g=>({g,s:gStats(g)})).sort((a,b)=>b.s.streak-a.s.streak)[0];return `<div class="wbig"><b>${perfectStreak()}</b><span>perfect-day streak</span></div>${best&&best.s.streak?`<div class="xs mute" style="margin-top:6px">Best run: ${esc(best.g.name)}, ${best.s.streak}${best.s.unit}</div>`:''}`}
- if(id==='strength'){const top=S.goals.filter(g=>!g.paused&&g.start<=t&&g.end>=t).sort((a,b)=>gStats(b).level-gStats(a).level).slice(0,3);return `<div class="wbig"><b>${Math.round(overallStrength()*100)}%</b><span>brain strength</span></div>${top.map(g=>`<div class="row xs" style="gap:6px;margin-top:5px"><span style="width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.name)}</span><div class="bar sp"><i style="width:${Math.round(gStats(g).level*100)}%;background:${g.color}"></i></div></div>`).join('')}`}
- if(id==='heat')return `<div class="heat" style="overflow:hidden">${heatCells(12)}</div>`;
- if(id==='month'){const d=NOW(),a=dayKey(new Date(d.getFullYear(),d.getMonth(),1)),dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),x=oppDone(S.goals,a,t);return wRing(d.getDate()/dim,'var(--acc2)',x.o?Math.round(x.d/x.o*100)+'%':'-',`day ${d.getDate()} of ${dim}`)}
- if(id==='quote')return `<div class="serif wq">${esc(QUOTES[(new Date().getDate()+QI)%QUOTES.length])}</div>`;
- if(id==='jot')return `<div class="row" style="gap:8px"><input type="text" id="wjt" placeholder="One line about today..." maxlength="200" style="flex:1"><button class="btn sm pri" data-act="wjot">Save</button></div>`;
- return ''}
-function wBoard(edit){const L=wList();return L.map((id,i)=>`<div class="wd w${WCAT[id][2]}" data-w="${id}"><div class="wh"><span>${esc(WCAT[id][0])}</span>${edit?`<span class="wctl"><button class="ibtn" data-act="wmove" data-i="${i}" data-d="-1" aria-label="Move earlier">${ic('back',14)}</button><button class="ibtn" data-act="wmove" data-i="${i}" data-d="1" aria-label="Move later">${ic('fwd',14)}</button><button class="ibtn" data-act="wdel" data-i="${i}" aria-label="Remove">${ic('x',14)}</button></span>`:''}</div>${wBody(id)}</div>`).join('')}
-function renderWidgets(){const el=$('#widgets');if(!el)return;const L=wList(),ed=!!UI.wedit,rest=Object.keys(WCAT).filter(x=>!L.includes(x));
- el.innerHTML=`<div class="row wrapr" style="margin:22px 0 10px"><h3 class="h3" style="margin:0">Widgets</h3><span class="sp"></span><button class="btn sm ${ed?'pri':''}" data-act="wedit">${ed?'Done':'Edit widgets'}</button><a class="btn sm" href="?view=widget" target="_blank" rel="noopener">Widget page</a></div>
- <div class="wgrid">${wBoard(ed)||'<div class="card mute sm">No widgets. Tap Edit widgets to add some.</div>'}</div>
- ${ed&&rest.length?`<div class="card" style="margin-top:12px"><div class="xs mute" style="margin-bottom:8px">Add a widget</div><div class="chips">${rest.map(x=>`<button class="chip" data-act="wadd" data-v="${x}" title="${esc(WCAT[x][1])}">+ ${esc(WCAT[x][0])}</button>`).join('')}</div></div>`:''}`}
-function renderWPage(){const el=$('#wpage');if(!el)return;el.innerHTML=`<div class="wphd"><div><div class="b" style="font-size:18px">${esc(APPNAME)}</div><div class="xs mute">${fmtLong(todayKey())}</div></div><span class="sp"></span><a class="btn sm" href="./">Open app</a></div><div class="wgrid">${wBoard(false)}</div>`}
-const wSave=()=>{save();renderWidgets();if(document.body.classList.contains('wmode'))renderWPage()};
-ACT.wedit=()=>{UI.wedit=!UI.wedit;sfx('tick');renderWidgets()};
-ACT.wadd=el=>{const L=wList();L.push(el.dataset.v);S.set.widgets=L;sfx('create');wSave()};
-ACT.wdel=el=>{const L=wList();L.splice(+el.dataset.i,1);S.set.widgets=L;sfx('tick');wSave()};
-ACT.wmove=el=>{const L=wList(),i=+el.dataset.i,j=i+ +el.dataset.d;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];S.set.widgets=L;sfx('tick');wSave()};
-ACT.wjot=()=>{const v=($('#wjt')||{}).value;if(!v||!v.trim()){toast('Write a line first.');return}S.journal.push({id:uid('j'),d:todayKey(),t:hm(),title:'',tx:v.trim(),mood:0,energy:0,tags:[],goal:'',pin:false,kind:'entry'});save();checkBadges();sfx('create');toast('Note saved to your journal');wSave()};
-function wmodeInit(){document.body.classList.add('wmode');const sp=$('#splash');if(sp)sp.remove();SPDONE=true;renderWPage();setInterval(()=>{if(!document.hidden)renderWPage()},30000)}
 /* ===== splash + init ===== */
 let SPDONE=false,SPSHORT=false;
 function endSplash(){if(SPDONE)return;SPDONE=true;const s=$('#splash');s.classList.add('out');setTimeout(()=>s.remove(),900);afterSplash()}
@@ -2005,7 +1963,7 @@ function splashAnim(sc){const c=$('#spcv'),x=c.getContext('2d'),dpr=Math.min(2,d
  const NN=7,NEU=[];for(let i=0;i<NN;i++)NEU.push({x:(Math.random()-.5)*3.4,y:(Math.random()-.5)*2.2,z:ZM*(i+.5)/NN,segs:genTree(500+i),sc:.5+Math.random()*.4,col:th.neb[i%3]});
  const T0=performance.now(),TT=10.6*sc;let last=T0,camZ=0;
  const ease=k=>1-Math.pow(1-clamp(k,0,1),3),sm=k=>{k=clamp(k,0,1);return k*k*(3-2*k)};
- const draw=now=>{if(SPDONE)return;const t=(now-T0)/1000/sc,dt=Math.min(.05,(now-last)/1000);last=now;
+ const draw0=now=>{if(SPDONE)return;const t=(now-T0)/1000/sc,dt=Math.min(.05,(now-last)/1000);last=now;
   /* camera speed: warp, glide, hold, then dive through the logo */
   const v=(t<2.6?1.6+2.4*sm(t/1.2):1.2*(1-sm((t-2.6)/1.6))+.05)+(t>8.6?sm((t-8.6)/.9)*9:0);
   x.globalCompositeOperation='source-over';x.fillStyle=`rgba(${th.bg0||'2,6,16'},${t>8.6?.4:.34})`;x.fillRect(0,0,w,h);
@@ -2030,10 +1988,12 @@ function splashAnim(sc){const c=$('#spcv'),x=c.getContext('2d'),dpr=Math.min(2,d
   x.globalCompositeOperation='source-over';
   const lay=$('#splash .sc');if(lay)lay.style.opacity=t>8.5?String(Math.max(0,1-(t-8.5)/.7)):'1';
   if(t<TT/sc)requestAnimationFrame(draw)};
+ const draw=now=>{try{draw0(now)}catch(e){console.error(e);endSplash()}};
  x.fillStyle=th.bg;x.fillRect(0,0,w,h);requestAnimationFrame(draw);return TT}
 SFX.cine=()=>{if(!S.set.snd.on)return;tone(55,9.5,{type:'sine',v:.2,lp:300,atk:1.6});tone(82.4,9,{type:'triangle',v:.1,lp:500,atk:2});noise(2.4,{f:150,to:5200,v:.1,q:.7});
  [196,294,392,523].forEach((f,i)=>tone(f,2.6,{at:2.6+i*.14,v:.07,type:'triangle',atk:.4}));tone(70,1.4,{at:4.7,to:28,v:.35,type:'sine'});noise(1.2,{f:3000,to:200,v:.12,q:.5});[784,988,1319,1568].forEach((f,i)=>tone(f,1.8,{at:4.9+i*.18,v:.08}));noise(1.1,{f:300,to:6000,v:.14,q:.8});}
-function runSplash(){const sp=$('#splash'),k=todayKey();if(!S.set.splash||new URLSearchParams(location.search).get('splash')==='0'){sp.remove();SPDONE=true;afterSplash();return}
+function runSplash(){try{runSplash0()}catch(e){console.error(e);endSplash()}setTimeout(endSplash,15000)}
+function runSplash0(){const sp=$('#splash'),k=todayKey();if(!S.set.splash||new URLSearchParams(location.search).get('splash')==='0'){sp.remove();SPDONE=true;afterSplash();return}
  const shortRun=S.set.splashDay===k;S.set.splashDay=k;save();SPSHORT=shortRun&&!S.set.flags.fullSplash;
  $('#sptag').textContent=TAGLINE;$('#spq').textContent='"'+SPLASH_Q[Math.floor(Math.random()*SPLASH_Q.length)]+'"';
  const it=todayItems(k).filter(i=>i.st.s==='due'),mx=S.goals.filter(g=>g.priority==='must'&&dueState(g,k).s==='due');
@@ -2045,20 +2005,21 @@ function runSplash(){const sp=$('#splash'),k=todayKey();if(!S.set.splash||new UR
   if(document.fonts&&document.fonts.load){Promise.race([document.fonts.load('800 60px "Bricolage Grotesque"'),new Promise(r=>setTimeout(r,700))]).then(go)}else go()}
  else{$('#spname').innerHTML=`<div class="b" style="font-size:40px;letter-spacing:-.02em">${APPNAME}</div>`;setTimeout(endSplash,1800)}
  sp.addEventListener('click',()=>{try{ac()}catch(e){}})}
-function afterSplash(){if(document.body.classList.contains('wmode'))return;BADGE_QUIET=false;if(!S.set.flags.tourV5&&new URLSearchParams(location.search).get('tour')!=='0')setTimeout(()=>tourShow(0),700);if(S.set.music.on)musSync();setTimeout(()=>{catchUp();checkAlerts()},400);handleParams();if(S.set.snd.amb)ambience(true)}
+function afterSplash(){BADGE_QUIET=false;if(!S.set.flags.tourV5&&new URLSearchParams(location.search).get('tour')!=='0')setTimeout(()=>tourShow(0),700);if(S.set.music.on)musSync();setTimeout(()=>{catchUp();checkAlerts()},400);handleParams();if(S.set.snd.amb)ambience(true)}
 function handleParams(){const p=new URLSearchParams(location.search);let ch=false;
  if(p.get('done')){const g=gById(p.get('done'));if(g&&dueState(g).s!=='done'){logDone(g);save();toast('Logged from notification: '+g.name);ch=true}}
  if(p.get('goal')){const g=gById(p.get('goal'));if(g)setTimeout(()=>openDrawer(g.id),500)}
  if(p.get('view'))go(p.get('view'));
  if(p.toString()){try{history.replaceState(null,'',location.pathname)}catch(e){}}if(ch)renderAll()}
-function init(){const st=loadState();BADGE_QUIET=true;
+function init(){try{init0()}catch(e){console.error(e);try{const sp=$('#splash');if(sp)sp.remove();SPDONE=true;requestAnimationFrame(frame)}catch(_){}showFail(e)}}
+function init0(){const st=loadState();BADGE_QUIET=true;
  /* map mode/layout also refresh settings */
  const _m=ACT.mode,_l=ACT.layout;ACT.mode=(el,e)=>{_m(el,e);if(UI.view==='set')renderSet()};ACT.layout=(el,e)=>{_l(el,e);if(UI.view==='set')renderSet()};
  applyTheme();qualityInit();$('#tagline').textContent=TAGLINE;size();initStars();relink();buildNav();
  $('#fsx').innerHTML=ic('fsx');checkBadges();
  UI.view=S.set.view&&VIEWS.some(v=>v[0]===S.set.view)?S.set.view:'home';go(UI.view);startQuotes();swInit();
  if(st==='migrated')setTimeout(()=>toast(`Welcome to NeuroOrbitSynapse. Your ${S.goals.length} earlier goal${S.goals.length===1?'':'s'} and all logs carried over.`),4200);
- if(new URLSearchParams(location.search).get('view')==='widget')wmodeInit();else{runSplash();requestAnimationFrame(frame)}
+ runSplash();requestAnimationFrame(frame);
  let lastDay=todayKey();
  setInterval(()=>{tickClock();const k=todayKey();if(k!==lastDay){lastDay=k;REV++;renderAll()}},1000);
  setInterval(()=>{checkAlerts()},15000);setInterval(()=>{if(!document.hidden&&UI.view==='home'){renderHero();renderToday()}},60000);
@@ -2094,6 +2055,14 @@ const G_WHY=[
  ['Cravings are waves','For quit goals, an urge rises, peaks and falls, usually within minutes, whether or not you act on it. Each urge you ride out without acting on it is a rep of not-doing. Log your urges and triggers. After a few weeks the Triggers chart shows you where the pattern really lives, and that is where to change your environment.'],
  ['Why missing one day is not the end','A habit lives in repeated patterns, not one perfect streak. The app keeps strength as a smoothed score with a half-life of about two weeks. One missed day dips it a little. A week of misses dips it a lot. A restart always lifts it back. The only losing move is stopping altogether, so the best rule is: never miss twice, and make the restart tiny.'],
  ['What the 100 is for','100 repetitions is a motivation tool. It is a round, countable target that makes progress visible and gives you an end date to aim for, so you can review and renew. It is not a scientific threshold. Some habits feel automatic sooner, some later. When your round ends, review it, extend it or set the next one.']];
+const G_QUIT=[
+ ['shield','How a quit goal works','Add it with Quit a habit. Every day you do not do it, tap Clean day on Home or on the goal card. If you do it, tap I slipped and note what triggered it. There is no minutes or quality score, because the win is the thing you did not do. Optionally set a daily limit (for example 3 cigarettes): logging an amount over the limit counts as a slip.'],
+ ['brain','What the shrinking neuron means','A quit goal draws the OLD pathway, the circuit that runs the habit you want to leave. It starts at full size. Each clean day it loses a little: the strength halves roughly every 21 days of clean days. A slip fires it again and gives some of that strength back (about 15 points). A day you forget to log drifts up by a point. So: the smaller the neuron, the weaker the old habit\'s grip. It is a picture of your record, not a brain scan.'],
+ ['leaf','Why quitting is slow, and why it fades','In the brain, connections that stop being used weaken (long-term depression) and rarely used ones can be pruned. But the old habit is not deleted. Research on extinction shows the brain mostly learns a new, competing response on top of the old one, which is why a cue weeks later (a stressful evening, the old place, the old friends) can bring the urge back. That is normal, not failure. Each clean day makes the new response stronger and the old one quieter.'],
+ ['pulse','Ride the urge','An urge rises, peaks and falls, usually within 10 to 30 minutes, whether you act on it or not. Wait it out, breathe slowly, drink water, walk, and notice it passing. This is often called urge surfing. Log every urge you ride out on the goal: those are the real reps of a quit goal, and they show up under Urges ridden out in Insights.'],
+ ['target','Plan for the trigger','Write an if-then rule for your top trigger: If I feel the urge after dinner, then I walk for 10 minutes. Tag every slip and urge with its trigger. After two weeks the Triggers chart shows where the pattern lives, and that is where to change your environment: remove the cue, add friction, or change the time or place.'],
+ ['sprout','Replace, do not just remove','A habit has a cue, a routine and a reward. Removing the routine leaves a hole. Pair the quit goal with a build goal that gives the same reward in a better way: a walk or a call instead of a smoke, water or tea instead of a drink. The two neurons then work against each other on the map.'],
+ ['heart','After a slip','Do not wipe the slate. One slip dents the pathway a little and the next clean day starts shrinking it again. Never let it be two in a row, note the trigger, and restart small. If you drink heavily or use substances daily, do not stop suddenly without medical advice, and talk to a doctor or a support service.']];
 const G_LIMITS='The neuron and planet pictures are a visual metaphor for how repetition builds habits. The app does not measure your brain. The strength score is a simple, transparent model of your repetition record: it rises when you do a scheduled rep and fades slowly when you do not. If you drink heavily or use substances daily, do not stop suddenly without medical advice, because withdrawal can be dangerous. Talk to a doctor. This app is a tracker, not medical care.';
 const G_FAQ=[
  ['Where is my data?','Only in this browser, on this device. Nothing is sent anywhere. Clearing site data or switching browsers would remove it, so use Backup (JSON) in Settings regularly. Installing the app and tapping Protect storage in Settings asks the browser not to clear it.'],
@@ -2107,6 +2076,7 @@ function renderGuide(){const open=(a,i)=>`<details class="gdet" ${i===0?'open':'
  <div class="ghero card"><div class="serif" style="font-size:24px;line-height:1.2">Every time you repeat something, the circuit for it gets stronger. This app lets you watch that happen.</div><p class="mute" style="margin:8px 0 0">Each goal is a neuron or a planet. Do the habit and it fires, grows and brightens. Quit a habit and its old pathway shrinks. You supply the repetition. The app keeps the score and shows the progress.</p></div>
  <h3 class="h3 gh">Quick start</h3><div class="grid g3 gsteps">${G_STEPS.map((s,i)=>`<div class="card gstep"><div class="row"><span class="gnum">${i+1}</span><span class="gico" style="--c:var(--acc)">${gico(s[0],16)}</span></div><b>${esc(s[1])}</b><p class="sm mute">${esc(s[2])}</p></div>`).join('')}</div>
  <h3 class="h3 gh">Reading the map</h3><div class="grid g2">${G_MAP.map(s=>`<div class="card gstep"><div class="row"><span class="gico" style="--c:var(--acc2)">${gico(s[0],16)}</span><b>${esc(s[1])}</b></div><p class="sm mute">${esc(s[2])}</p></div>`).join('')}</div>
+ <h3 class="h3 gh">Quitting a habit</h3><div class="grid g2">${G_QUIT.map(s=>`<div class="card gstep"><div class="row"><span class="gico" style="--c:var(--bad)">${gico(s[0],16)}</span><b>${esc(s[1])}</b></div><p class="sm mute">${esc(s[2])}</p></div>`).join('')}</div>
  <h3 class="h3 gh">Why it works</h3><div class="card gwhy">${G_WHY.map(open).join('')}<p class="xs mute" style="margin:12px 0 0">Sources of the ideas: Donald Hebb (1949, Hebbian learning); Bliss and Lomo (1973, long-term potentiation); Lally et al. (2009, European Journal of Social Psychology, habit formation); Gollwitzer (1999, implementation intentions). Dr Lee Warren's book popularised the "fire together, wire together" framing for everyday readers.</p></div>
  <h3 class="h3 gh">How the strength score works</h3><div class="card"><p class="sm" style="margin:0">Each scheduled day counts as a chance. A rep adds to the score, a missed scheduled day lets it fade. The score is exponentially smoothed with a half-life of about 14 days for daily goals, so recent days matter most and one bad day is forgiven. Days off your schedule, planned rests and paused time are not counted against you. For quit goals the score is the strength of the old pathway: it decays with each clean day and gets a boost back when you slip.</p></div>
  <h3 class="h3 gh">Honest limits</h3><div class="card" style="border-color:color-mix(in srgb,var(--acc) 45%,var(--line))"><p class="sm" style="margin:0">${esc(G_LIMITS)}</p></div>
