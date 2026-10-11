@@ -18,6 +18,9 @@
  ],
  "shortcuts": [
   {"name":"Today","url":"./?view=home","icons":[{"src":"icon-192.png","sizes":"192x192"}]},
-  {"name":"Calendar","url":"./?view=cal","icons":[{"src":"icon-192.png","sizes":"192x192"}]}
+  {"name":"Widgets","short_name":"Widgets","url":"./?view=widget","icons":[{"src":"icon-192.png","sizes":"192x192"}]},
+  {"name":"Calendar","url":"./?view=cal","icons":[{"src":"icon-192.png","sizes":"192x192"}]},
+  {"name":"Insights","url":"./?view=ins","icons":[{"src":"icon-192.png","sizes":"192x192"}]},
+  {"name":"Journal","url":"./?view=jour","icons":[{"src":"icon-192.png","sizes":"192x192"}]}
  ]
 }
