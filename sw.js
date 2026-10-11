@@ -8,3 +8,5 @@ self.addEventListener('notificationclick',e=>{const n=e.notification,d=n.data||{
  e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
   if(cs.length){const c=cs[0];if(act==='done'&&d.goal)c.postMessage({type:'done',goal:d.goal});else if(d.goal)c.postMessage({type:'open',goal:d.goal});return c.focus()}
   const q=act==='done'&&d.goal?'?done='+encodeURIComponent(d.goal):(d.goal?'?goal='+encodeURIComponent(d.goal):'');return self.clients.openWindow('./'+q)}))});
+
+self.addEventListener('message',e=>{const d=e.data||{};if(d.type==='focusTimer'){const w=Math.max(0,d.at-Date.now());e.waitUntil(new Promise(res=>setTimeout(()=>{self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{const vis=cs.some(c=>c.visibilityState==='visible');if(vis)return res();self.registration.showNotification(d.title,{body:d.body,tag:d.tag,icon:'icon-192.png',badge:'badge-96.png',requireInteraction:true,vibrate:[300,120,300],data:{}}).then(res,res)},res)},Math.min(w,5*3600*1000))))}});

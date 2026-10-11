@@ -311,7 +311,7 @@ body.shk #app{animation:shk .4s}
 .ggrid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
 .gbar{margin-top:9px;display:flex;flex-direction:column;gap:4px}.gbar .bar{height:6px}
 .gmini{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px}.gmini svg{vertical-align:-2px}
-.gcard{align-items:flex-start}.gcard .ring{margin-top:2px}
+
 @media(max-width:520px){.ggrid{grid-template-columns:1fr}}
 .msum .click{cursor:pointer;border-radius:10px;transition:.15s}.msum .click:hover{background:color-mix(in srgb,var(--acc) 12%,transparent)}
 /* v6 widgets */
@@ -342,6 +342,17 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
 .durs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:8px 0}
 .q5{display:flex;gap:8px;margin:6px 0 12px}.q5 button{flex:1;padding:10px 0;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);font:inherit;font-weight:700;cursor:pointer}.q5 button.on{background:var(--c,var(--acc));color:#08101c;border-color:transparent}
 #focus .f{display:block}#focus input[type=text],#focus input[type=number],#focus textarea{width:100%}
+/* v6.2 compact side-by-side goal cards + focus exit */
+.ggrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));align-items:start}
+.gcard.gc2{display:block;position:relative;border-left:3px solid var(--c);padding-right:84px}
+.gc2 .ring{position:absolute;right:14px;top:14px;width:58px;height:58px}
+.gc2 .gh{display:flex;align-items:center;gap:8px;min-width:0}.gc2 .gname{font-size:16px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.gc2 .gsub{margin-top:2px}
+.gc2 .row.wrapr:last-child{padding-right:0}
+.fhead{display:flex;align-items:center;margin-bottom:12px}
+#focus.up .tring{animation:fup 1s ease-in-out infinite}
+@keyframes fup{50%{transform:scale(1.04);filter:drop-shadow(0 0 22px var(--c))}}
+@media(max-width:420px){.gcard.gc2{padding-right:76px}.gc2 .ring{width:52px;height:52px}}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -1474,7 +1485,7 @@ const FOC=(()=>{let F=null,wl=null,iv=null;
  function close(){if(iv)clearInterval(iv);iv=null;lock(false);F=null;el().hidden=true;el().innerHTML='';document.body.style.overflow=''}
  const steps=()=>{const p={prep:0,run:1,reflect:2}[F.phase];return `<div class="fsteps">${[0,1,2].map(i=>`<i class="${i<=p?'on':''}"></i>`).join('')}</div>`};
  const keep=()=>{const n=$('#f-note');if(n)F.note=n.value;const i=$('#f-int');if(i)F.intent=i.value;$$('#focus [data-ff]').forEach(x=>F.vals[x.dataset.ff]=x.value)};
- function render(){if(!F)return;const g=gById(F.id);if(!g)return close();const e=el();e.style.setProperty('--c',g.color);let h=`<div class="fwrap">${steps()}`;
+ function render(){if(!F)return;const g=gById(F.id);if(!g)return close();const e=el();e.style.setProperty('--c',g.color);let h=`<div class="fwrap"><div class="fhead"><button class="btn sm" data-act="fexit">${ic('back',14)} ${F.phase==='run'?'Leave session':'Back'}</button><span class="sp"></span><button class="ibtn" data-act="fexit" aria-label="Close">${ic('x')}</button></div>${steps()}`;
   if(F.phase==='prep'){const n=g.tasks.length;
    h+=`<div class="xs mute">Step 1 of 3, prepare</div><h2 style="margin:4px 0 2px">${esc(g.name)}</h2><p class="sm mute" style="margin:0 0 12px">${g.cue?'Cue: '+esc(g.cue)+'. ':''}Preparation is part of the work. Tick what is ready, set one clear target, then go.</p>
    ${n?`<div class="card"><b>What have I prepared? <span class="mute">(${F.ck.length}/${n})</span></b><div class="bar" style="margin:8px 0"><i style="width:${F.ck.length/n*100}%;background:${g.color}"></i></div>${g.tasks.map((t,i)=>`<label class="togg" style="margin:6px 0" data-act="fck" data-i="${i}"><span class="sw ${F.ck.includes(i)?'on':''}"></span><span>${esc(t)}</span></label>`).join('')}</div>`:'<div class="card sm" style="border-left:3px solid var(--c)">No prep checklist yet. Add some in the goal\'s Plan tab, because prepared sessions usually score higher.</div>'}
@@ -1498,14 +1509,18 @@ const FOC=(()=>{let F=null,wl=null,iv=null;
   e.innerHTML=h+'</div>'}
  function tick(){if(!F||F.phase!=='run')return;const g=gById(F.id),tot=F.mins*60,s=Math.floor(elapsed()/1000),left=Math.max(0,tot-s),t=$('#f-t');if(!t)return;t.textContent=fmt(left);
   const C=2*Math.PI*46,a=$('#f-arc');if(a)a.setAttribute('stroke-dashoffset',C*(1-Math.min(1,s/tot)));
-  if(left===0&&!F.rang){F.rang=true;sfx('badge');navigator.vibrate&&navigator.vibrate([200,100,200]);const st=$('#f-s');if(st)st.textContent='Time is up, keep going or finish';if(document.hidden)notify('Focus complete',g.name+': '+F.mins+' minutes done',{tag:'focus'+g.id})}}
- const armed2=(b,t)=>{if(b.dataset.arm){return true}b.dataset.arm=1;const o=b.textContent;b.textContent=t;setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.textContent=o}},2500);return false};
+  if(left===0&&!F.rang)alarm(g);if(F.rang&&!F.paused&&F.rep<6&&Date.now()-F.lastRing>9000){F.rep++;F.lastRing=Date.now();sfx('badge');navigator.vibrate&&navigator.vibrate([200,100,200])}}
+ function alarm(g){F.rang=true;F.rep=0;F.lastRing=Date.now();sfx('badge');setTimeout(()=>sfx('bell'),500);navigator.vibrate&&navigator.vibrate([300,120,300,120,300]);const st=$('#f-s');if(st)st.textContent="Time's up. Keep going or finish.";el().classList.add('up');if(document.hidden||!document.hasFocus())sysNotify('Focus complete',g.name+': '+F.mins+' minutes done. Open the app to finish and reflect.',{tag:'focus'+g.id,goal:g.id});else toast("Focus complete: "+g.name)}
+ const armed2=(b,t)=>{if(b.dataset.arm){return true}b.dataset.arm=1;const o=b.innerHTML;b.textContent=t;setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.innerHTML=o}},2500);return false};
  ACT.fmins=el=>{keep();F.mins=+el.dataset.v;render()};
  ACT.fcancel=()=>close();
+ ACT.fexit=el=>{if(F.phase==='prep'||F.phase==='reflect'&&false){close();return}if(armed2(el,'Tap again to leave (session is not saved)'))close()};
+ function schedSW(){try{if(navigator.serviceWorker&&navigator.serviceWorker.controller){const g=gById(F.id);navigator.serviceWorker.controller.postMessage({type:'focusTimer',at:Date.now()+(F.mins*60000-elapsed()),title:'Focus complete',body:g.name+': '+F.mins+' minutes done. Open the app to finish and reflect.',tag:'focus'+g.id})}}catch(e){}}
  ACT.fdiscard=el=>{if(armed2(el,'Tap again to discard'))close()};ACT.fabort=el=>{if(armed2(el,'Tap again to abandon'))close()};
- ACT.fgo=()=>{keep();const cm=+($('#f-cm')||{}).value;if(cm>0)F.mins=Math.min(600,cm);F.phase='run';F.t0=Date.now();F.acc=0;F.paused=false;lock(true);if(iv)clearInterval(iv);iv=setInterval(tick,400);render();sfx('tap')};
- ACT.fpause=()=>{if(F.paused){F.t0=Date.now();F.paused=false}else{F.acc+=Date.now()-F.t0;F.paused=true}render()};
- ACT.fplus=()=>{F.mins+=5;F.rang=false;render()};
+ ACT.fgo=()=>{keep();const cm=+($('#f-cm')||{}).value;if(cm>0)F.mins=Math.min(600,cm);if('Notification' in window&&Notification.permission==='default')try{Notification.requestPermission()}catch(e){}
+  F.phase='run';F.t0=Date.now();F.acc=0;F.paused=false;lock(true);schedSW();if(iv)clearInterval(iv);iv=setInterval(tick,400);render();sfx('tap')};
+ ACT.fpause=()=>{if(F.paused){F.t0=Date.now();F.paused=false;schedSW()}else{F.acc+=Date.now()-F.t0;F.paused=true}render()};
+ ACT.fplus=()=>{F.mins+=5;F.rang=false;el().classList.remove('up');schedSW();render()};
  ACT.fdist=()=>{F.dist++;const x=$('#f-d');if(x)x.textContent=F.dist;sfx('untick')};
  ACT.ffinish=()=>{if(!F.paused){F.acc+=Date.now()-F.t0;F.paused=true}F.phase='reflect';if(iv)clearInterval(iv);lock(false);sfx('bell');render()};
  ACT.fq=el=>{keep();F.q=+el.dataset.v;render()};ACT.fe=el=>{keep();F.e=+el.dataset.v;render()};
@@ -1514,7 +1529,8 @@ const FOC=(()=>{let F=null,wl=null,iv=null;
   const o={min:Math.max(1,Math.round(secs/60)),q:F.q,en:F.e,note:F.note,intent:F.intent,focusSecs:secs,dist:F.dist};if(Object.keys(f).length)o.f=Object.assign({},(g.logs[k]||{}).f,f);
   const old=logDone(g,k,o);g.chk[k]=F.ck.slice();const m=o.min;close();afterLog(g);toast('Session saved: '+m+' min. '+doneCount(g)+' reps wired in.',undoer(g,k,old))};
  setInterval(()=>{if(F&&F.phase==='run')tick()},1000);
- document.addEventListener('visibilitychange',()=>{if(F&&F.phase==='run'&&!document.hidden&&!wl)lock(true)});
+ document.addEventListener('visibilitychange',()=>{if(F&&F.phase==='run'&&!document.hidden){if(!wl)lock(true);tick()}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&F&&F.phase==='prep')close()});
  return{open,close,active:()=>!!F}})();
 ACT.focus=el=>FOC.open(el.dataset.id);
 ACT.newbuild=()=>{if(UI.fs)setFS(false);openForm(null)};
@@ -1526,12 +1542,10 @@ const gActive=(g,k)=>!g.paused&&g.start<=k&&g.end>=k;
 function goalCard(g){const s=gStats(g),st=dueState(g),q=isB(g),t=todayKey(),dayN=clamp(diffD(g.start,t)+1,0,lenDays(g)),can=['due','optional','done','slip'].includes(st.s)||st.s==='rest'&&false;
  const stt={done:q?'Clean today':'Done today',due:'Due today',optional:'Optional today',rest:'Rest day',slip:'Slipped today',skipped:'Rest',notstarted:'Starts '+fmtD(g.start),ended:'Round ended',paused:'Paused'}[st.s];
  const pace=!q&&gActive(g,t)&&s.pace?`<span class="pill ${s.pace==='behind'?'must':s.pace==='ahead'?'ok':''}">${s.pace==='behind'?'Behind '+Math.abs(s.delta):s.pace==='ahead'?'Ahead +'+s.delta:'On pace'}</span>`:'';
- const pg=q?Math.round(clamp(dayN/lenDays(g),0,1)*100):Math.round(s.prog*100);
- const live=gActive(g,t),act=`<div class="row wrapr" style="gap:8px;margin-top:10px">${live&&!q&&st.s!=='slip'?`<button class="btn sm pri" data-act="focus" data-id="${g.id}">${ic('play',12)} Focus</button>`:''}${can&&live?`<button class="btn sm ${q&&st.s!=='done'?'pri':''}" data-act="done" data-id="${g.id}">${st.s==='done'?'Undo':(q?'Clean day':'Mark done')}</button>`:''}${can&&live&&q&&st.s!=='slip'?`<button class="btn sm danger" data-act="slip" data-id="${g.id}">I slipped</button>`:''}<button class="btn sm" data-act="logopen" data-id="${g.id}">Log</button><button class="btn sm ghost" data-act="open" data-id="${g.id}">Open</button></div>`;
- return `<div class="card gcard" data-act="open" data-id="${g.id}" style="--c:${g.color}"><div class="ring">${ringSvg(s.level,g.color)}<b>${Math.round(s.level*100)}</b></div><div style="min-width:0;flex:1"><div class="row" style="gap:7px"><span class="gico">${gI(g,16)}</span><div class="b" style="font-size:16px;min-width:0">${esc(g.name)}</div></div><div class="sm mute">${esc(schedText(g))}${g.win?'  |  '+esc(g.win[0]+'-'+g.win[1]):''}</div>
-  <div class="row wrapr" style="gap:6px;margin-top:6px">${g.priority==='must'?'<span class="pill must">Must</span>':`<span class="pill">${PRI[g.priority].n}</span>`}<span class="pill ${st.s==='done'?'ok':st.s==='slip'?'quit':''}">${stt}</span>${gActive(g,t)?`<span class="pill">Day ${dayN}/${lenDays(g)}</span>`:`<span class="pill">${fmtD(g.start)} to ${fmtD(g.end)}</span>`}${pace}</div>
-  <div class="gbar"><div class="bar"><i style="width:${pg}%;background:${g.color}"></i></div><span class="xs mute">${q?`${s.done} clean day${s.done===1?'':'s'}, ${pg}% of round`:`${s.done}/${s.expT} reps, ${pg}% of plan`}</span></div>
-  <div class="gmini xs mute"><span>${ic('flame',12)} ${s.streak}${s.unit} streak</span><span>Best ${s.best}</span>${q?`<span>${s.slips} slip${s.slips===1?'':'s'}</span>`:`<span>${pct(s.adh)} adherence</span>`}${s.min?`<span>${dur(s.min)}</span>`:''}</div>${act}</div></div>`}
+  const live=gActive(g,t),act=`<div class="row wrapr" style="gap:8px;margin-top:10px">${live&&!q&&st.s!=='slip'?`<button class="btn sm pri" data-act="focus" data-id="${g.id}">${ic('play',12)} Focus</button>`:''}${can&&live?`<button class="btn sm ${q&&st.s!=='done'?'pri':''}" data-act="done" data-id="${g.id}">${st.s==='done'?'Undo':(q?'Clean day':'Mark done')}</button>`:''}${can&&live&&q&&st.s!=='slip'?`<button class="btn sm danger" data-act="slip" data-id="${g.id}">I slipped</button>`:''}<button class="btn sm" data-act="logopen" data-id="${g.id}">Log</button><button class="btn sm ghost" data-act="open" data-id="${g.id}">Open</button></div>`;
+ return `<div class="card gcard gc2" data-act="open" data-id="${g.id}" style="--c:${g.color}"><div class="ring">${ringSvg(s.level,g.color)}<b>${Math.round(s.level*100)}</b></div><div class="gh"><span class="gico">${gI(g,16)}</span><span class="b gname">${esc(g.name)}</span></div><div class="sm mute gsub">${esc(schedText(g))}${g.win?', '+esc(g.win[0]+'-'+g.win[1]):''}</div>
+  <div class="row wrapr" style="gap:6px;margin-top:8px">${g.priority==='must'?'<span class="pill must">Must</span>':`<span class="pill">${PRI[g.priority].n}</span>`}<span class="pill ${st.s==='done'?'ok':st.s==='slip'?'quit':''}">${stt}</span>${gActive(g,t)?`<span class="pill">Day ${dayN}/${lenDays(g)}</span>`:`<span class="pill">${fmtD(g.start)} to ${fmtD(g.end)}</span>`}${pace}</div>
+  <div class="sm mute" style="margin-top:8px">${q?`${s.done} clean day${s.done===1?'':'s'}, ${s.slips} slip${s.slips===1?'':'s'}`:`${s.done} of ${s.expT} sessions`}, streak ${s.streak} ${({d:['day','days'],wk:['week','weeks'],mo:['month','months']}[s.unit]||['',''])[s.streak===1?0:1]}${s.min?', '+dur(s.min):''}</div>${act}</div>`}
 function goalsFilter(g,k){const f=GVW.f;if(f==='all')return true;if(f==='active')return gActive(g,k);if(f==='today'){const st=dueState(g,k);return gActive(g,k)&&['due','optional'].includes(st.s)}if(f==='build')return!isB(g);if(f==='quit')return isB(g);if(f==='must')return g.priority==='must';if(f==='upcoming')return !g.paused&&g.start>k;if(f==='done')return !g.paused&&g.end<k;if(f==='paused')return g.paused;return true}
 const GSORT={priority:(a,b)=>PRI[b.priority].w-PRI[a.priority].w,strength:(a,b)=>gStats(b).level-gStats(a).level,progress:(a,b)=>gStats(b).prog-gStats(a).prog,streak:(a,b)=>gStats(b).streak-gStats(a).streak,ends:(a,b)=>a.end<b.end?-1:1,name:(a,b)=>a.name.localeCompare(b.name)};
 ACT.gfilt=el=>{GVW.f=el.dataset.v;sfx('tick');renderGoals()};
