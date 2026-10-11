@@ -353,6 +353,23 @@ body.wmode>*:not(#wpage):not(#toasts):not(#tip):not(#modal):not(#shade):not(scri
 #focus.up .tring{animation:fup 1s ease-in-out infinite}
 @keyframes fup{50%{transform:scale(1.04);filter:drop-shadow(0 0 22px var(--c))}}
 @media(max-width:420px){.gcard.gc2{padding-right:76px}.gc2 .ring{width:52px;height:52px}}
+/* v6.3 always side by side */
+.ggrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
+@media(min-width:1000px){.ggrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:700px){
+ .gcard.gc2{padding:11px 54px 11px 11px}
+ .gc2 .ring{width:40px;height:40px;right:9px;top:10px}.gc2 .ring b{font-size:11px}
+ .gc2 .gname{font-size:14px}.gc2 .gico{display:none}.gc2 .gsub{font-size:11.5px}
+ .gc2 .pill{font-size:10px;padding:2px 7px}.gc2 .row.wrapr{gap:4px!important}
+ .gc2 .btn.sm{padding:5px 9px;font-size:12px}.gc2 .sm.mute{font-size:11.5px}
+ .gc2 > .row.wrapr:last-child{margin-left:-43px;margin-right:-43px}
+}
+@media(max-width:700px){
+ .gcard.gc2{padding:11px!important}
+ .gc2 .gh,.gc2 .gsub{padding-right:44px}
+ .gc2 > .row.wrapr:last-child{margin-left:0!important;margin-right:0!important}
+ .gc2 .gh{min-height:0}
+}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
