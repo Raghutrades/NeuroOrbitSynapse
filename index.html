@@ -426,6 +426,11 @@ const lum=h=>{const c=hex2(h);return (.299*c[0]+.587*c[1]+.114*c[2])/255};
 const sum=a=>a.reduce((x,y)=>x+y,0),avg=a=>a.length?sum(a)/a.length:0;
 const plural=(n,w,p)=>n+' '+(n===1?w:(p||w+'s'));
 
+
+/* safe canvas arcs: a negative or non-finite radius must never throw (animated radii can dip below 0) */
+(function(){const P=CanvasRenderingContext2D.prototype,a=P.arc,e=P.ellipse,f=v=>isFinite(v)&&v>0?v:0;
+ P.arc=function(x,y,r,s,t,c){return a.call(this,x,y,f(r),s,t,c)};
+ P.ellipse=function(x,y,rx,ry,rot,s,t,c){return e.call(this,x,y,f(rx),f(ry),rot,s,t,c)}})();
 /* ===== goal icon set (single-path line icons, 24 grid; used by SVG and by canvas Path2D) ===== */
 const GI={
  chart:'M3 20h18M6 16v-5M10 16V8M14 16v-3M18 16V5',
@@ -583,7 +588,7 @@ function normGoal(g){
   tasks:Array.isArray(g.tasks)?g.tasks.slice():[],chk:g.chk||{},fields:(g.fields||[]).map(normField),
   core:Object.assign({min:true,prep:false,q:true},g.core||{}),defMin:g.defMin==null?20:+g.defMin,limit:g.limit==null||g.limit===''?null:+g.limit,
   weeklyTarget:g.weeklyTarget?+g.weeklyTarget:null,logs:g.logs||{},reviews:g.reviews||[],jr:g.jr||[],rounds:g.rounds||[],rev:g.rev||[],
-  paused:!!g.paused,hideEx:!!g.hideEx,created:g.created||todayKey()};
+  rel:Array.isArray(g.rel)?g.rel.filter(r=>r&&r.to&&RELK[r.k]):[],paused:!!g.paused,hideEx:!!g.hideEx,created:g.created||todayKey()};
  if(!d.end||d.end<d.start)d.end=addD(d.start,(g.target>=7?g.target:100)-1);
  if(diffD(d.start,d.end)>729)d.end=addD(d.start,729);
  if(t==='break')d.sched={t:'daily',days:[],n:1,every:1};
@@ -600,7 +605,7 @@ function normState(o){
  const d=defSet(),u=o.set||{};
  s.set=Object.assign(d,u,{snd:Object.assign(d.snd,u.snd||{}),music:Object.assign(d.music,u.music||{}),notif:Object.assign(d.notif,u.notif||{}),flags:Object.assign({},u.flags||{}),fired:u.fired||d.fired});
  if(!THEMES[s.set.theme])s.set.theme='blue';
- if(!['universe','synapse'].includes(s.set.mode))s.set.mode='universe';
+ if(!['universe','synapse','path'].includes(s.set.mode))s.set.mode='universe';
  if(!['orbit','web','helix','spiral'].includes(s.set.layout))s.set.layout='orbit';
  return s}
 function legacy(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
@@ -870,9 +875,10 @@ function newRT(g){const h=hashStr(g.id);return{x:0,y:0,z:0,ang:(h%628)/100,incl:
 function orderGoals(){return S.goals.slice().sort((a,b)=>(a.type===b.type?0:a.type==='break'?1:-1)||(PRI[b.priority].w-PRI[a.priority].w)||a.name.localeCompare(b.name))}
 function relink(){ORDER=orderGoals();LINKS=[];NB={};const n=ORDER.length,seen=new Set();
  const add=(a,b)=>{if(a===b)return;const x=ORDER[a].id,y=ORDER[b].id,key=x<y?x+'|'+y:y+'|'+x;if(seen.has(key))return;seen.add(key);LINKS.push([x,y]);(NB[x]=NB[x]||[]).push(y);(NB[y]=NB[y]||[]).push(x)};
- for(let i=0;i<n;i++){add(i,(i+1)%n);if(n>=5)add(i,(i+2)%n)}ORD_REV=REV}
+ const ex=[];S.goals.forEach(g=>(g.rel||[]).forEach(r=>{const a=ORDER.findIndex(o=>o.id===g.id),b=ORDER.findIndex(o=>o.id===r.to);if(a>=0&&b>=0)ex.push([a,b])}));
+ if(ex.length)ex.forEach(([a,b])=>add(a,b));else for(let i=0;i<n;i++){add(i,(i+1)%n);if(n>=5)add(i,(i+2)%n)}ORD_REV=REV}
 /* Synapse mode shows one neuron (the selected goal) unless Show all is on or the layout is Web */
-const synOne=()=>S.set.mode==='synapse'&&!S.set.synAll&&S.set.layout!=='web'&&ORDER.length>0;
+const synOne=()=>(S.set.mode==='path'&&ORDER.length>0)||(S.set.mode==='synapse'&&!S.set.synAll&&S.set.layout!=='web'&&ORDER.length>0);
 function focusG(){let g=UI.sel&&gById(UI.sel);if(g){if(S.set.synGoal!==g.id)S.set.synGoal=g.id;return g}g=S.set.synGoal&&gById(S.set.synGoal);return g||ORDER[0]||null}
 const synVis=g=>!synOne()||focusG()===g;
 const RINGR={must:.34,high:.52,normal:.7,low:.88};
@@ -943,8 +949,8 @@ function frame(now){requestAnimationFrame(frame);if(document.hidden||!W)return;i
  if(!cam.drag&&!cam.pinch){cam.yaw+=cam.vy;cam.pit=clamp(cam.pit+cam.vp,-1.2,1.2);cam.vy*=.94;cam.vp*=.9;if(cam.auto&&!reduced()&&Math.abs(cam.vy)<.002)cam.yaw+=.06*dt}
  camSet();KS=Math.min(W*.44,H*.47)*cam.zoom*(1+.06*cam.kick);updateLayout(dt,now);stepFX(dt);
  cx.setTransform(DPR,0,0,DPR,(Math.random()-.5)*cam.shake*DPR,(Math.random()-.5)*cam.shake*DPR);cx.clearRect(-20,-20,W+40,H+40);HITS=[];
- if(S.set.mode==='universe')drawUniverse(now,dt);else drawSynapse(now,dt);
- drawPulses();drawLabels();
+ if(S.set.mode==='universe')drawUniverse(now,dt);else if(S.set.mode==='path')drawPath(now,dt);else drawSynapse(now,dt);
+ if(S.set.mode!=='path')drawPulses();drawLabels();
  if(boom>.01&&boomG&&rt(boomG)){const r=rt(boomG);pj(r.x,r.y,r.z);const rg=cx.createRadialGradient(PX,PY,0,PX,PY,Math.max(W,H)*.7);rg.addColorStop(0,rgba(boomG.color,boom*.28));rg.addColorStop(1,rgba(boomG.color,0));cx.fillStyle=rg;cx.fillRect(0,0,W,H)}
  if(frameN++%30===0)syncMapInfoPos()}
 /* interaction */
@@ -1100,26 +1106,80 @@ function drawSynapse(now,dt){const th=TH(),t=now*.001,tk=todayKey();
  cx.globalCompositeOperation='source-over';
  /* vignette */
  const vg=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.5)');cx.fillStyle=vg;cx.fillRect(0,0,W,H)}
+/* ===== Path view: bricks of days between you and your goal (build lays the path, quit takes it away) ===== */
+const PA={};
+function pathStat(g){const s=gStats(g),L=lenDays(g),N=clamp(L,4,innerWidth<500?26:42),q=isB(g),exp=Math.max(1,s.expT);
+ const frac=q?clamp((s.done-2*s.slips)/exp,0,1):clamp(s.done/exp,0,1);let k=Math.round(frac*N);if(!q&&s.done>0)k=Math.max(1,k);if(q&&s.done>0&&s.slips===0)k=Math.max(1,k);
+ return {s,L,N,q,frac,k:clamp(k,0,N),per:Math.max(1,Math.round(L/N))}}
+function isoQuad(x,y,l,dep,sk){return [[x,y],[x+l,y],[x+l+sk,y-dep],[x+sk,y-dep]]}
+function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();
+ if(!g){cx.fillStyle='rgba(235,240,255,.7)';cx.font='600 15px Bricolage Grotesque,system-ui,sans-serif';cx.textAlign='center';cx.fillText('Add a goal to see your path',W/2,H/2);return}
+ const P=pathStat(g),r=rt(g),N=P.N,q=P.q,col=q?mix(th.acc2,'#ff5d73',.5):g.color,rgb=rgbOf(col),acc=rgbOf(g.color);
+ const a=PA[g.id]=PA[g.id]&&PA[g.id].length===N?PA[g.id]:(()=>{const x=new Float32Array(N);for(let i=0;i<N;i++)x[i]=(q?i<N-P.k:i<P.k)?1:0;return x})();
+ const SW=Math.min(W*.94,1000),X0=(W-SW)/2,cw=SW*.2,gw=SW*.6,gx0=X0+cw,gx1=gx0+gw,Y0=H*.44,sl=.05,dep=clamp(SW*.075,14,40),th2=dep*.42,sk=dep*.9,bl=gw/N;
+ const yAt=x=>Y0-(x-X0)*sl,drift=q?P.frac:0;
+ /* ambient motes */
+ for(let i=0;i<16;i++){const px=(i*977%100)/100*W,py=H-((t*(8+i%5*3)+i*83)%(H*1.1)),al=.12+.1*Math.sin(t+i);cx.fillStyle=`rgba(${th.sp},${al})`;cx.fillRect(px,py,1.6,1.6)}
+ /* glow behind the goal */
+ const gX=gx1+cw*.55+drift*SW*.1,gY=yAt(gx1+cw*.5)-dep*3.6-drift*SW*.05,gs=(1-.28*drift),lit=q?.25:P.frac;
+ glow(gX,gY,SW*.2*gs,rgb,(.1+.35*lit+r.flash*.3)*(1-.4*drift),true);
+ /* cliffs */
+ const cliff=(x,w,al,off,sc)=>{const y=yAt(x)-off,hh=H-y+20,gr=cx.createLinearGradient(0,y,0,y+hh*.9);gr.addColorStop(0,rgba(mix(th.panel,'#ffffff',.14),.95*al));gr.addColorStop(.35,rgba(mix(th.panel,th.bg,.4),.8*al));gr.addColorStop(1,rgba(th.bg,0));
+  cx.fillStyle=gr;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+w,y-w*sl);cx.lineTo(x+w,y+hh);cx.lineTo(x,y+hh);cx.fill();
+  const top=isoQuad(x,y,w,dep*1.1,sk);cx.fillStyle=rgba(mix(th.panel,'#ffffff',.22),.95*al);cx.beginPath();top.forEach((p,i)=>i?cx.lineTo(p[0],p[1]-(p[0]-x)*sl):cx.moveTo(p[0],p[1]));cx.fill();
+  cx.strokeStyle=rgba(th.acc,.55*al);cx.lineWidth=1.2;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+w,y-w*sl);cx.stroke()};
+ cliff(X0,cw,1,0,1);
+ /* slabs */
+ let head=-1;
+ for(let i=0;i<N;i++){const want=(q?i<N-P.k:i<P.k)?1:0;if(rd)a[i]=want;else a[i]+=(want-a[i])*Math.min(1,dt*(want?4:3));if(Math.abs(a[i]-want)<.01)a[i]=want;
+  const x=gx0+i*bl,y=yAt(x),l=bl*.84,vis=a[i];if(want&&a[i]>=.99)head=i;
+  if(vis<.02){if(!q&&i<N){cx.strokeStyle=`rgba(${th.sp},.1)`;cx.lineWidth=1;cx.setLineDash([2,3]);cx.beginPath();isoQuad(x,y,l,dep,sk).forEach((p,k)=>k?cx.lineTo(p[0],p[1]-(p[0]-x)*sl):cx.moveTo(p[0],p[1]));cx.closePath();cx.stroke();cx.setLineDash([])}continue}
+  const off=q?(1-vis)*70:-(1-vis)*60,al=q?vis:Math.min(1,vis*1.4),hot=(i===head?r.flash:0)+(i===head?.25+.15*Math.sin(t*3):0);
+  cx.globalAlpha=al;const fy=y+off;
+  cx.fillStyle=rgba(mix(th.panel,'#000000',.3),.95);cx.fillRect(x,fy,l,th2);
+  cx.fillStyle=rgba(mix(th.panel,'#ffffff',.2+.3*hot),.97);cx.beginPath();isoQuad(x,fy,l,dep,sk).forEach((p,k)=>k?cx.lineTo(p[0],p[1]-(p[0]-x)*sl):cx.moveTo(p[0],p[1]));cx.fill();
+  cx.strokeStyle=rgba(col,.55+.4*hot);cx.lineWidth=1.1;cx.beginPath();cx.moveTo(x,fy);cx.lineTo(x+l,fy);cx.stroke();
+  if(hot>.3)glow(x+l/2+sk/2,fy-dep/2,dep*1.8,rgb,hot*.6);cx.globalAlpha=1}
+ /* cliff with goal (drifts away on quit) */
+ cx.globalAlpha=1-.45*drift;cliff(gx1+drift*SW*.1,cw,1,drift*SW*.05,gs);cx.globalAlpha=1;
+ /* the person: an orb that walks to the end of the path */
+ const tgt=q?0:(head>=0?head+.5:-.4),pi=r.pi==null?tgt:r.pi;r.pi=rd?tgt:pi+(tgt-pi)*Math.min(1,dt*3);
+ const ox=gx0+(r.pi+.5)*bl-0+(r.pi<0?-cw*.35:0),oy=yAt(ox)-dep*.5-Math.abs(Math.sin(t*(Math.abs(tgt-r.pi)>.05?6:1.4)))*(rd?0:(Math.abs(tgt-r.pi)>.05?7:2));
+ const px0=q?X0+cw*.55:ox,py0=q?yAt(X0+cw*.55)-dep*.9-(rd?0:Math.sin(t*1.4)*2):oy-dep*.4;
+ glow(px0,py0,26,acc,.55+r.flash*.4);cx.fillStyle='#fff';cx.beginPath();cx.arc(px0,py0,5,0,6.283);cx.fill();cx.strokeStyle=rgba(g.color,.8);cx.lineWidth=1.2;cx.beginPath();cx.arc(px0,py0,9,0,6.283);cx.stroke();
+ /* the goal diamond */
+ const dh=SW*.045*gs+8,fl=.55+.45*Math.sin(t*2);cx.save();cx.translate(gX,gY+(rd?0:Math.sin(t*1.6)*3));
+ cx.globalAlpha=1-.35*drift;cx.strokeStyle=rgba(col,.9);cx.lineWidth=1.6;cx.fillStyle=rgba(col,.12+.6*lit*(q?0:1)+.1*fl);
+ cx.beginPath();cx.moveTo(0,-dh*1.2);cx.lineTo(dh*.75,0);cx.lineTo(0,dh*1.2);cx.lineTo(-dh*.75,0);cx.closePath();cx.fill();cx.stroke();
+ cx.beginPath();cx.moveTo(0,-dh*1.2);cx.lineTo(0,dh*1.2);cx.moveTo(-dh*.75,0);cx.lineTo(dh*.75,0);cx.strokeStyle=rgba(col,.35);cx.lineWidth=1;cx.stroke();cx.restore();cx.globalAlpha=1;
+ if(!q&&P.frac>=1){for(let k=0;k<2;k++){const f=((t*.7+k*.5)%1);cx.strokeStyle=rgba(g.color,(1-f)*.6);cx.lineWidth=1.4;cx.beginPath();cx.arc(gX,gY,dh*(1.4+f*2.6),0,6.283);cx.stroke()}}
+ HITS.push({g,x:gX,y:gY,r:dh*1.3,z:1,s:1});
+ /* captions */
+ cx.textAlign='center';cx.font='700 '+clamp(SW*.026,11,15)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillStyle=rgba(col,.95);cx.fillText(q?'Temptation':'Goal',gX,gY-dh*1.5-8);
+ cx.fillStyle='rgba(235,240,255,.92)';cx.font='600 '+clamp(SW*.03,12,17)+'px Bricolage Grotesque,system-ui,sans-serif';
+ const day=clamp(diffD(g.start,todayKey())+1,0,P.L);cx.fillText(P.k+' of '+P.N+' '+(q?'bricks removed':'bricks laid')+(P.per>1?' ('+P.per+' days each)':''),W/2,Y0+Math.min(SW*.17,H*.22));
+ cx.fillStyle='rgba(235,240,255,.6)';cx.font='500 '+clamp(SW*.024,11,14)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillText(g.name+' · day '+day+' of '+P.L+(W>600?(q?' · each clean day removes a brick':' · each day you show up lays a brick'):''),W/2,Y0+Math.min(SW*.17,H*.22)+20)}
 /* ===== screen-level fire effects: a burst wherever you tap, plus a bolt of light into the brand neuron ===== */
 const FXC=$('#fxcv'),fxx=FXC.getContext('2d');let FXW=0,FXH=0,FXP=[],FXR=[],FXT=[],FXB=[],fxOn=false,fxLast=0;
 function fxSize(){const d=Math.min(2,devicePixelRatio||1);FXW=innerWidth;FXH=innerHeight;FXC.width=Math.round(FXW*d);FXC.height=Math.round(FXH*d);FXC.style.width=FXW+'px';FXC.style.height=FXH+'px';fxx.setTransform(d,0,0,d,0,0)}
 addEventListener('resize',fxSize);fxSize();
 let LP={x:innerWidth/2,y:innerHeight*.45,t:0};
-document.addEventListener('pointerdown',e=>{LP={x:e.clientX,y:e.clientY,t:performance.now()}},true);
+document.addEventListener('pointerdown',e=>{LP={x:e.clientX,y:e.clientY,t:performance.now(),ui:!!(e.target.closest&&e.target.closest('#drawer,#modal,#focus,#failbar,form'))}},true);
 const fxOrigin=()=>performance.now()-LP.t<1500?LP:{x:innerWidth/2,y:innerHeight*.42};
 const JF={};
 function fxTarget(){const b=document.querySelector('.brand svg');if(!b)return null;const r=b.getBoundingClientRect();return r.width?{x:r.left+r.width/2,y:r.top+r.height/2}:null}
-function screenBurst(g,o){o=o||{};if(!FXW)fxSize();const p=o.at||fxOrigin(),quit=isB(g),col=quit?'#3ddc97':g.color,small=!!o.small,n=reduced()?10:Math.round((small?18:46)*Math.max(.5,QF));
+function screenBurst(g,o){o=o||{};if(!o.at&&performance.now()-LP.t<1500&&LP.ui)return;if(!FXW)fxSize();const p=o.at||fxOrigin(),quit=isB(g),col=quit?'#3ddc97':g.color,small=!!o.small,n=reduced()?10:Math.round((small?18:46)*Math.max(.5,QF));
  for(let i=0;i<n;i++){const a=Math.random()*6.283,sp=(quit?60:110)+Math.random()*(small?200:380),fl=!quit&&Math.random()<.42;
   FXP.push({x:p.x,y:p.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-(fl?90:0),g:fl?-170:(quit?-40:120),life:1,d:.65+Math.random()*.8,s:2+Math.random()*(small?2.5:4),c:fl?mix(col,'#ffd23f',.6):(Math.random()<.25?'#ffffff':col)})}
  FXR.push({x:p.x,y:p.y,r:6,max:small?90:150,life:1,c:col,dl:0});if(!small&&!reduced()){FXR.push({x:p.x,y:p.y,r:4,max:250,life:1,c:col,dl:.1});FXR.push({x:p.x,y:p.y,r:4,max:380,life:1,c:'#ffffff',dl:.2})}
  FXT.push({x:p.x,y:p.y-22,life:1,txt:o.txt||(quit?'Clean day':'+1 rep'),c:col,ic:g.icon});
  const tg=!small&&!quit&&!reduced()?fxTarget():null;if(tg)FXB.push({x0:p.x,y0:p.y,x1:tg.x,y1:tg.y,life:1,c:col});
  if(!fxOn){fxOn=true;fxLast=performance.now();requestAnimationFrame(fxLoop)}}
-function screenBreak(g,at){if(!FXW)fxSize();const p=at||fxOrigin(),n=reduced()?8:26;for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.6,sp=80+Math.random()*260;FXP.push({x:p.x,y:p.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:620,life:1,d:.8+Math.random()*.6,s:2+Math.random()*3,c:Math.random()<.5?'#ff5d73':'#ff9aa8'})}
+function screenBreak(g,at){if(!at&&performance.now()-LP.t<1500&&LP.ui)return;if(!FXW)fxSize();const p=at||fxOrigin(),n=reduced()?8:26;for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.6,sp=80+Math.random()*260;FXP.push({x:p.x,y:p.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:620,life:1,d:.8+Math.random()*.6,s:2+Math.random()*3,c:Math.random()<.5?'#ff5d73':'#ff9aa8'})}
  FXR.push({x:p.x,y:p.y,r:6,max:110,life:1,c:'#ff5d73',dl:0});FXT.push({x:p.x,y:p.y-22,life:1,txt:'Slip logged',c:'#ff5d73',ic:g.icon});document.body.classList.add('shk');setTimeout(()=>document.body.classList.remove('shk'),420);
  if(!fxOn){fxOn=true;fxLast=performance.now();requestAnimationFrame(fxLoop)}}
-function fxLoop(now){const dt=Math.min(.05,(now-fxLast)/1000||.016);fxLast=now;fxx.clearRect(0,0,FXW,FXH);
+function fxLoop(now){try{fxFrame(now)}catch(e){FXP=[];FXR=[];FXT=[];FXB=[];fxOn=false;try{fxSize()}catch(_){}}}
+function fxFrame(now){const dt=Math.min(.05,(now-fxLast)/1000||.016);fxLast=now;fxx.clearRect(0,0,FXW,FXH);
  fxx.globalCompositeOperation='lighter';
  for(let i=FXP.length-1;i>=0;i--){const q=FXP[i];q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=q.g*dt;q.vx*=.985;q.life-=dt/q.d;if(q.life<=0){FXP.splice(i,1);continue}
   const rg=rgbOf(q.c),r=q.s*(.5+q.life)*3;fxx.globalAlpha=Math.min(1,q.life*1.2);fxx.drawImage(spr(rg),q.x-r,q.y-r,r*2,r*2)}
@@ -1171,7 +1231,7 @@ function afterLog(g,kind){save();checkBadges();renderAll();renderMapInfo()}
 function milestone(g){const s=streakInfo(g).n,u=streakInfo(g).unit;if(u!=='d')return;if([3,7,14,21,30,50,66,100].includes(s)){sfx('badge');toast(`${g.name}: ${s}-day streak`);rt(g).flash=1;RINGS.push({x:rt(g).x,y:rt(g).y,z:rt(g).z,r0:10,max:200*UNIT,life:1.2,c:'#ffd23f',w:1})}}
 function logDone(g,k,extra){k=k||todayKey();const old=g.logs[k],keep=old&&!old.slip&&!old.skip?old:null;
  const l=Object.assign({},keep||{});if(extra)Object.assign(l,extra);if(!isB(g)&&g.core.min&&l.min==null)l.min=g.defMin||0;l.t=l.t||hm();g.logs[k]=l;
- if(k===todayKey()){const i=Math.max(0,S.goals.indexOf(g));sfx(isB(g)?'clean':'fire',i);fireGoal(g,isB(g)?.7:1);if(!reduced()){boom=isB(g)?.5:.75;boomG=g;cam.kick=1}JF[g.id]=Date.now()+1700;try{musFire()}catch(e){}
+ if(k===todayKey()){const i=Math.max(0,S.goals.indexOf(g));sfx(isB(g)?'clean':'fire',i);fireGoal(g,isB(g)?.7:1);(NB[g.id]||[]).forEach(id=>{const o=gById(id);if(o){const q=rt(o);q.flash=Math.max(q.flash||0,.4)}});if(!reduced()){boom=isB(g)?.5:.75;boomG=g;cam.kick=1}JF[g.id]=Date.now()+1700;try{musFire()}catch(e){}
   const sn=streakInfo(g);screenBurst(g,{txt:isB(g)?(sn.n>1?sn.n+(sn.unit==='d'?' clean days':' clean'):'Clean day'):(sn.n>1?sn.n+(sn.unit==='d'?'-day streak':sn.unit+' streak'):'+1 rep')});milestone(g)}
  else screenBurst(g,{small:true,txt:'Logged '+fmtD(k)});
  return old}
@@ -1234,17 +1294,17 @@ function hbars(){const n=NOW(),y=n.getFullYear(),m=n.getMonth(),dm=new Date(y,m+
 function renderHero(){const nm=S.set.name;$('#greet').textContent=greet()+(nm?', '+nm:'');$('#hbars').innerHTML=hbars();tickClock();
  const k=todayKey(),ds=dayStat(k),act=S.goals.filter(g=>!g.paused&&g.start<=k&&g.end>=k),best=Math.max(0,...act.map(g=>streakInfo(g).unit==='d'?streakInfo(g).n:0));
  $('#kpis').innerHTML=`<div class="kpi"><b>${ds.done}<span style="font-size:14px;color:var(--mute)">/${ds.opp||ds.done}</span></b><span>Done today</span></div><div class="kpi"><b>${best}</b><span>Best streak (days)</span></div><div class="kpi"><b>${Math.round(overallStrength()*100)}%</b><span>Brain strength</span></div><div class="kpi"><b>${act.length}</b><span>Active goals</span></div>`}
-function buildMapCtl(){$('#modeseg').innerHTML=[['universe','Universe'],['synapse','Synapse']].map(m=>`<button data-act="mode" data-v="${m[0]}" class="${S.set.mode===m[0]?'on':''}">${m[1]}</button>`).join('');
+function buildMapCtl(){$('#modeseg').innerHTML=[['universe','Universe'],['synapse','Synapse'],['path','Path']].map(m=>`<button data-act="mode" data-v="${m[0]}" class="${S.set.mode===m[0]?'on':''}">${m[1]}</button>`).join('');
  $('#layseg').innerHTML=[['orbit','Orbit'],['web','Web'],['helix','Helix'],['spiral','Spiral']].map(m=>`<button data-act="layout" data-v="${m[0]}" class="${S.set.layout===m[0]?'on':''}">${m[1]}</button>`).join('');
  $('#opchips').innerHTML=`${S.set.mode==='synapse'?`<button class="chip ${S.set.synAll||S.set.layout==='web'?'on':''}" data-act="synall">Show all synapses</button>`:''}<button class="chip ${S.set.labels?'on':''}" data-act="labels">Show all names</button><button class="chip ${S.set.rot?'on':''}" data-act="rot">Auto-rotate</button><button class="chip ${S.set.music.on?'on':''}" data-act="music">Music</button>`;
- if(S.set.mode==='synapse'&&ORDER.length>1&&synOne())$('#opchips').insertAdjacentHTML('beforeend',`<div class="xs mute" style="width:100%;margin-top:6px">Pick a neuron</div><div class="chips" style="width:100%">${ORDER.map(g=>`<button class="chip gchip ${focusG()===g?'on':''}" style="--c:${g.color};opacity:1" data-act="synpick" data-id="${g.id}">${gico(g.icon,13)}${esc(g.name)}</button>`).join('')}</div>`);
+ if((S.set.mode==='synapse'||S.set.mode==='path')&&ORDER.length>1&&synOne())$('#opchips').insertAdjacentHTML('beforeend',`<div class="xs mute" style="width:100%;margin-top:6px">Pick a goal</div><div class="chips" style="width:100%">${ORDER.map(g=>`<button class="chip gchip ${focusG()===g?'on':''}" style="--c:${g.color};opacity:1" data-act="synpick" data-id="${g.id}">${gico(g.icon,13)}${esc(g.name)}</button>`).join('')}</div>`);
  synBar();
  $('#rvbtn').innerHTML=ic('reset')+' Reset view';$('#fsbtn').innerHTML=ic('fs')+' Full screen';$('#fsx').innerHTML=ic('fsx');$('#optbtn').innerHTML=ic('opt');mapwrap.classList.toggle('opt',!!UI.opt);cam.auto=!!S.set.rot;
- const sy=S.set.mode==='synapse';$('#legend').innerHTML=(sy?`<span><i style="background:var(--acc)"></i>Neuron grows as you repeat</span><span><i style="background:#fff"></i>Lit bead = one slice of the round done</span><span><i style="background:var(--bad)"></i>Quit: branches retract</span><span><i style="background:#ffd23f"></i>Must</span>`:`<span><i style="background:var(--acc)"></i>Planet grows as you repeat</span><span><i style="background:#fff"></i>Orbit beads fill as reps are done</span><span><i style="background:#5a3a42;outline:1px dashed var(--bad)"></i>Quit: shrinking dwarf</span><span><i style="background:#ffd23f"></i>Must</span>`)+'<span class="mute">Tap a goal to see its name. Tap again for details.</span>'}
+ const sy=S.set.mode==='synapse',pa=S.set.mode==='path';$('#legend').innerHTML=(pa?`<span><i style="background:var(--acc)"></i>Build: each day lays a brick toward your goal</span><span><i style="background:var(--bad)"></i>Quit: each clean day removes a brick, the temptation drifts away</span><span><i style="background:#fff"></i>The glowing dot is you</span>`:sy?`<span><i style="background:var(--acc)"></i>Neuron grows as you repeat</span><span><i style="background:#fff"></i>Lit bead = one slice of the round done</span><span><i style="background:var(--bad)"></i>Quit: branches retract</span><span><i style="background:#ffd23f"></i>Must</span>`:`<span><i style="background:var(--acc)"></i>Planet grows as you repeat</span><span><i style="background:#fff"></i>Orbit beads fill as reps are done</span><span><i style="background:#5a3a42;outline:1px dashed var(--bad)"></i>Quit: shrinking dwarf</span><span><i style="background:#ffd23f"></i>Must</span>`)+'<span class="mute">Tap a goal to see its name. Tap again for details.</span>'}
 ACT.synall=()=>{if(S.set.layout==='web'){S.set.layout='orbit';S.set.synAll=false}else S.set.synAll=!S.set.synAll;ORDER.forEach(g=>{rt(g).placed=false});sfx('mode');save();buildMapCtl()};
 ACT.synnav=el=>{if(!ORDER.length)return;const i=Math.max(0,ORDER.indexOf(focusG())),d=+el.dataset.d,g=ORDER[(i+d+ORDER.length)%ORDER.length];UI.sel=g.id;S.set.synGoal=g.id;rt(g).flash=.6;sfx('tap');save();renderMapInfo();buildMapCtl()};
 ACT.synpick=el=>{const g=gById(el.dataset.id);if(!g)return;UI.sel=g.id;S.set.synGoal=g.id;S.set.synAll=false;if(S.set.layout==='web')S.set.layout='orbit';rt(g).flash=.6;sfx('tap');save();renderMapInfo();buildMapCtl()};
-function synBar(){const b=$('#synbar');if(!b)return;if(!synOne()||UI.fs){b.classList.remove('on');return}const g=focusG();b.classList.add('on');b.innerHTML=`<button class="ibtn" data-act="synnav" data-d="-1" aria-label="Previous goal">${ic('back')}</button><span class="synname" style="--c:${g.color}">${gI(g,15)}<b>${esc(g.name)}</b><em>${ORDER.indexOf(g)+1}/${ORDER.length}</em></span><button class="ibtn" data-act="synnav" data-d="1" aria-label="Next goal">${ic('fwd')}</button><button class="chip" data-act="synall">Show all</button>`}
+function synBar(){const b=$('#synbar');if(!b)return;if(!synOne()||UI.fs){b.classList.remove('on');return}const g=focusG();b.classList.add('on');b.innerHTML=`<button class="ibtn" data-act="synnav" data-d="-1" aria-label="Previous goal">${ic('back')}</button><span class="synname" style="--c:${g.color}">${gI(g,15)}<b>${esc(g.name)}</b><em>${ORDER.indexOf(g)+1}/${ORDER.length}</em></span><button class="ibtn" data-act="synnav" data-d="1" aria-label="Next goal">${ic('fwd')}</button>${S.set.mode==='path'?'':'<button class="chip" data-act="synall">Show all</button>'}`}
 ACT.opt=()=>{UI.opt=!UI.opt;sfx('tap');mapwrap.classList.toggle('opt',UI.opt)};
 ACT.labels=()=>{S.set.labels=!S.set.labels;sfx('tick');save();buildMapCtl()};
 ACT.rot=()=>{S.set.rot=!S.set.rot;sfx('tick');save();buildMapCtl()};
@@ -1389,7 +1449,7 @@ function planTab(g){const w=g.win?g.win[0]+' to '+g.win[1]:'Any time',rl=g.remin
 function renderDrawer(keep){const g=gById(UI.drawer.id);if(!g){closeDrawer(true);return}const t=UI.drawer.tab,sc=keep?$('#dbody').scrollTop:0;
  $('#dhead').innerHTML=`<div class="row"><div class="gico lg" style="--c:${g.color}">${gI(g,24)}</div><div style="min-width:0"><div class="b" style="font-size:19px;letter-spacing:-.01em">${esc(g.name)}</div><div class="row wrapr" style="gap:6px;margin-top:3px"><span class="pill ${isB(g)?'quit':''}">${isB(g)?'Quit':'Build'}</span>${g.priority==='must'?'<span class="pill must">Must</span>':`<span class="pill">${PRI[g.priority].n}</span>`}<span class="pill">${esc(schedText(g))}</span>${g.paused?'<span class="pill">Paused</span>':''}</div></div><span class="sp"></span><button class="ibtn" data-act="closeall" aria-label="Close">${ic('x')}</button></div>`;
  $('#dtabs').innerHTML=[['log','Log'],['prog','Progress'],['rev','Review'],['plan','Plan']].map(x=>`<button data-act="dtab" data-t="${x[0]}" class="${t===x[0]?'on':''}">${x[1]}</button>`).join('');
- $('#dbody').innerHTML=t==='log'?logTab(g):t==='prog'?progressTab(g):t==='rev'?reviewTab(g):planTab(g);$('#dbody').scrollTop=sc;if(t==='prog')miniStart()}
+ $('#dbody').innerHTML=t==='log'?logTab(g):t==='prog'?progressTab(g):t==='rev'?reviewTab(g):planTab(g)+relCard(g);$('#dbody').scrollTop=sc;if(t==='prog')miniStart()}
 
 /* ===== live mini neuron + synapse chain in the Progress tab ===== */
 let MINI=null;
@@ -1742,7 +1802,7 @@ function goalDash(g){const s=gStats(g),q=isB(g),t=todayKey(),ser=strengthSeries(
  ${(g.reviews||[]).length?`<div class="card" style="margin-top:14px"><h3>Latest review <span class="mute sm">${g.reviews.length} saved</span></h3><div class="sm"><b>Worked:</b> ${esc(g.reviews[0].w||'-')}</div><div class="sm"><b>Got in the way:</b> ${esc(g.reviews[0].b||'-')}</div><div class="sm"><b>Change:</b> ${esc(g.reviews[0].a||'-')}</div></div>`:''}`}
 function renderIns(){const t=todayKey(),gs=S.goals;if(!gs.length){$('#insc').innerHTML=`<h2 class="vt">Insights</h2><div class="card">Add goals and log a few days. Dashboards, charts, patterns and weekly reports appear here.</div>`;return}
  if(UI.an.scope!=='all'&&!gById(UI.an.scope))UI.an.scope='all';const sc=UI.an.scope,g=sc==='all'?null:gById(sc);
- $('#insc').innerHTML=`<div class="row wrapr"><div><h2 class="vt">Insights</h2><div class="mute sm">${g?'Full dashboard for one goal.':'Everything together. Pick a goal for its own dashboard.'}</div></div><span class="sp"></span><button class="btn" data-act="cprep">Copy weekly report</button><button class="btn" data-act="exmd">${ic('dl')} Progress report</button></div>
+ $('#insc').innerHTML=`<div class="row wrapr"><div><h2 class="vt">Insights</h2><div class="mute sm">${g?'Full dashboard for one goal.':'Everything together. Pick a goal for its own dashboard.'}</div></div><span class="sp"></span><button class="btn" data-act="shift">Weekly shift</button><button class="btn" data-act="cprep">Copy weekly report</button><button class="btn" data-act="exmd">${ic('dl')} Progress report</button></div>
  <div class="scopebar"><button class="chip ${sc==='all'?'on':''}" data-act="anscope" data-v="all">${ic('ins',14)} Overview</button>${gs.map(x=>`<button class="chip gchip ${sc===x.id?'on':''}" style="--c:${x.color};opacity:1" data-act="anscope" data-v="${x.id}">${gico(x.icon,14)}${esc(x.name)}</button>`).join('')}</div>
  <div style="margin-top:14px">${g?goalDash(g):insOverview()}</div>`}
 /* ===== Journal: write entries, tag them, link to goals, see mood over time ===== */
@@ -1861,6 +1921,27 @@ const cardHd=(t,k,x,g)=>`<div class="row wrapr" style="margin-bottom:4px"><h3 st
  const mv=e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el,e.clientX,e.clientY);else hide()};
  document.addEventListener('pointermove',mv);document.addEventListener('pointerdown',mv);document.addEventListener('scroll',hide,true);document.addEventListener('pointerleave',hide);
  document.addEventListener('pointerup',e=>{if(e.pointerType==='touch')setTimeout(hide,1800)})})();
+/* ===== Constellation of Self: goal relationships, weekly shift, what brightness means ===== */
+const RELK={supports:'supports',competes:'competes with',depends:'depends on'};
+const REL={k:'supports'};
+function relCard(g){const rl=(g.rel||[]).filter(r=>gById(r.to)),others=S.goals.filter(x=>x.id!==g.id);
+ return `<h3 class="h3" style="margin-top:20px">Connections on the map</h3><div class="card">${rl.length?rl.map(r=>{const o=gById(r.to);return `<div class="row sm" style="padding:6px 0;border-bottom:1px solid var(--line)"><span style="flex:1">This ${RELK[r.k]} <b>${esc(o.name)}</b></span><button class="btn sm ghost" data-act="reldel" data-id="${g.id}" data-to="${o.id}">Remove</button></div>`}).join(''):'<div class="sm mute">No links yet, so the map joins goals in a simple ring. Add a link and the map uses only the links you define.</div>'}
+ ${others.length?`<div class="row wrapr" style="gap:8px;margin-top:10px"><select data-chg="relk" style="width:auto">${Object.keys(RELK).map(k=>`<option value="${k}" ${REL.k===k?'selected':''}>${RELK[k]}</option>`).join('')}</select><select data-chg="reladd" data-id="${g.id}" style="width:auto"><option value="">Pick a goal...</option>${others.map(o=>`<option value="${o.id}">${esc(o.name)}</option>`).join('')}</select></div>`:''}
+ <div class="xs mute" style="margin-top:8px">Links are yours to define. They show how goals relate, not how good any goal is.</div></div>`}
+CHG.relk=el=>{REL.k=el.value};
+CHG.reladd=el=>{const g=gById(el.dataset.id),to=el.value;if(!g||!to)return;g.rel=(g.rel||[]).filter(r=>r.to!==to);g.rel.push({to,k:REL.k});REV++;save();relink();renderDrawer(true);sfx('tick')};
+ACT.reldel=el=>{const g=gById(el.dataset.id);if(!g)return;g.rel=(g.rel||[]).filter(r=>r.to!==el.dataset.to);REV++;save();relink();renderDrawer(true)};
+/* weekly shift: this 7 days against the 7 before */
+function shiftRows(){const t=todayKey(),a0=addD(t,-6),b0=addD(t,-13),b1=addD(t,-7);
+ return S.goals.filter(g=>!g.paused&&g.start<=t).map(g=>{const se=strengthSeries(g),at=d=>{const e=se.find(x=>x.k===d);return e?e.v:null};
+  const now=at(t<g.end?t:g.end),prev=at(b1);const cnt=(x,y)=>{let n=0;for(let k=x;k<=y;k=addD(k,1))if(k>=g.start&&isDoneL(g.logs[k]))n++;return n};
+  const n1=cnt(a0,t),n0=cnt(b0,b1),d=prev==null||now==null?null:Math.round((now-prev)*100);
+  const lab=d==null?'New':d>=4?'Strengthened':d<=-4?'Softened':'Steady';return {g,n1,n0,d,lab,now}})}
+function openShift(){const R=shiftRows();FM=null;$('#modal').classList.add('on');$('#shade').classList.add('on');
+ $('#mbox').innerHTML=`<div class="row wrapr"><div><h2 class="vt" style="margin:0">Weekly shift</h2><div class="xs mute">The last 7 days against the 7 before. Patterns, not personal worth.</div></div><span class="sp"></span><button class="ibtn" data-act="recx" aria-label="Close">${ic('x')}</button></div>
+ ${R.length?`<div class="rtw"><table class="t rt"><tr><th>Goal</th><th>Change</th><th>This week</th><th>Week before</th><th>Strength</th></tr>${R.map(r=>`<tr data-act="open" data-id="${r.g.id}" style="cursor:pointer"><td>${esc(r.g.name)}</td><td>${r.lab}${r.d==null?'':' ('+(r.d>0?'+':'')+r.d+')'}</td><td>${r.n1}</td><td>${r.n0}</td><td>${Math.round(r.now*100)}%</td></tr>`).join('')}</table></div>`:'<div class="card mute sm" style="margin-top:12px">No active goals yet.</div>'}
+ <div class="xs mute" style="margin-top:8px">Brightness on the map is a model of recent consistency (a 14-day half-life for build goals), not a brain measurement. A dim goal means a quieter stretch, nothing more. Tap a row to see the data behind it.</div>`;$('#mbox').scrollTop=0;sfx('open')}
+ACT.shift=()=>openShift();
 /* ===== export / import ===== */
 function downloadText(name,text,mime){const b=new Blob([text],{type:(mime||'text/plain')+';charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function copyText(t){try{return navigator.clipboard.writeText(t)}catch(e){}const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove()}
@@ -1929,7 +2010,7 @@ function renderSet(){const s=S.set,N=s.notif,perm=notifPerm(),standalone=matchMe
  $('#setc').innerHTML=`<h2 class="vt">Settings</h2>
  <div class="card" style="margin:14px 0"><h3>You</h3><label class="f" style="margin-top:0">Your name (shown in the greeting)</label><input type="text" value="${esc(s.name)}" data-chg="sv" data-p="name" maxlength="30" style="max-width:300px"></div>
  <div class="card"><h3>Theme</h3><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">${Object.keys(THEMES).map(k=>{const t=THEMES[k];return `<button class="tpl ${s.theme===k?'on':''}" data-act="theme" data-v="${k}" style="padding:0;overflow:hidden"><div style="height:46px;width:100%;background:linear-gradient(110deg,${t.bg} 0 38%,rgb(${t.neb[0]}) 38% 60%,rgb(${t.neb[1]||t.neb[0]}) 60% 80%,${t.acc} 80%)"></div><div style="padding:8px 10px"><b>${t.n}</b></div></button>`}).join('')}</div>
-  <div class="grid g2" style="margin-top:12px"><div><label class="f" style="margin-top:0">Visual mode</label>${chipRow([['universe','Universe'],['synapse','Synapse neurons']],s.mode,'mode')}</div><div><label class="f" style="margin-top:0">Layout</label>${chipRow([['orbit','Orbit'],['web','Web'],['helix','Helix'],['spiral','Spiral']],s.layout,'layout')}</div></div>
+  <div class="grid g2" style="margin-top:12px"><div><label class="f" style="margin-top:0">Visual mode</label>${chipRow([['universe','Universe'],['synapse','Synapse neurons'],['path','Path']],s.mode,'mode')}</div><div><label class="f" style="margin-top:0">Layout</label>${chipRow([['orbit','Orbit'],['web','Web'],['helix','Helix'],['spiral','Spiral']],s.layout,'layout')}</div></div>
   <label class="f">Graphics quality</label><select data-chg="sv" data-p="quality" style="max-width:260px">${[['auto','Auto (adapts to your device)'],['high','High'],['balanced','Balanced'],['low','Low (saves battery)']].map(o=>`<option value="${o[0]}" ${s.quality===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
   ${tgl('reduceMotion',s.reduceMotion,'Reduce motion','Calms the background, particles and auto-rotation')}${tgl('splash',s.splash,'Show the opening animation')}</div>
  <div class="card" style="margin-top:14px"><h3>Sound</h3>${tgl('snd.on',s.snd.on,'Sound effects','Generated live, no downloads')}<div class="row"><span class="sm mute" style="width:70px">Volume</span><input type="range" min="0" max="1" step=".05" value="${s.snd.vol}" data-inp="vol" data-chg="vol"></div>${tgl('snd.amb',s.snd.amb,'Ambient hum','A soft background drone')}</div>
@@ -2077,6 +2158,7 @@ function renderGuide(){const open=(a,i)=>`<details class="gdet" ${i===0?'open':'
  <h3 class="h3 gh">Quick start</h3><div class="grid g3 gsteps">${G_STEPS.map((s,i)=>`<div class="card gstep"><div class="row"><span class="gnum">${i+1}</span><span class="gico" style="--c:var(--acc)">${gico(s[0],16)}</span></div><b>${esc(s[1])}</b><p class="sm mute">${esc(s[2])}</p></div>`).join('')}</div>
  <h3 class="h3 gh">Reading the map</h3><div class="grid g2">${G_MAP.map(s=>`<div class="card gstep"><div class="row"><span class="gico" style="--c:var(--acc2)">${gico(s[0],16)}</span><b>${esc(s[1])}</b></div><p class="sm mute">${esc(s[2])}</p></div>`).join('')}</div>
  <h3 class="h3 gh">Quitting a habit</h3><div class="grid g2">${G_QUIT.map(s=>`<div class="card gstep"><div class="row"><span class="gico" style="--c:var(--bad)">${gico(s[0],16)}</span><b>${esc(s[1])}</b></div><p class="sm mute">${esc(s[2])}</p></div>`).join('')}</div>
+ <h3 class="h3 gh">What the map brightness means</h3><div class="card"><p class="sm" style="margin:0">Each goal is a node. Its brightness is a model of recent consistency: build goals fade with a 14-day half-life, quit goals strengthen with each clean day. It is not a brain measurement and not a score of you. A dim node means a quieter stretch. Links between goals are only the ones you define in a goal's Plan tab (supports, competes with, depends on). Finishing a session sends a pulse to its linked goals. Weekly shift in Insights shows what strengthened, softened or stayed steady. Tap any node to see the real data behind it.</p></div>
  <h3 class="h3 gh">Why it works</h3><div class="card gwhy">${G_WHY.map(open).join('')}<p class="xs mute" style="margin:12px 0 0">Sources of the ideas: Donald Hebb (1949, Hebbian learning); Bliss and Lomo (1973, long-term potentiation); Lally et al. (2009, European Journal of Social Psychology, habit formation); Gollwitzer (1999, implementation intentions). Dr Lee Warren's book popularised the "fire together, wire together" framing for everyday readers.</p></div>
  <h3 class="h3 gh">How the strength score works</h3><div class="card"><p class="sm" style="margin:0">Each scheduled day counts as a chance. A rep adds to the score, a missed scheduled day lets it fade. The score is exponentially smoothed with a half-life of about 14 days for daily goals, so recent days matter most and one bad day is forgiven. Days off your schedule, planned rests and paused time are not counted against you. For quit goals the score is the strength of the old pathway: it decays with each clean day and gets a boost back when you slip.</p></div>
  <h3 class="h3 gh">Honest limits</h3><div class="card" style="border-color:color-mix(in srgb,var(--acc) 45%,var(--line))"><p class="sm" style="margin:0">${esc(G_LIMITS)}</p></div>
