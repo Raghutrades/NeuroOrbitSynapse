@@ -371,14 +371,19 @@ body.shk #app{animation:shk .4s}
 #brph{font-size:26px;font-weight:700;letter-spacing:-.01em}#brcnt{font-size:56px;font-weight:800;line-height:1.1;color:var(--acc)}
 .brexit{position:fixed;top:14px;right:14px;z-index:2}
 /* neural inspector */
-#insp{position:fixed;inset:0;z-index:155;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);display:flex;flex-direction:column;overflow:hidden}
+#insp{position:absolute;z-index:30;display:flex;flex-direction:column;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px);border:1px solid var(--line);box-shadow:0 0 40px color-mix(in srgb,var(--acc) 22%,transparent);overflow:hidden;right:8px;top:8px;bottom:8px;width:min(380px,46%);border-radius:16px;pointer-events:auto}
+@media(max-width:700px){#insp{left:6px;right:6px;top:auto;bottom:6px;width:auto;height:54%}}
 #insp[hidden]{display:none}
-#insp.in{animation:inin .35s ease both}@keyframes inin{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+#insp.in{animation:inin .45s cubic-bezier(.2,.8,.2,1) both}@keyframes inin{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}@media(max-width:700px){#insp.in{animation-name:inup2}@keyframes inup2{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}}
+#insp::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);animation:scan 1.2s ease 1;opacity:.8}
+.inup{opacity:0;animation:inupk .55s ease both;animation-delay:calc(var(--i,0)*70ms + .15s)}@keyframes inupk{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.inmt .mrow{display:flex;justify-content:space-between;gap:10px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}.inmt .mrow span{color:var(--mute)}.inmt .mrow b{text-align:right}
+#mapwrap.hud #mapctl,#mapwrap.hud #mapinfo{display:none!important}
 .inhd{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
 .inpair{display:flex;align-items:center;gap:8px;min-width:0}.inlk{font-size:12px;color:var(--acc);border:1px solid var(--line);border-radius:99px;padding:3px 10px;white-space:nowrap}
 .intabs{display:flex;gap:6px;padding:8px 14px;overflow-x:auto;border-bottom:1px solid var(--line)}
 .intabs button{background:none;border:1px solid var(--line);color:var(--mute);border-radius:99px;padding:6px 14px;font:inherit;font-size:13px;white-space:nowrap;cursor:pointer}.intabs button.on{background:var(--acc);border-color:var(--acc);color:#04101a;font-weight:700}
-.inbody{flex:1;overflow:auto;padding:14px 16px 20px;position:relative;max-width:760px;width:100%;margin:0 auto}
+.inbody{flex:1;overflow:auto;padding:12px 14px 16px;position:relative}
 .innav{display:flex;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--line)}
 .inrow{display:flex;gap:16px;align-items:center}.inring{width:104px;height:104px}.inhealth{flex:none}
 .ingrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}.ingrid .kpi em{display:block;font-style:normal;font-size:11px;color:var(--mute);margin-top:2px}
@@ -386,8 +391,8 @@ body.shk #app{animation:shk .4s}
 .indr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
 .intl{display:flex;flex-direction:column;gap:2px}.intli{display:flex;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13px}.intli i{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none}
 .insv{font-size:15px;line-height:1.5}
-.inscan{position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.7;animation:scan 1.1s ease-out 1 both;pointer-events:none}@keyframes scan{from{top:0;opacity:.8}to{top:100%;opacity:0}}
-@media(prefers-reduced-motion:reduce){#insp.in,.inscan{animation:none}}
+
+@media(prefers-reduced-motion:reduce){#insp.in,#insp::before,.inup{animation:none;opacity:1}}
 #train{position:fixed;inset:0;z-index:160;background:var(--bg);overflow:auto;display:flex;flex-direction:column;align-items:center}
 #train[hidden]{display:none}
 #train::before{content:"";position:fixed;inset:0;background:radial-gradient(900px 650px at 50% 30%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%);pointer-events:none}
@@ -400,6 +405,7 @@ body.shk #app{animation:shk .4s}
 @media(max-width:600px){#sndbtn{display:none}#topr{gap:5px}#topr .ibtn{width:38px;height:38px}.brand b,.brand .bn{font-size:16px}}
 @media(max-width:600px){.brand{font-size:14.5px;gap:6px}.brand svg{width:24px;height:24px}#topr .ibtn{width:34px;height:34px}#topr{gap:4px}}
 @media(max-width:600px){.brand{font-size:13px;gap:5px}#topr .btn{padding-left:10px;padding-right:10px;min-width:0}}
+@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -415,7 +421,7 @@ body.shk #app{animation:shk .4s}
  <section class="view" id="v-home"><div class="wrap">
   <div id="hero"><div><div id="greet"></div><div id="clock"></div><div class="hbars" id="hbars"></div></div><div id="quote" class="serif"></div><div id="kpis"></div></div>
   <div id="homegrid">
-   <div id="mapwrap"><canvas id="cv" aria-label="Goal map. Drag to rotate, pinch or scroll to zoom, tap a goal."></canvas>
+   <div id="mapwrap"><div id="insp" hidden></div><canvas id="cv" aria-label="Goal map. Drag to rotate, pinch or scroll to zoom, tap a goal."></canvas>
     <button class="ibtn" id="optbtn" data-act="opt" aria-label="View options" title="View options"></button>
     <div id="optpanel"><div class="oprow"><span>View</span><div class="seg" id="modeseg"></div></div><div class="oprow"><span>Layout</span><div class="seg" id="layseg"></div></div>
      <div class="oprow wrapr" id="opchips"></div><div class="oprow"><button class="btn sm" data-act="resetview" id="rvbtn"></button><button class="btn sm" data-act="fs" id="fsbtn"></button></div><div id="legend"></div></div>
@@ -442,7 +448,6 @@ body.shk #app{animation:shk .4s}
 <div id="focus" hidden></div>
 <div id="breath" hidden></div>
 <div id="train" hidden></div>
-<div id="insp" hidden></div>
 <script>
 /* ===== NeuroOrbitSynapse: utilities ===== */
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -905,7 +910,9 @@ const CM=[1,0,1,0];let PX=0,PY=0,PZ=0,PS=1;
 const reduceMQ=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
 const reduced=()=>reduceMQ.matches||S.set.reduceMotion;
 function camSet(){CM[0]=Math.cos(cam.yaw);CM[1]=Math.sin(cam.yaw);CM[2]=Math.cos(cam.pit);CM[3]=Math.sin(cam.pit)}
-function pj(X,Y,Z){const x=X*CM[0]+Z*CM[1],z0=Z*CM[0]-X*CM[1],y=Y*CM[2]-z0*CM[3],z=Y*CM[3]+z0*CM[2],s=1/(1+z*.22),k=KS*s;PX=W/2+x*k;PY=H/2+y*k;PZ=z;PS=s}
+const SH={x:0,y:0,s:1,tx:0,ty:0,ts:1};
+function shTarget(){if(!INS.on){SH.tx=0;SH.ty=0;SH.ts=1;return}if(innerWidth>700){const pw=Math.min(380,W*.46);SH.tx=-pw/2;SH.ty=0;SH.ts=.82}else{SH.tx=0;SH.ty=-H*.2;SH.ts=.72}}
+function pj(X,Y,Z){const x=X*CM[0]+Z*CM[1],z0=Z*CM[0]-X*CM[1],y=Y*CM[2]-z0*CM[3],z=Y*CM[3]+z0*CM[2],s=1/(1+z*.22),k=KS*s;PX=W/2+SH.x+x*k;PY=H/2+SH.y+y*k;PZ=z;PS=s}
 function size(){const r=cv.getBoundingClientRect();if(!r.width||!r.height)return;DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);UNIT=clamp(Math.min(W,H)/620,.6,1.5)}
 function qualityInit(){const q=S.set.quality;QF=q==='high'?1:q==='balanced'?.65:q==='low'?.35:(((navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4)?.7:1)}
 /* glow sprites */
@@ -994,7 +1001,7 @@ function frame(now){requestAnimationFrame(frame);if(document.hidden||!W)return;i
  if(S.set.quality==='auto'){if(fpsEma>36){lowT+=dt}else lowT=Math.max(0,lowT-dt);if(lowT>4&&QF>.4){QF=Math.max(.4,QF*.8);lowT=0}}
  if(ORD_REV!==REV)relink();
  if(!cam.drag&&!cam.pinch){cam.yaw+=cam.vy;cam.pit=clamp(cam.pit+cam.vp,-1.2,1.2);cam.vy*=.94;cam.vp*=.9;if(cam.auto&&!reduced()&&Math.abs(cam.vy)<.002)cam.yaw+=.06*dt}
- camSet();KS=Math.min(W*.44,H*.47)*cam.zoom*(1+.06*cam.kick);updateLayout(dt,now);stepFX(dt);
+ {const k=Math.min(1,dt*5);SH.x+=(SH.tx-SH.x)*k;SH.y+=(SH.ty-SH.y)*k;SH.s+=(SH.ts-SH.s)*k;if(Math.abs(SH.tx-SH.x)<.1)SH.x=SH.tx;if(Math.abs(SH.ty-SH.y)<.1)SH.y=SH.ty}camSet();KS=Math.min(W*.44,H*.47)*cam.zoom*SH.s*(1+.06*cam.kick);updateLayout(dt,now);stepFX(dt);
  cx.setTransform(DPR,0,0,DPR,(Math.random()-.5)*cam.shake*DPR,(Math.random()-.5)*cam.shake*DPR);cx.clearRect(-20,-20,W+40,H+40);HITS=[];LHIT=[];
  if(S.set.mode==='universe')drawUniverse(now,dt);else if(S.set.mode==='path')drawPath(now,dt);else drawSynapse(now,dt);
  if(S.set.mode!=='path')drawPulses();drawLabels();
@@ -1018,9 +1025,9 @@ cv.addEventListener('pointercancel',e=>{endPtr(e);if(!ptrs.size)cam.drag=null});
 cv.addEventListener('pointerleave',()=>{UI.hover=null});
 cv.addEventListener('wheel',e=>{e.preventDefault();cam.zoom=clamp(cam.zoom*(e.deltaY<0?1.1:.91),.55,3)},{passive:false});
 cv.addEventListener('dblclick',()=>resetView());
-function onTap(x,y){const h=pickAt(x,y);if(!h){const lk=S.set.mode!=='path'&&pickLink(x,y);if(lk){insLink(lk.a,lk.b);return}const bk=S.set.mode==='path'&&pathBrickAt(x,y);if(bk){insGoal(bk.g.id);return}if(UI.sel){UI.sel=null;renderMapInfo()}return}
+function onTap(x,y){const h=pickAt(x,y);if(!h){const lk=S.set.mode!=='path'&&pickLink(x,y);if(lk){insLink(lk.a,lk.b);return}const bk=S.set.mode==='path'&&pathBrickAt(x,y);if(bk){insGoal(bk.g.id,INS.on?INS.tab:'ov');return}if(INS.on){insClose();return}if(UI.sel){UI.sel=null;renderMapInfo()}return}
  const again=UI.sel===h.g.id;UI.sel=h.g.id;rt(h.g).flash=Math.max(rt(h.g).flash,.5);RINGS.push({x:rt(h.g).x,y:rt(h.g).y,z:rt(h.g).z,r0:h.r,max:h.r*2.4,life:.8,c:h.g.color,w:.6});sfx('tap');
- if(again||UI.fs)insGoal(h.g.id);else renderMapInfo()}
+ insGoal(h.g.id,INS.on&&INS.m==='goal'?INS.tab:'ov')}
 function resetView(){cam.yaw=.6;cam.pit=.3;cam.zoom=1;cam.vy=cam.vp=0}
 /* full screen */
 let fsxT=null;
@@ -1154,17 +1161,18 @@ function drawSynapse(now,dt){const th=TH(),t=now*.001,tk=todayKey();
  /* vignette */
  const vg=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.5)');cx.fillStyle=vg;cx.fillRect(0,0,W,H)}
 /* ===== Path view: bricks of days between you and your goal (build lays the path, quit takes it away) ===== */
-const PA={};let PF=null,BHIT=[],HP=null;
+const PA={};let PF=null,BHIT=[],HP=null,BP=null;
 const PMILE=[3,7,14,21,30,50,66,100];
 function pathBrickAt(x,y){for(let i=BHIT.length-1;i>=0;i--){const b=BHIT[i];if(x>=b.x-2&&x<=b.x+b.w+2&&y>=b.y0-2&&y<=b.y1+2)return b}return null}
 function pathFire(g,o){o=o||{};const s=gStats(g),sn=streakInfo(g).n,q=isB(g);let kind=o.slip?'slip':PMILE.includes(sn)&&!o.replay?'mile':o.comeback?'back':'brick';
- PF={g:g.id,t0:performance.now(),kind,p:[],txt:o.slip?'Slip logged. The path is still here.':kind==='mile'?(q?'Clean day '+s.done+'. Milestone.':'Day '+s.done+' laid. Milestone.'):kind==='back'?'Rebuilt. Welcome back.':(q?'Clean day '+s.done+'.':'Day '+s.done+' laid.'),spawn:true}}
+ PF={g:g.id,t0:performance.now(),kind,p:[],txt:o.slip?'Slip logged. The path is still here.':kind==='mile'?(q?'Clean day '+s.done+'. Milestone.':'Day '+s.done+' laid. Milestone.'):kind==='back'?'Rebuilt. Welcome back.':(q?'Clean day '+s.done+'. Brick destroyed.':'Day '+s.done+' laid.'),spawn:true,hit:q&&kind!=='slip'&&kind!=='back'}}
 function pathStat(g){const s=gStats(g),L=lenDays(g),N=clamp(L,4,innerWidth<500?26:42),q=isB(g),exp=Math.max(1,s.expT);
  const frac=q?clamp((s.done-2*s.slips)/exp,0,1):clamp(s.done/exp,0,1);let k=Math.round(frac*N);if(!q&&s.done>0)k=Math.max(1,k);if(q&&s.done>0&&s.slips===0)k=Math.max(1,k);
  return {s,L,N,q,frac,k:clamp(k,0,N),per:Math.max(1,Math.round(L/N))}}
 function isoQuad(x,y,l,dep,sk){return [[x,y],[x+l,y],[x+l+sk,y-dep],[x+sk,y-dep]]}
 function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();BHIT=[];let capFn=null;
  if(!g){cx.fillStyle='rgba(235,240,255,.7)';cx.font='600 15px Bricolage Grotesque,system-ui,sans-serif';cx.textAlign='center';cx.fillText('Add a goal to see your path',W/2,H/2);return}
+ cx.save();cx.translate(W/2+SH.x,H/2+SH.y);cx.scale(SH.s,SH.s);cx.translate(-W/2,-H/2);BP=null;const hitE=PF&&PF.g===g.id&&PF.hit?(performance.now()-PF.t0)/1000:9;
  const FL=isB(g);if(FL){cx.save();cx.translate(W,0);cx.scale(-1,1)}
  const P=pathStat(g),r=rt(g),N=P.N,q=P.q,col=q?mix(th.acc2,'#ff5d73',.5):g.color,rgb=rgbOf(col),acc=rgbOf(g.color);
  const a=PA[g.id]=PA[g.id]&&PA[g.id].length===N?PA[g.id]:(()=>{const x=new Float32Array(N);for(let i=0;i<N;i++)x[i]=(q?i<N-P.k:i<P.k)?1:0;return x})();
@@ -1183,7 +1191,7 @@ function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();BHIT=
  cliff(X0,cw,1,0,1);
  /* slabs */
  let head=-1;
- for(let i=0;i<N;i++){const want=(q?i<N-P.k:i<P.k)?1:0;if(rd)a[i]=want;else a[i]+=(want-a[i])*Math.min(1,dt*(want?4:3));if(Math.abs(a[i]-want)<.01)a[i]=want;
+ for(let i=0;i<N;i++){const want=(q?(i<N-P.k||(i===N-P.k&&hitE<.95&&!rd)):i<P.k)?1:0;if(rd)a[i]=want;else a[i]+=(want-a[i])*Math.min(1,dt*(want?4:3));if(Math.abs(a[i]-want)<.01)a[i]=want;
   const x=gx0+i*bl,y=yAt(x),l=bl*.84,vis=a[i];if(want&&a[i]>=.99)head=i;
   if(vis<.02){if(!q&&i<N){cx.strokeStyle=`rgba(${th.sp},.1)`;cx.lineWidth=1;cx.setLineDash([2,3]);cx.beginPath();isoQuad(x,y,l,dep,sk).forEach((p,k)=>k?cx.lineTo(p[0],p[1]-(p[0]-x)*sl):cx.moveTo(p[0],p[1]));cx.closePath();cx.stroke();cx.setLineDash([])}continue}
   BHIT.push({g,x:q?W-x-(l+sk):x,w:l+sk,y0:y-dep-sk*sl,y1:y+th2,d0:addD(g.start,i*P.per),d1:addD(g.start,Math.min(P.L-1,i*P.per+P.per-1))});const off=q?(1-vis)*70:-(1-vis)*60,al=q?vis:Math.min(1,vis*1.4),hot=(i===head?r.flash:0)+(i===head?.25+.15*Math.sin(t*3):0);
@@ -1191,15 +1199,18 @@ function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();BHIT=
   cx.fillStyle=rgba(mix(th.panel,'#000000',.3),.95);cx.fillRect(x,fy,l,th2);
   cx.fillStyle=rgba(mix(th.panel,'#ffffff',.2+.3*hot),.97);cx.beginPath();isoQuad(x,fy,l,dep,sk).forEach((p,k)=>k?cx.lineTo(p[0],p[1]-(p[0]-x)*sl):cx.moveTo(p[0],p[1]));cx.fill();
   const ms=PMILE.includes((i+1)*P.per)||PMILE.includes(i*P.per+P.per);cx.strokeStyle=ms?'#ffd23f':rgba(col,.55+.4*hot);cx.lineWidth=ms?1.8:1.1;cx.beginPath();cx.moveTo(x,fy);cx.lineTo(x+l,fy);cx.stroke();
-  if(i===head)HP={x:x+l/2+sk/2,y:fy-dep/2};if(hot>.3)glow(x+l/2+sk/2,fy-dep/2,dep*1.8,rgb,hot*.6);cx.globalAlpha=1}
+  if(q&&i===N-P.k)BP={x:x+l/2+sk/2,y:y-dep/2};if(i===head)HP={x:x+l/2+sk/2,y:fy-dep/2};if(hot>.3)glow(x+l/2+sk/2,fy-dep/2,dep*1.8,rgb,hot*.6);cx.globalAlpha=1}
  /* cliff with goal (drifts away on quit) */
  cx.globalAlpha=1-.45*drift;cliff(gx1+drift*SW*.1,cw,1,drift*SW*.03,gs);cx.globalAlpha=1;
 /* the person: a tiny stick figure. Build: walks out along the new bricks. Quit: stands on firm ground and turns away */
  const tgt=q?0:(head>=0?head+.5:-.4),pi=r.pi==null?tgt:r.pi;r.pi=rd?tgt:pi+(tgt-pi)*Math.min(1,dt*3);const moving=!q&&Math.abs(tgt-r.pi)>.05;
  const ox=q?X0+cw*.55:gx0+(r.pi+.5)*bl+(r.pi<0?-cw*.35:0),oy=yAt(ox)-dep*.5,mh=clamp(SW*.055,20,38),today=dueState(g).s==='done';
- glow(ox,oy-mh*.5,mh*1.3,acc,.3+r.flash*.4);stickMan(ox,oy,mh,t,moving?'walk':(r.flash>.25||today&&q&&!rd&&(t%6<1.6))?'cheer':'stand',q?-1:1,rd);
+ glow(ox,oy-mh*.5,mh*1.3,acc,.3+r.flash*.4);stickMan(ox,oy,mh,t,hitE<1.1&&!rd?'hit':moving?'walk':(r.flash>.25||today&&q&&!rd&&(t%6<1.6))?'cheer':'stand',q?-1:1,rd,hitE);
  /* fire sequence: dust, light run and a caption */
  if(PF&&PF.g===g.id){const e=(performance.now()-PF.t0)/1000,life=PF.kind==='mile'?5:3;if(e>life){PF=null}else{
+  if(PF.hit&&BP&&!rd){if(e>.42&&e<.95){const f=(e-.42)/.53,sx=ox+mh*.9*(q?1:-1)*0,sy=oy-mh*.9;cx.save();cx.globalAlpha=.9;cx.strokeStyle='#fff';cx.shadowColor=col;cx.shadowBlur=12;cx.lineWidth=2;cx.beginPath();cx.moveTo(sx,sy);const ex=sx+(BP.x-sx)*f,ey=sy+(BP.y-sy)*f;for(let k=1;k<6;k++){const u=k/6;cx.lineTo(sx+(ex-sx)*u+(Math.random()-.5)*8,sy+(ey-sy)*u+(Math.random()-.5)*8)}cx.lineTo(ex,ey);cx.stroke();cx.restore();glow(ex,ey,14,rgb,.9)}
+   if(e>=.95&&!PF.boom){PF.boom=true;for(let i=0;i<30;i++){const a=Math.random()*6.283,sp=40+Math.random()*130;PF.p.push({x:BP.x,y:BP.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40,l:1})}PF.ring=BP;sfx('fire')}
+   if(PF.ring&&e<1.7){const f=(e-.95)/.75;cx.strokeStyle=rgba('#ffffff',Math.max(0,1-f));cx.lineWidth=2;cx.beginPath();cx.arc(PF.ring.x,PF.ring.y,dep*(.5+f*3),0,6.283);cx.stroke();glow(PF.ring.x,PF.ring.y,dep*3,rgb,Math.max(0,.8-f))}}
   if(PF.spawn&&HP){PF.spawn=false;const n=rd?0:PF.kind==='mile'?36:PF.kind==='slip'?6:18;for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.4,sp=30+Math.random()*90;PF.p.push({x:HP.x,y:HP.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:1})}}
   const gold=PF.kind==='mile',pc=PF.kind==='slip'?'#ff9aa8':gold?'#ffd23f':g.color;PF.p.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=120*dt;p.l-=dt*.9;if(p.l>0){cx.globalAlpha=p.l*.8;cx.fillStyle=pc;cx.fillRect(p.x,p.y,2.2,2.2)}});cx.globalAlpha=1;
   if(HP&&!rd&&e<1.6&&PF.kind!=='slip'){const f=e/1.6;cx.strokeStyle=rgba(pc,(1-f)*.7);cx.lineWidth=1.6;cx.beginPath();cx.arc(HP.x,HP.y,dep*(.6+f*2.4),0,6.283);cx.stroke()}
@@ -1217,16 +1228,17 @@ function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();BHIT=
  cx.textAlign='center';cx.font='700 '+clamp(SW*.026,11,15)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillStyle=rgba(col,.95);cx.fillText(q?'Temptation':'Goal',q?W-gX:gX,gY-dh*1.5-8);
  cx.fillStyle='rgba(235,240,255,.92)';cx.font='600 '+clamp(SW*.03,12,17)+'px Bricolage Grotesque,system-ui,sans-serif';
  const day=clamp(diffD(g.start,todayKey())+1,0,P.L);cx.fillText(P.k+' of '+P.N+' '+(q?'bricks removed':'bricks laid')+(P.per>1?' ('+P.per+' days each)':''),W/2,Y0+Math.min(SW*.17,H*.22));
- cx.fillStyle='rgba(235,240,255,.6)';cx.font='500 '+clamp(SW*.024,11,14)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillText(g.name+' · day '+day+' of '+P.L+(W>600?(q?' · each clean day removes a brick':' · each day you show up lays a brick'):''),W/2,Y0+Math.min(SW*.17,H*.22)+20)}
+ cx.fillStyle='rgba(235,240,255,.6)';cx.font='500 '+clamp(SW*.024,11,14)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillText(g.name+' · day '+day+' of '+P.L+(W>600?(q?' · each clean day removes a brick':' · each day you show up lays a brick'):''),W/2,Y0+Math.min(SW*.17,H*.22)+20);cx.restore();
+ const mx=x=>W/2+SH.x+(x-W/2)*SH.s,my=y=>H/2+SH.y+(y-H/2)*SH.s;BHIT.forEach(b=>{b.x=mx(b.x);b.w*=SH.s;b.y0=my(b.y0);b.y1=my(b.y1)});const lh=HITS[HITS.length-1];if(lh&&lh.g===g){lh.x=mx(lh.x);lh.y=my(lh.y);lh.r*=SH.s}}
 
-function stickMan(x,y,h,t,mode,dir,rd){const c=cx,u=h/10,w=Math.max(1.6,h*.075);c.save();c.translate(x,y);c.scale(dir,1);c.strokeStyle='#ffffff';c.fillStyle='#ffffff';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.shadowColor='rgba(255,255,255,.6)';c.shadowBlur=6;
+function stickMan(x,y,h,t,mode,dir,rd,he){const c=cx,u=h/10,w=Math.max(1.6,h*.075);c.save();c.translate(x,y);c.scale(dir,1);c.strokeStyle='#ffffff';c.fillStyle='#ffffff';c.lineWidth=w;c.lineCap='round';c.lineJoin='round';c.shadowColor='rgba(255,255,255,.6)';c.shadowBlur=6;
  const ph=rd?0:t*(mode==='walk'?9:2),sw=mode==='walk'?Math.sin(ph):0,bob=mode==='walk'?Math.abs(Math.cos(ph))*u*.5:rd?0:Math.sin(t*1.6)*u*.12+(mode==='cheer'?-Math.abs(Math.sin(t*6))*u*.7:0),lean=mode==='walk'?u*.5:0;
  const hip=[0,-u*4.3-bob],sh=[lean,-u*7.2-bob],hd=[lean*1.2,-u*8.6-bob];
  const leg=(a,k)=>{const fx=Math.sin(a)*u*3.1,kx=Math.sin(a*.5)*u*1.5;c.beginPath();c.moveTo(hip[0],hip[1]);c.lineTo(hip[0]+kx,hip[1]+u*2.3);c.lineTo(hip[0]+fx,k?-u*.1:0);c.stroke()};
  const sp=mode==='walk'?sw*.75:.3;leg(sp,sw<0&&mode==='walk');leg(-sp,sw>0&&mode==='walk');
  c.beginPath();c.moveTo(hip[0],hip[1]);c.lineTo(sh[0],sh[1]);c.stroke();
  const arm=(a,up)=>{c.beginPath();c.moveTo(sh[0],sh[1]+u*.3);if(up){c.lineTo(sh[0]+a*u*1.6,sh[1]-u*1.4);c.lineTo(sh[0]+a*u*2.4,sh[1]-u*2.8)}else{c.lineTo(sh[0]+Math.sin(a)*u*1.3,sh[1]+u*1.7);c.lineTo(sh[0]+Math.sin(a)*u*1.8,sh[1]+u*3.2)}c.stroke()};
- if(mode==='cheer'){arm(-1,true);arm(1,true)}else if(mode==='walk'){arm(-sw*.9+.1,false);arm(sw*.9+.1,false)}else{arm(-.5,false);arm(.5,false)}
+ if(mode==='hit'){const sw2=he<.25?-1.1:he<.42?-1.1+(he-.25)/.17*2.6:1.5-(he-.42)*.6;arm(-.5,false);c.beginPath();c.moveTo(sh[0],sh[1]+u*.3);const hx=sh[0]+Math.sin(sw2)*u*2.6,hy=sh[1]-Math.cos(sw2)*u*2.6;c.lineTo(hx,hy);c.stroke();c.lineWidth=w*1.1;const ax=Math.sin(sw2),ay=-Math.cos(sw2);c.beginPath();c.moveTo(hx,hy);c.lineTo(hx+ax*u*1.2,hy+ay*u*1.2);c.stroke();c.lineWidth=w*2.4;c.beginPath();c.moveTo(hx+ax*u*1.2-ay*u*.9,hy+ay*u*1.2+ax*u*.9);c.lineTo(hx+ax*u*1.2+ay*u*.9,hy+ay*u*1.2-ax*u*.9);c.stroke();c.lineWidth=w}else if(mode==='cheer'){arm(-1,true);arm(1,true)}else if(mode==='walk'){arm(-sw*.9+.1,false);arm(sw*.9+.1,false)}else{arm(-.5,false);arm(.5,false)}
  c.beginPath();c.arc(hd[0],hd[1],u*1.15,0,6.283);c.fill();c.restore()}
 /* ===== screen-level fire effects: a burst wherever you tap, plus a bolt of light into the brand neuron ===== */
 const FXC=$('#fxcv'),fxx=FXC.getContext('2d');let FXW=0,FXH=0,FXP=[],FXR=[],FXT=[],FXB=[],fxOn=false,fxLast=0;
@@ -1383,7 +1395,7 @@ ACT.mode=el=>{S.set.mode=el.dataset.v;sfx('mode');save();buildMapCtl()};
 ACT.layout=el=>{S.set.layout=el.dataset.v;sfx('mode');ORDER.forEach(g=>{rt(g).placed=false});save();buildMapCtl()};
 ACT.fs=()=>{sfx('open');setFS(true)};ACT.fsx=()=>{sfx('close');setFS(false)};ACT.resetview=()=>{resetView();sfx('tap')};
 /* map info */
-function renderMapInfo(){synBar();const b=$('#mapinfo'),g=UI.sel?gById(UI.sel):null;if(!g||UI.fs){b.classList.remove('on');if(!g)UI.sel=null;return}
+function renderMapInfo(){synBar();const b=$('#mapinfo'),g=UI.sel?gById(UI.sel):null;if(!g||UI.fs||INS.on){b.classList.remove('on');if(!g)UI.sel=null;return}
  const st=dueState(g),s=gStats(g),q=isB(g);b.classList.add('on');
  const stTxt={done:q?'Clean today':'Done today',due:'Due today',optional:'Optional today',rest:'Rest day',slip:'Slipped today',skipped:'Planned rest',notstarted:'Starts '+fmtD(g.start),ended:'Round ended',paused:'Paused'}[st.s]||'';
  const canAct=['due','optional','done','rest'].includes(st.s);
@@ -2338,19 +2350,26 @@ function linkCalc(a,b){const t=todayKey(),from=a.start>b.start?a.start:b.start;l
  else verdict=(lift!=null&&lift>=8)||(cof!=null&&cof>=.7)?'Helping: doing one tends to go with doing the other.':lift!=null&&lift<=-8?'Working against each other: doing one tends to go with missing the other.':'Neutral: little link between them in your data.';
  return{n,cof,lift,conf,aD,bDnoA,bD,base,after,kind,verdict,byA}}
 /* ---------- UI ---------- */
-const insSpark=(v,c,w,h)=>{if(v.length<2)return '';w=w||300;h=h||60;const mn=Math.min(...v),mx=Math.max(...v,mn+.01),X=i=>i/(v.length-1)*(w-6)+3,Y=x=>h-4-(x-mn)/(mx-mn)*(h-10),d=v.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x).toFixed(1)).join('');return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:${h}px"><path d="${d}L${X(v.length-1)} ${h}L${X(0)} ${h}Z" fill="${c}" opacity=".15"/><path d="${d}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
+const insSpark=(v,c,w,h)=>{if(v.length<2)return '';w=w||300;h=h||60;const mn=Math.min(...v),mx=Math.max(...v,mn+.01),X=i=>i/(v.length-1)*(w-6)+3,Y=x=>h-4-(x-mn)/(mx-mn)*(h-10),d=v.map((x,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(x).toFixed(1)).join('');return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:${h}px"><path d="${d}L${X(v.length-1)} ${h}L${X(0)} ${h}Z" fill="${c}" opacity=".15"/><path class="spl" d="${d}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
 const insRing=(v,c)=>`<svg viewBox="0 0 100 100" class="inring"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--line)" stroke-width="7"/><circle cx="50" cy="50" r="42" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(v/100*264).toFixed(1)} 264" transform="rotate(-90 50 50)"/><text x="50" y="57" text-anchor="middle" font-size="26" font-weight="800" fill="currentColor" data-count="${v}">${v}</text></svg>`;
 const insBar=(l,o,d,flag)=>`<div class="inb"><i style="height:${o?Math.max(6,d/o*100):6}%;${flag?'background:var(--bad)':''}"></i><span>${l}</span></div>`;
-function insOpen(){const el=$('#insp');const host=UI.fs?mapwrap:document.body;if(el.parentNode!==host)host.appendChild(el);el.hidden=false;el.classList.remove('in');void el.offsetWidth;el.classList.add('in');INS.on=true;document.body.classList.add('insOpen')}
-function insClose(){const el=$('#insp');el.hidden=true;INS.on=false;document.body.classList.remove('insOpen')}
-function insGoal(id,tab){const g=gById(id);if(!g)return;INS.m='goal';INS.id=id;INS.tab=tab||'ov';INS.r=null;UI.sel=id;insRender();insOpen();sfx('open');if(!reduced())insCount()}
-function insLink(a,b){if(!gById(a)||!gById(b))return;INS.m='link';INS.id=a;INS.b=b;insRender();insOpen();sfx('open')}
-function insRange(id,d0,d1){INS.m='day';INS.id=id;INS.r=[d0,d1];insRender();insOpen();sfx('open')}
-function insCount(){const el=document.querySelector('#insp [data-count]');if(!el)return;const to=+el.dataset.count,t0=performance.now();const f=n=>{const p=Math.min(1,(n-t0)/700);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1&&INS.on)requestAnimationFrame(f)};requestAnimationFrame(f)}
+function insOpen(){const el=$('#insp');el.hidden=false;el.classList.remove('in');void el.offsetWidth;el.classList.add('in');INS.on=true;mapwrap.classList.add('hud');shTarget();const mi=$('#mapinfo');if(mi)mi.classList.remove('on')}
+function insClose(){const el=$('#insp');if(!el)return;el.hidden=true;INS.on=false;mapwrap.classList.remove('hud');shTarget();if(UI.sel){UI.sel=null}try{renderMapInfo()}catch(e){}}
+function insGoal(id,tab){const g=gById(id);if(!g)return;INS.m='goal';INS.id=id;INS.tab=tab||'ov';INS.r=null;UI.sel=id;rt(g).flash=Math.max(rt(g).flash,.5);INS.anim=true;insRender();insOpen();sfx('tap')}
+function insLink(a,b){if(!gById(a)||!gById(b))return;INS.m='link';INS.id=a;INS.b=b;INS.anim=true;insRender();insOpen();sfx('tap')}
+function insRange(id,d0,d1){INS.m='day';INS.id=id;INS.r=[d0,d1];INS.anim=true;insRender();insOpen();sfx('tap')}
+/* sci-fi reveal: numbers count up, bars grow, text types out, sections stagger in */
+function insAnimate(root){if(reduced())return;
+ [...root.querySelectorAll('.inbody > *')].forEach((e,i)=>{e.style.setProperty('--i',i);e.classList.add('inup')});
+ root.querySelectorAll('.kpi b,.mrow b,[data-count]').forEach((el,i)=>{const m=/^(-?\d+(?:\.\d+)?)([\s\S]*)$/.exec(el.textContent.trim());if(!m)return;const to=parseFloat(m[1]),dec=(m[1].split('.')[1]||'').length,suf=m[2],t0=performance.now()+260+i*45;el.textContent=(0).toFixed(dec)+suf;const f=n=>{if(!INS.on)return;const p=clamp((n-t0)/800,0,1);el.textContent=(to*(1-Math.pow(1-p,3))).toFixed(dec)+suf;if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)});
+ root.querySelectorAll('.bar i').forEach((el,i)=>{const w=el.style.width;el.style.width='0';el.style.transition='width .9s cubic-bezier(.2,.8,.2,1) '+(.3+i*.07)+'s';requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.width=w}))});
+ root.querySelectorAll('.inb i').forEach((el,i)=>{const h=el.style.height;el.style.height='0';el.style.transition='height .8s cubic-bezier(.2,.8,.2,1) '+(.3+i*.05)+'s';requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.height=h}))});
+ root.querySelectorAll('.spl').forEach(el=>{el.setAttribute('pathLength','1');el.style.strokeDasharray='1';el.style.strokeDashoffset='1';el.style.transition='stroke-dashoffset 1.3s ease .3s';requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.strokeDashoffset='0'}))});
+ root.querySelectorAll('.tw').forEach(el=>{const tx=el.textContent;el.textContent='';let i=0;const st=performance.now()+300,f=n=>{if(!INS.on)return;const k=Math.min(tx.length,Math.floor((n-st)/22));if(k>i){i=k;el.textContent=tx.slice(0,i)}if(i<tx.length)requestAnimationFrame(f)};requestAnimationFrame(f)})}
 const insHead=(g,sub)=>`<div class="inhd" style="--c:${g.color}"><span class="gico lg">${gI(g,24)}</span><div style="min-width:0;flex:1"><div class="b" style="font-size:19px">${esc(g.name)}</div><div class="xs mute">${sub||`${isB(g)?'Quit':'Build'} · ${PRI[g.priority].n} · ${esc(schedText(g))}`}</div></div><button class="ibtn" data-act="insx" aria-label="Close">${ic('x')}</button></div>`;
 function insRender(){const b=$('#insp');let h='';
- if(INS.m==='goal'){const g=gById(INS.id);if(!g){insClose();return}const C=insCalc(g),T=[['ov','Overview'],['dr','Drivers'],['tl','Timeline'],['cn','Connections']];
-  h=insHead(g)+`<div class="intabs">${T.map(x=>`<button data-act="instab" data-t="${x[0]}" class="${INS.tab===x[0]?'on':''}">${x[1]}</button>`).join('')}</div><div class="inbody">`+(INS.tab==='ov'?insOv(g,C):INS.tab==='dr'?insDr(g,C):INS.tab==='tl'?insTl(g,C):insCn(g,C))+`</div><div class="innav"><button class="btn sm" data-act="insnav" data-d="-1">${ic('back',14)} Previous</button><button class="btn sm" data-act="insnav" data-d="1">Next ${ic('fwd',14)}</button></div>`}
+ if(INS.m==='goal'){const g=gById(INS.id);if(!g){insClose();return}const C=insCalc(g),T=[['ov','Overview'],['mt','Metrics'],['dr','Drivers'],['tl','Timeline'],['cn','Links']];
+  h=insHead(g)+`<div class="intabs">${T.map(x=>`<button data-act="instab" data-t="${x[0]}" class="${INS.tab===x[0]?'on':''}">${x[1]}</button>`).join('')}</div><div class="inbody">`+(INS.tab==='ov'?insOv(g,C):INS.tab==='mt'?insMt(g,C):INS.tab==='dr'?insDr(g,C):INS.tab==='tl'?insTl(g,C):insCn(g,C))+`</div><div class="innav"><button class="btn sm" data-act="insnav" data-d="-1">${ic('back',14)} Previous</button><button class="btn sm" data-act="insnav" data-d="1">Next ${ic('fwd',14)}</button></div>`}
  else if(INS.m==='link'){const a=gById(INS.id),c=gById(INS.b);if(!a||!c){insClose();return}const L=linkCalc(a,c),pc=v=>v==null?'-':Math.round(v*100)+'%';
   h=`<div class="inhd"><div class="inpair"><span class="gico lg" style="--c:${a.color}">${gI(a,22)}</span><b>${esc(a.name)}</b></div><span class="inlk">${L.kind==='auto'?'linked':RELK[L.kind]}</span><div class="inpair"><span class="gico lg" style="--c:${c.color}">${gI(c,22)}</span><b>${esc(c.name)}</b></div><button class="ibtn" data-act="insx" aria-label="Close">${ic('x')}</button></div><div class="inbody"><div class="card insv">${esc(L.verdict)}</div>
   <div class="ingrid">${[[pc(L.cof),'Co-fire rate','days both done divided by days both due'],[L.lift==null?'-':(L.lift>0?'+':'')+Math.round(L.lift)+' pts','Spillover','chance the second is done the next day after the first, against its normal rate'],[L.conf,'Conflict days','first done while the second was missed or slipped'],[L.bD?pc(1-L.bDnoA/L.bD):'-','Done with first','share of the second goal days that also had the first']].map(x=>`<div class="kpi"><b>${x[0]}</b><span>${x[1]}</span><em>${x[2]}</em></div>`).join('')}</div>
@@ -2365,10 +2384,10 @@ function insRender(){const b=$('#insp');let h='';
   ${rows?`<div class="rtw" style="margin-top:12px"><table class="t rt"><tr><th>Day</th><th>Result</th><th>Time</th><th>Length</th><th>Quality</th></tr>${rows}</table></div>`:''}
   ${notes.length?`<h3 class="h3" style="margin-top:14px">Notes</h3>${notes.slice(-6).map(n=>`<div class="sm" style="margin:4px 0"><span class="mute">${fmtD(n[0])}</span> ${esc(n[1])}</div>`).join('')}`:''}
   <div class="row wrapr" style="margin-top:14px"><button class="btn" data-act="insgo" data-id="${g.id}">Inspect ${esc(g.name)}</button><button class="btn" data-act="open" data-id="${g.id}">Log or edit these days</button></div></div>`}
- b.innerHTML=h}
+ const sc=b.querySelector('.inbody')?b.querySelector('.inbody').scrollTop:0;b.innerHTML=h;if(INS.anim){INS.anim=false;insAnimate(b)}else if(sc){const nb=b.querySelector('.inbody');if(nb)nb.scrollTop=sc}}
 function insOv(g,C){const q=C.q,s=C.s,wdMin=C.wd.map(x=>x.o>=2?x.d/x.o:null),worst=wdMin.reduce((m,v,i)=>v!=null&&(m<0||v<wdMin[m])?i:m,-1),tw=Math.max(1,...C.tod.map(x=>x.c)),worstT=C.tod.filter(x=>x.c>0).sort((a,b)=>a.c-b.c)[0];
  const sv=C.ser.slice(-45).map(x=>q?1-x.v:x.v);
- return `<div class="inscan"></div><div class="inrow"><div class="inhealth">${insRing(C.health,g.color)}<div class="xs mute" style="text-align:center">Neural health</div></div><div style="flex:1;min-width:0"><span class="pill ${/Wobbl|Fading|Dormant|Vulnerable|Reactivating|Unmonitored/.test(C.status)?'must':'ok'}">${esc(C.status)}</span><div class="sm" style="margin-top:8px">${esc(C.verdict)}</div></div></div>
+ return `<div class="inrow"><div class="inhealth">${insRing(C.health,g.color)}<div class="xs mute" style="text-align:center">Neural health</div></div><div style="flex:1;min-width:0"><span class="pill ${/Wobbl|Fading|Dormant|Vulnerable|Reactivating|Unmonitored/.test(C.status)?'must':'ok'}">${esc(C.status)}</span><div class="sm tw" style="margin-top:8px">${esc(C.verdict)}</div></div></div>
  <div class="ingrid">${(q?[[s.done,'Clean days'],[s.slips,'Slips'],[s.urges,'Urges ridden out'],[s.streak+s.unit,'Streak'],[Math.round(C.nowV*100)+'%','Old pathway'],[s.min?dur(s.min):'-','Time']]:[[s.done+'/'+s.expT,'Reps'],[C.w28.rate==null?'-':Math.round(C.w28.rate*100)+'%','Adherence 28d'],[s.streak+s.unit,'Streak'],[Math.round(C.nowV*100)+'%','Strength'],[s.min?dur(s.min):'-','Time'],[s.q?s.q.toFixed(1):'-','Quality']]).map(x=>`<div class="kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>
  <div class="card" style="margin-top:12px"><div class="xs mute">${q?'Old pathway':'Strength'}, last ${sv.length} days</div>${insSpark(sv,g.color)}</div>
  <div class="card" style="margin-top:12px"><div class="xs mute">${q?'Clean-day rate by weekday, last 8 weeks':'Weekday pattern, last 8 weeks'}</div><div class="inbars">${C.wd.map((x,i)=>insBar(WD[i][0],x.o,x.d,i===worst&&x.o>=2&&x.d/x.o<.7)).join('')}</div>${worst>=0&&wdMin[worst]<.7?`<div class="xs mute">${WD[worst]} is the weakest day (${Math.round(wdMin[worst]*100)}%).</div>`:''}
@@ -2384,7 +2403,7 @@ function insTl(g,C){const t=todayKey(),ks=Object.keys(g.logs).sort().reverse().s
 function insCn(g,C){const ids=[...new Set([...(NB[g.id]||[]),...(g.rel||[]).map(r=>r.to),...S.goals.filter(o=>(o.rel||[]).some(r=>r.to===g.id)).map(o=>o.id)])].filter(id=>gById(id));
  if(!ids.length)return `<div class="card mute sm">No connections yet. Add one in the goal's Plan tab.</div>`;
  return ids.map(id=>{const o=gById(id),L=linkCalc(g,o);return `<div class="card" style="margin-bottom:10px;cursor:pointer" data-act="inslink" data-a="${g.id}" data-b="${o.id}"><div class="row"><span class="gico" style="--c:${o.color}">${gI(o,16)}</span><b style="flex:1">${esc(o.name)}</b><span class="pill">${L.kind==='auto'?'linked':RELK[L.kind]}</span></div><div class="xs mute" style="margin-top:6px">${esc(L.verdict)}</div></div>`}).join('')}
-ACT.insx=()=>insClose();ACT.instab=el=>{INS.tab=el.dataset.t;insRender();if(INS.tab==='ov'&&!reduced())insCount()};
+ACT.insx=()=>insClose();ACT.instab=el=>{INS.tab=el.dataset.t;INS.anim=true;insRender()};
 ACT.insnav=el=>{const i=Math.max(0,ORDER.findIndex(g=>g.id===INS.id)),n=ORDER[(i+ +el.dataset.d+ORDER.length)%ORDER.length];if(n){S.set.synGoal=n.id;insGoal(n.id,INS.tab)}};
 ACT.insgo=el=>insGoal(el.dataset.id);ACT.inslink=el=>insLink(el.dataset.a,el.dataset.b);ACT.insday=el=>insRange(el.dataset.id,el.dataset.a,el.dataset.b);
 ACT.insrev=el=>{insClose();openDrawer(el.dataset.id,'rev')};
@@ -2411,7 +2430,17 @@ function wellCard(){const t=todayKey(),w0=addD(t,-6),D=trData(),tr=D.sessions.fi
 function insRisk(g){const sl=[],tr={};Object.keys(g.logs).forEach(k=>{const l=g.logs[k];if(l&&l.slip){sl.push(k);if(l.trig)tr[l.trig]=(tr[l.trig]||0)+1}});const wd=[0,0,0,0,0,0,0];sl.forEach(k=>wd[dow(k)]++);const mx=Math.max(...wd),sos=brLog().filter(x=>x.gid===g.id),dr=sos.filter(x=>x.u0!=null&&x.u1!=null).map(x=>x.u0-x.u1),tk=Object.keys(tr).sort((a,b)=>tr[b]-tr[a]).slice(0,3);
  return `<div class="card" style="margin-top:12px"><div class="b">Risk pattern</div>${sl.length?`<div class="xs mute" style="margin-top:6px">Slips by weekday</div><div class="inbars" style="height:46px">${wd.map((v,i)=>insBar(WD[i][0],mx,v,v===mx&&mx>0)).join('')}</div>${tk.length?`<div class="sm" style="margin-top:6px">Most common triggers: ${tk.map(k=>esc(k)+' ('+tr[k]+')').join(', ')}.</div>`:''}`:'<div class="sm mute" style="margin-top:6px">No slips recorded. Keep noting what triggers an urge when one comes.</div>'}<div class="sm" style="margin-top:8px">Urge SOS sessions: <b>${sos.length}</b>${dr.length?`, average urge drop <b>${avg(dr).toFixed(1)}</b> points`:''}.</div></div>`}
 /* leave the inspector before opening other screens, and refresh it after logging */
-(function(){const wrap=(n,close)=>{const f=ACT[n];if(!f)return;ACT[n]=function(el,e){if(INS.on&&close)insClose();const r=f.call(this,el,e);if(INS.on&&!close)setTimeout(()=>{if(INS.on&&INS.m==='goal')insRender()},60);return r}};wrap('open',true);wrap('sos',true);wrap('breath',true);wrap('train',true);wrap('done',false);wrap('slip',false);wrap('insrev',false)})();
+(function(){const wrap=(n,close)=>{const f=ACT[n];if(!f)return;ACT[n]=function(el,e){if(INS.on&&close)insClose();const r=f.call(this,el,e);if(INS.on&&!close)setTimeout(()=>{if(INS.on&&INS.m==='goal')insRender()},60);return r}};const pre=(n)=>{const f=ACT[n];if(!f)return;ACT[n]=function(el,e){if(INS.on)insClose();if(UI.fs)setFS(false);return f.call(this,el,e)}};['open','sos','breath','train','insrev'].forEach(pre);wrap('done',false);wrap('slip',false)})();
+
+/* every metric for one goal, in one animated list */
+function insMt(g,C){const s=C.s,q=C.q,t=todayKey(),pc=v=>v==null?'-':Math.round(v*100)+'%',wdN=C.wd.map((x,i)=>({i,r:x.o>=2?x.d/x.o:null})).filter(x=>x.r!=null).sort((a,b)=>b.r-a.r),bt=C.tod.slice().sort((a,b)=>b.c-a.c)[0],dayN=clamp(diffD(g.start,t)+1,0,lenDays(g));
+ const R=[['Type',q?'Quit a habit':'Build a habit'],['Priority',PRI[g.priority].n],['Schedule',schedText(g)],['Round',fmtD(g.start)+' to '+fmtD(g.end)],['Day',dayN+' of '+lenDays(g)],
+  [q?'Clean days':'Reps done',q?String(s.done):s.done+' of '+s.expT],['Adherence overall',pc(s.adh)],['Adherence, 28 days',pc(C.w28.rate)],['Adherence, 7 days',pc(C.w7.rate)],
+  ['Current streak',s.streak+' '+({d:'days',wk:'weeks',mo:'months'})[s.unit]],['Best streak',String(s.best)],[q?'Old pathway':'Strength',Math.round(C.nowV*100)+'%'],
+  ['Momentum, 14 days',C.mom==null?'-':(C.mom>0?'+':'')+Math.round(C.mom)+' pts'],...(q?[['Slips',String(s.slips)],['Urges ridden out',String(s.urges)],['Days since last slip',(()=>{const k=Object.keys(g.logs).filter(k=>g.logs[k]&&g.logs[k].slip).sort().pop();return k?String(diffD(k,t)):'none'})()]]:[['Pace',s.pace?s.pace+(s.delta?' ('+(s.delta>0?'+':'')+s.delta+')':''):'-'],['Finish estimate',s.eta?fmtD(s.eta):'-'],['Average quality',s.q?s.q.toFixed(1)+' of 5':'-']]),
+  ['Time logged',s.min?dur(s.min):'-'],['Last '+(q?'clean day':'done'),C.last?fmtD(C.last):'-'],['Days since last',C.gap==null?'-':String(C.gap)],
+  [q?'After a slip: back on track':'Never miss twice',C.nmt==null?'-':pc(C.nmt)],['Recovery time',C.recAvg==null?'-':C.recAvg.toFixed(1)+' days'],['Best weekday',wdN[0]?WD[wdN[0].i]+' ('+pc(wdN[0].r)+')':'-'],['Weakest weekday',wdN.length>1?WD[wdN[wdN.length-1].i]+' ('+pc(wdN[wdN.length-1].r)+')':'-'],['Most active time',bt&&bt.c?bt.n:'-'],['Neural health',String(C.health)],['Status',C.status]];
+ return `<div class="inmt">${R.map(r=>`<div class="mrow"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('')}</div><div class="xs mute" style="margin-top:10px">All numbers come from your own logs. Neural health is a rule of thumb, not a brain measurement.</div>`}
 /* ===== export / import ===== */
 function downloadText(name,text,mime){const b=new Blob([text],{type:(mime||'text/plain')+';charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function copyText(t){try{return navigator.clipboard.writeText(t)}catch(e){}const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove()}
@@ -2632,8 +2661,8 @@ const G_TRAIN=[
  ['ins','Tracking','Every session is saved with time, work time, estimated calories, and your effort rating. Insights shows today, 7 days, 30 days and all time, a 14 day chart, focus balance (front, sides, back, mobility) and personal bests. Each session also logs your Core training goal, so it fires on the map. A session under 5 minutes counts as the minimum version.'],
  ['help','Safety','Stop if you feel sharp pain, dizziness or chest discomfort. If you have a back injury, recent surgery, are pregnant, or have diastasis recti, check with a doctor or physiotherapist first. This is a training guide, not medical advice.']];
 const G_NEW=[
- ['target','Neural Inspector','In full screen, one tap on a goal opens the Inspector. Otherwise tap it once to select and again to open. It shows a Neural health ring, a status such as Strengthening or Wobbling, what is making the goal strong and what is dragging it with one suggested action each, a timeline, and its connections. Tap a link line between two goals to see how they affect each other: co-fire rate, spillover and a plain verdict. In Path view, tap a brick to see that stretch of days. The numbers are a rule of thumb from your own logs, not a brain measurement.'],
- ['target','Path view and the brick fire','Pick Path in the map switch. You are a tiny stick figure. For a build goal you stand on one cliff, your goal on the other, and each day you complete lays a brick across the gap and you walk out along it. Finishing one plays a short sequence: dust, a light that runs toward the goal, and a line such as "Day 12 laid". Milestone days (3, 7, 14, 21, 30, 50, 66, 100) get a gold edge and a longer burst. For a quit goal the scene is reversed: you stand on firm ground facing away, the temptation is on the far side, and each clean day removes a brick so it drifts further away. Reduced motion shows just the caption.'],
+ ['target','Neural Inspector','One tap on a goal, path or brick opens it as a side panel, in full screen too. The visual slides aside and the numbers animate in, and you can still drag to rotate it. Tap empty space or the X to close. It shows a Neural health ring, a status such as Strengthening or Wobbling, what is making the goal strong and what is dragging it with one suggested action each, a timeline, and its connections. Tap a link line between two goals to see how they affect each other: co-fire rate, spillover and a plain verdict. In Path view, tap a brick to see that stretch of days. The numbers are a rule of thumb from your own logs, not a brain measurement.'],
+ ['target','Path view and the brick fire','Pick Path in the map switch. You are a tiny stick figure. For a build goal you stand on one cliff, your goal on the other, and each day you complete lays a brick across the gap and you walk out along it. Finishing one plays a short sequence: dust, a light that runs toward the goal, and a line such as "Day 12 laid". Milestone days (3, 7, 14, 21, 30, 50, 66, 100) get a gold edge and a longer burst. For a quit goal the scene is reversed: you stand on firm ground facing away, the temptation is on the far side, and each clean day removes a brick so it drifts further away, and the figure swings a hammer, sends a bolt of light and bursts that brick. Reduced motion shows just the caption.'],
  ['globe','Connections between goals','Open a goal, go to Plan, then Connections on the map. Link it to another goal as supports, competes with or depends on. Once you add any link, the map shows only your links. Finishing a session sends a pulse to its linked goals.'],
  ['ins','Weekly shift and Wellbeing balance','Weekly shift in Insights compares the last 7 days with the 7 before for every goal. Wellbeing balance draws Body, Calm, Mind, Habits and Recovery from what you already log. It shows consistency, not a health score.'],
  ['reset','Hard refresh','Settings has a Hard refresh button. It clears the stored copy of the app and loads the newest version. Your data stays.']];
