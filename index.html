@@ -1172,7 +1172,7 @@ function pathStat(g){const s=gStats(g),L=lenDays(g),N=clamp(L,4,innerWidth<500?2
 function isoQuad(x,y,l,dep,sk){return [[x,y],[x+l,y],[x+l+sk,y-dep],[x+sk,y-dep]]}
 function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();BHIT=[];let capFn=null;
  if(!g){cx.fillStyle='rgba(235,240,255,.7)';cx.font='600 15px Bricolage Grotesque,system-ui,sans-serif';cx.textAlign='center';cx.fillText('Add a goal to see your path',W/2,H/2);return}
- cx.save();cx.translate(W/2+SH.x,H/2+SH.y);cx.scale(SH.s,SH.s);cx.translate(-W/2,-H/2);BP=null;const hitE=PF&&PF.g===g.id&&PF.hit?(performance.now()-PF.t0)/1000:9;
+ cx.save();cx.translate(W/2+SH.x,H/2+SH.y);cx.scale(SH.s,SH.s);cx.translate(-W/2,-H/2);BP=null;const fe=PF&&PF.g===g.id?(performance.now()-PF.t0)/1000:99,hitE=PF&&PF.g===g.id&&PF.hit?fe:9;
  const FL=isB(g);if(FL){cx.save();cx.translate(W,0);cx.scale(-1,1)}
  const P=pathStat(g),r=rt(g),N=P.N,q=P.q,col=q?mix(th.acc2,'#ff5d73',.5):g.color,rgb=rgbOf(col),acc=rgbOf(g.color);
  const a=PA[g.id]=PA[g.id]&&PA[g.id].length===N?PA[g.id]:(()=>{const x=new Float32Array(N);for(let i=0;i<N;i++)x[i]=(q?i<N-P.k:i<P.k)?1:0;return x})();
@@ -1205,12 +1205,28 @@ function drawPath(now,dt){const th=TH(),t=now*.001,g=focusG(),rd=reduced();BHIT=
 /* the person: a tiny stick figure. Build: walks out along the new bricks. Quit: stands on firm ground and turns away */
  const tgt=q?0:(head>=0?head+.5:-.4),pi=r.pi==null?tgt:r.pi;r.pi=rd?tgt:pi+(tgt-pi)*Math.min(1,dt*3);const moving=!q&&Math.abs(tgt-r.pi)>.05;
  const ox=q?X0+cw*.55:gx0+(r.pi+.5)*bl+(r.pi<0?-cw*.35:0),oy=yAt(ox)-dep*.5,mh=clamp(SW*.055,20,38),today=dueState(g).s==='done';
- glow(ox,oy-mh*.5,mh*1.3,acc,.3+r.flash*.4);stickMan(ox,oy,mh,t,hitE<1.1&&!rd?'hit':moving?'walk':(r.flash>.25||today&&q&&!rd&&(t%6<1.6))?'cheer':'stand',q?-1:1,rd,hitE);
+  /* idle life: stands, paces, thinks, hops, looks around */
+ let mode='stand',dx=0,jy=0,dr=q?-1:1,think=false;
+ const cel=PF&&PF.g===g.id&&PF.kind!=='slip'&&fe>(PF.hit?1.2:.7)&&fe<(PF.kind==='mile'?4.6:3);
+ if(hitE<1.1&&!rd)mode='hit';
+ else if(cel&&!rd){mode='cheer';jy=-Math.abs(Math.sin((fe-.7)*5.5))*mh*.55}
+ else if(moving)mode='walk';
+ else if(!rd){const cy=(t+(g.id.charCodeAt(g.id.length-1)%7))%15;
+  if(cy>=3&&cy<6){const p=(cy-3)/3;mode='walk';dx=Math.sin(p*6.283)*mh*.9;dr=Math.cos(p*6.283)>=0?1:-1;if(q)dr=-dr}
+  else if(cy>=7&&cy<10.5){mode='think';think=true}
+  else if(cy>=11&&cy<12){mode='cheer';jy=-Math.abs(Math.sin((cy-11)*3.14159))*mh*.8}
+  else if(cy>=12.5&&cy<14){dr=Math.sin((cy-12.5)*4)>0?1:-1;if(q)dr=-dr}
+  else if(r.flash>.25||today&&q&&(t%6<1.6))mode='cheer'}
+ glow(ox+dx,oy-mh*.5+jy,mh*1.3,acc,.3+r.flash*.4);stickMan(ox+dx,oy+jy,mh,t,mode,dr,rd,hitE);
+ if(think){cx.fillStyle='rgba(255,255,255,.8)';for(let k=0;k<3;k++){const a=.4+.6*Math.max(0,Math.sin(t*3-k*.8));cx.globalAlpha=a;cx.beginPath();cx.arc(ox+dx+(k-1)*mh*.3,oy-mh*1.25-k*mh*.05,mh*.07+k*.4,0,6.283);cx.fill()}cx.globalAlpha=1}
  /* fire sequence: dust, light run and a caption */
- if(PF&&PF.g===g.id){const e=(performance.now()-PF.t0)/1000,life=PF.kind==='mile'?5:3;if(e>life){PF=null}else{
+ if(PF&&PF.g===g.id){const e=(performance.now()-PF.t0)/1000,life=PF.kind==='mile'?5.4:3.6;if(e>life){PF=null}else{
   if(PF.hit&&BP&&!rd){if(e>.42&&e<.95){const f=(e-.42)/.53,sx=ox+mh*.9*(q?1:-1)*0,sy=oy-mh*.9;cx.save();cx.globalAlpha=.9;cx.strokeStyle='#fff';cx.shadowColor=col;cx.shadowBlur=12;cx.lineWidth=2;cx.beginPath();cx.moveTo(sx,sy);const ex=sx+(BP.x-sx)*f,ey=sy+(BP.y-sy)*f;for(let k=1;k<6;k++){const u=k/6;cx.lineTo(sx+(ex-sx)*u+(Math.random()-.5)*8,sy+(ey-sy)*u+(Math.random()-.5)*8)}cx.lineTo(ex,ey);cx.stroke();cx.restore();glow(ex,ey,14,rgb,.9)}
    if(e>=.95&&!PF.boom){PF.boom=true;for(let i=0;i<30;i++){const a=Math.random()*6.283,sp=40+Math.random()*130;PF.p.push({x:BP.x,y:BP.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40,l:1})}PF.ring=BP;sfx('fire')}
    if(PF.ring&&e<1.7){const f=(e-.95)/.75;cx.strokeStyle=rgba('#ffffff',Math.max(0,1-f));cx.lineWidth=2;cx.beginPath();cx.arc(PF.ring.x,PF.ring.y,dep*(.5+f*3),0,6.283);cx.stroke();glow(PF.ring.x,PF.ring.y,dep*3,rgb,Math.max(0,.8-f))}}
+  if(!PF.hit&&PF.kind!=='slip'&&HP&&e>.45&&!PF.boom&&!rd){PF.boom=true;PF.ring=HP;for(let i=0;i<14;i++){const a=-Math.PI/2+(Math.random()-.5)*2.6,sp=60+Math.random()*110;PF.sh=(PF.sh||[]);PF.sh.push({x:HP.x,y:HP.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:Math.random()*6,vr:(Math.random()-.5)*14,z:2+Math.random()*3.5,l:1})}}
+  if(PF.hit&&PF.boom&&BP&&!PF.sh&&!rd){PF.sh=[];for(let i=0;i<18;i++){const a=Math.random()*6.283,sp=50+Math.random()*150;PF.sh.push({x:BP.x,y:BP.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-60,r:Math.random()*6,vr:(Math.random()-.5)*16,z:2.5+Math.random()*4,l:1})}}
+  if(PF.sh){cx.fillStyle=rgba(mix(th.panel,'#ffffff',.45),1);cx.strokeStyle=rgba(col,.9);cx.lineWidth=1;PF.sh.forEach(q2=>{q2.x+=q2.vx*dt;q2.y+=q2.vy*dt;q2.vy+=260*dt;q2.r+=q2.vr*dt;q2.l-=dt*.55;if(q2.l>0){cx.save();cx.globalAlpha=Math.min(1,q2.l*1.5);cx.translate(q2.x,q2.y);cx.rotate(q2.r);cx.beginPath();cx.moveTo(-q2.z,-q2.z*.7);cx.lineTo(q2.z,-q2.z*.3);cx.lineTo(q2.z*.3,q2.z*.8);cx.closePath();cx.fill();cx.stroke();cx.restore()}});cx.globalAlpha=1}
   if(PF.spawn&&HP){PF.spawn=false;const n=rd?0:PF.kind==='mile'?36:PF.kind==='slip'?6:18;for(let i=0;i<n;i++){const a=-Math.PI/2+(Math.random()-.5)*2.4,sp=30+Math.random()*90;PF.p.push({x:HP.x,y:HP.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:1})}}
   const gold=PF.kind==='mile',pc=PF.kind==='slip'?'#ff9aa8':gold?'#ffd23f':g.color;PF.p.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=120*dt;p.l-=dt*.9;if(p.l>0){cx.globalAlpha=p.l*.8;cx.fillStyle=pc;cx.fillRect(p.x,p.y,2.2,2.2)}});cx.globalAlpha=1;
   if(HP&&!rd&&e<1.6&&PF.kind!=='slip'){const f=e/1.6;cx.strokeStyle=rgba(pc,(1-f)*.7);cx.lineWidth=1.6;cx.beginPath();cx.arc(HP.x,HP.y,dep*(.6+f*2.4),0,6.283);cx.stroke()}
@@ -1238,7 +1254,7 @@ function stickMan(x,y,h,t,mode,dir,rd,he){const c=cx,u=h/10,w=Math.max(1.6,h*.07
  const sp=mode==='walk'?sw*.75:.3;leg(sp,sw<0&&mode==='walk');leg(-sp,sw>0&&mode==='walk');
  c.beginPath();c.moveTo(hip[0],hip[1]);c.lineTo(sh[0],sh[1]);c.stroke();
  const arm=(a,up)=>{c.beginPath();c.moveTo(sh[0],sh[1]+u*.3);if(up){c.lineTo(sh[0]+a*u*1.6,sh[1]-u*1.4);c.lineTo(sh[0]+a*u*2.4,sh[1]-u*2.8)}else{c.lineTo(sh[0]+Math.sin(a)*u*1.3,sh[1]+u*1.7);c.lineTo(sh[0]+Math.sin(a)*u*1.8,sh[1]+u*3.2)}c.stroke()};
- if(mode==='hit'){const sw2=he<.25?-1.1:he<.42?-1.1+(he-.25)/.17*2.6:1.5-(he-.42)*.6;arm(-.5,false);c.beginPath();c.moveTo(sh[0],sh[1]+u*.3);const hx=sh[0]+Math.sin(sw2)*u*2.6,hy=sh[1]-Math.cos(sw2)*u*2.6;c.lineTo(hx,hy);c.stroke();c.lineWidth=w*1.1;const ax=Math.sin(sw2),ay=-Math.cos(sw2);c.beginPath();c.moveTo(hx,hy);c.lineTo(hx+ax*u*1.2,hy+ay*u*1.2);c.stroke();c.lineWidth=w*2.4;c.beginPath();c.moveTo(hx+ax*u*1.2-ay*u*.9,hy+ay*u*1.2+ax*u*.9);c.lineTo(hx+ax*u*1.2+ay*u*.9,hy+ay*u*1.2-ax*u*.9);c.stroke();c.lineWidth=w}else if(mode==='cheer'){arm(-1,true);arm(1,true)}else if(mode==='walk'){arm(-sw*.9+.1,false);arm(sw*.9+.1,false)}else{arm(-.5,false);arm(.5,false)}
+ if(mode==='think'){arm(-.5,false);c.beginPath();c.moveTo(sh[0],sh[1]+u*.3);c.lineTo(sh[0]+u*1.5,sh[1]+u*1.1);c.lineTo(hd[0]+u*.7,hd[1]+u*1.4);c.stroke()}else if(mode==='hit'){const sw2=he<.25?-1.1:he<.42?-1.1+(he-.25)/.17*2.6:1.5-(he-.42)*.6;arm(-.5,false);c.beginPath();c.moveTo(sh[0],sh[1]+u*.3);const hx=sh[0]+Math.sin(sw2)*u*2.6,hy=sh[1]-Math.cos(sw2)*u*2.6;c.lineTo(hx,hy);c.stroke();c.lineWidth=w*1.1;const ax=Math.sin(sw2),ay=-Math.cos(sw2);c.beginPath();c.moveTo(hx,hy);c.lineTo(hx+ax*u*1.2,hy+ay*u*1.2);c.stroke();c.lineWidth=w*2.4;c.beginPath();c.moveTo(hx+ax*u*1.2-ay*u*.9,hy+ay*u*1.2+ax*u*.9);c.lineTo(hx+ax*u*1.2+ay*u*.9,hy+ay*u*1.2-ax*u*.9);c.stroke();c.lineWidth=w}else if(mode==='cheer'){arm(-1,true);arm(1,true)}else if(mode==='walk'){arm(-sw*.9+.1,false);arm(sw*.9+.1,false)}else{arm(-.5,false);arm(.5,false)}
  c.beginPath();c.arc(hd[0],hd[1],u*1.15,0,6.283);c.fill();c.restore()}
 /* ===== screen-level fire effects: a burst wherever you tap, plus a bolt of light into the brand neuron ===== */
 const FXC=$('#fxcv'),fxx=FXC.getContext('2d');let FXW=0,FXH=0,FXP=[],FXR=[],FXT=[],FXB=[],fxOn=false,fxLast=0;
@@ -2662,7 +2678,7 @@ const G_TRAIN=[
  ['help','Safety','Stop if you feel sharp pain, dizziness or chest discomfort. If you have a back injury, recent surgery, are pregnant, or have diastasis recti, check with a doctor or physiotherapist first. This is a training guide, not medical advice.']];
 const G_NEW=[
  ['target','Neural Inspector','One tap on a goal, path or brick opens it as a side panel, in full screen too. The visual slides aside and the numbers animate in, and you can still drag to rotate it. Tap empty space or the X to close. It shows a Neural health ring, a status such as Strengthening or Wobbling, what is making the goal strong and what is dragging it with one suggested action each, a timeline, and its connections. Tap a link line between two goals to see how they affect each other: co-fire rate, spillover and a plain verdict. In Path view, tap a brick to see that stretch of days. The numbers are a rule of thumb from your own logs, not a brain measurement.'],
- ['target','Path view and the brick fire','Pick Path in the map switch. You are a tiny stick figure. For a build goal you stand on one cliff, your goal on the other, and each day you complete lays a brick across the gap and you walk out along it. Finishing one plays a short sequence: dust, a light that runs toward the goal, and a line such as "Day 12 laid". Milestone days (3, 7, 14, 21, 30, 50, 66, 100) get a gold edge and a longer burst. For a quit goal the scene is reversed: you stand on firm ground facing away, the temptation is on the far side, and each clean day removes a brick so it drifts further away, and the figure swings a hammer, sends a bolt of light and bursts that brick. Reduced motion shows just the caption.'],
+ ['target','Path view and the brick fire','Pick Path in the map switch. You are a tiny stick figure. For a build goal you stand on one cliff, your goal on the other, and each day you complete lays a brick across the gap and you walk out along it. Finishing one plays a short sequence: dust, a light that runs toward the goal, and a line such as "Day 12 laid". Milestone days (3, 7, 14, 21, 30, 50, 66, 100) get a gold edge and a longer burst. For a quit goal the scene is reversed: you stand on firm ground facing away, the temptation is on the far side, and each clean day removes a brick so it drifts further away, and the figure swings a hammer, sends a bolt of light and bursts that brick. The figure is never frozen: it paces, thinks, hops and looks around. On every fired day the brick bursts into pieces and the figure celebrates. Reduced motion shows just the caption.'],
  ['globe','Connections between goals','Open a goal, go to Plan, then Connections on the map. Link it to another goal as supports, competes with or depends on. Once you add any link, the map shows only your links. Finishing a session sends a pulse to its linked goals.'],
  ['ins','Weekly shift and Wellbeing balance','Weekly shift in Insights compares the last 7 days with the 7 before for every goal. Wellbeing balance draws Body, Calm, Mind, Habits and Recovery from what you already log. It shows consistency, not a health score.'],
  ['reset','Hard refresh','Settings has a Hard refresh button. It clears the stored copy of the app and loads the newest version. Your data stays.']];
