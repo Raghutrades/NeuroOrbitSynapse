@@ -3506,86 +3506,6 @@ function renderSet(){const s=S.set,N=s.notif,perm=notifPerm(),standalone=matchMe
   <div class="row wrapr" style="margin-top:12px"><button class="btn danger" data-act="cleanstart">Clean start (keep settings)</button><button class="btn danger ghost" data-act="resetall">Reset everything</button></div></div>`}
 
 
-/* ===== splash + init ===== */
-let SPDONE=false,SPSHORT=false;
-function endSplash(){if(SPDONE)return;SPDONE=true;const s=$('#splash');s.classList.add('out');setTimeout(()=>s.remove(),900);afterSplash()}
-function splashAnim(sc){const c=$('#spcv'),x=c.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1),w=innerWidth,h=innerHeight,cx0=w/2,cy0=h/2;c.width=w*dpr;c.height=h*dpr;x.scale(dpr,dpr);
- const th=THEMES[S.set.theme]||THEMES.blue,txt=APPNAME,fs=Math.min(w*.105,86),oc=document.createElement('canvas');oc.width=w;oc.height=Math.ceil(fs*1.6);const ox=oc.getContext('2d');
- ox.fillStyle='#fff';ox.font=`800 ${fs}px "Bricolage Grotesque",system-ui,sans-serif`;ox.textAlign='center';ox.textBaseline='middle';ox.fillText(txt,w/2,oc.height/2);
- const img=ox.getImageData(0,0,oc.width,oc.height).data,step=w<600?3:4,P=[],nb=$('#spname').getBoundingClientRect(),ty=nb.top+nb.height/2-oc.height/2,cols=th.neb.map(n=>`rgb(${n})`);
- for(let yy=0;yy<oc.height;yy+=step)for(let xx=0;xx<oc.width;xx+=step)if(img[(yy*oc.width+xx)*4+3]>128){const a=Math.random()*6.283,r=Math.max(w,h)*(.6+Math.random()*.5);P.push({tx:xx,ty:yy+ty,sx:cx0+Math.cos(a)*r,sy:cy0+Math.sin(a)*r,d:Math.random()*.9,sw:(Math.random()<.5?-1:1)*(1.5+Math.random()*2),c:Math.random()});}
- const NS=w<600?420:800,F=Math.min(w,h)*.9,ZM=3,ST=[];for(let i=0;i<NS;i++)ST.push({x:(Math.random()-.5)*5,y:(Math.random()-.5)*5,z:Math.random()*ZM,px:null,py:null,c:Math.random()});
- const NN=7,NEU=[];for(let i=0;i<NN;i++)NEU.push({x:(Math.random()-.5)*3.4,y:(Math.random()-.5)*2.2,z:ZM*(i+.5)/NN,segs:genTree(500+i),sc:.5+Math.random()*.4,col:th.neb[i%3]});
- const T0=performance.now(),TT=10.6*sc;let last=T0,camZ=0;
- const ease=k=>1-Math.pow(1-clamp(k,0,1),3),sm=k=>{k=clamp(k,0,1);return k*k*(3-2*k)};
- const draw0=now=>{if(SPDONE)return;const t=(now-T0)/1000/sc,dt=Math.min(.05,(now-last)/1000);last=now;
-  /* camera speed: warp, glide, hold, then dive through the logo */
-  const v=(t<2.6?1.6+2.4*sm(t/1.2):1.2*(1-sm((t-2.6)/1.6))+.05)+(t>8.6?sm((t-8.6)/.9)*9:0);
-  x.globalCompositeOperation='source-over';x.fillStyle=`rgba(${th.bg0||'2,6,16'},${t>8.6?.4:.34})`;x.fillRect(0,0,w,h);
-  x.globalCompositeOperation='lighter';
-  ST.forEach(s=>{s.z-=v*dt/sc;if(s.z<=.04){s.z=ZM;s.px=null}const k=F/s.z,X=cx0+s.x*k,Y=cy0+s.y*k;if(X<-50||X>w+50||Y<-50||Y>h+50){s.z=ZM;s.px=null;return}
-   const a=clamp(1-s.z/ZM,0,1)*(t<3.2?1:Math.max(.25,1-(t-3.2)*.6));if(s.px!=null){x.strokeStyle=s.c<.2?`rgba(${th.neb[0]},${a})`:`rgba(200,220,255,${a*.9})`;x.lineWidth=.6+a*1.8;x.beginPath();x.moveTo(s.px,s.py);x.lineTo(X,Y);x.stroke()}s.px=X;s.py=Y});
-  /* neurons flying past */
-  NEU.forEach(n=>{n.z-=v*dt/sc*.9;if(n.z<=.12){n.z+=ZM;n.x=(Math.random()-.5)*3.4;n.y=(Math.random()-.5)*2.2}const k=F/n.z,X=cx0+n.x*k,Y=cy0+n.y*k,R=n.sc*k*.5,fade=clamp(n.z<.4?n.z/.4:1,0,1)*clamp((ZM-n.z)/1.2,0,1)*(t>5.4?Math.max(0,1-(t-5.4)*1.2):1);if(fade<=.01||Math.abs(X-cx0)>w||Math.abs(Y-cy0)>h)return;
-   x.strokeStyle=`rgba(${n.col},${.5*fade})`;x.lineWidth=Math.max(.5,1.4*k/F*3);x.beginPath();n.segs.forEach(s=>{if(s.d>3)return;const ax=X+s.a[0]*R,ay=Y+s.a[1]*R,bx=X+s.b[0]*R,by=Y+s.b[1]*R;x.moveTo(ax,ay);x.lineTo(bx,by)});x.stroke();
-   const g=x.createRadialGradient(X,Y,0,X,Y,R*.6);g.addColorStop(0,`rgba(255,255,255,${.9*fade})`);g.addColorStop(.3,`rgba(${n.col},${.5*fade})`);g.addColorStop(1,`rgba(${n.col},0)`);x.fillStyle=g;x.fillRect(X-R,Y-R,R*2,R*2)});
-  /* nebula glow */
-  for(let i=0;i<4;i++){const a=t*.25+i*1.6,rx=cx0+Math.cos(a)*w*.3,ry=cy0+Math.sin(a*1.2)*h*.25,g=x.createRadialGradient(rx,ry,0,rx,ry,w*.28);g.addColorStop(0,`rgba(${th.neb[i%3]},.07)`);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(rx-w*.3,ry-w*.3,w*.6,w*.6)}
-  /* title particles gather out of the swarm, then burst through the camera */
-  const form=t-2.0,ex=t>8.6?(t-8.6)/1.2:0;
-  if(form>0){P.forEach((p,i)=>{const k=ease((form-p.d*.9)/2.7);let X=p.sx+(p.tx-p.sx)*k,Y=p.sy+(p.ty-p.sy)*k;const sw=(1-k)*p.sw;if(sw){const dx=X-cx0,dy=Y-cy0,ca=Math.cos(sw),sa=Math.sin(sw);X=cx0+dx*ca-dy*sa;Y=cy0+dx*sa+dy*ca}
-   if(k>=1){const wb=Math.sin(t*2+i)*.6;X+=wb;Y+=wb}
-   if(ex>0){const f=1+ex*ex*22;X=cx0+(X-cx0)*f;Y=cy0+(Y-cy0)*f}
-   const al=clamp(.15+.85*k,0,1)*(1-clamp(ex*1.1,0,1));if(al<=.01)return;x.globalAlpha=al;x.fillStyle=p.c<.14?th.acc:p.c<.28?cols[0]:'#ffffff';const z=2.2+(ex>0?ex*3:0);x.fillRect(X-z/2,Y-z/2,z,z)});x.globalAlpha=1;
-   /* flash and shock ring when the name locks in */
-   const fl=form-2.7;if(fl>0&&fl<1.2){const rr=fl*Math.max(w,h)*.55;x.strokeStyle=`rgba(${th.neb[0]},${(1-fl/1.2)*.7})`;x.lineWidth=2+6*(1-fl/1.2);x.beginPath();x.arc(cx0,cy0,rr,0,6.283);x.stroke();const g=x.createRadialGradient(cx0,cy0,0,cx0,cy0,w*.4);g.addColorStop(0,`rgba(255,255,255,${(1-fl/1.2)*.18})`);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}}
-  if(ex>0){const g=x.createRadialGradient(cx0,cy0,0,cx0,cy0,Math.max(w,h)*.7);g.addColorStop(0,`rgba(255,255,255,${Math.min(1,ex)*.28})`);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}
-  x.globalCompositeOperation='source-over';
-  const lay=$('#splash .sc');if(lay)lay.style.opacity=t>8.5?String(Math.max(0,1-(t-8.5)/.7)):'1';
-  if(t<TT/sc)requestAnimationFrame(draw)};
- const draw=now=>{try{draw0(now)}catch(e){console.error(e);endSplash()}};
- x.fillStyle=th.bg;x.fillRect(0,0,w,h);requestAnimationFrame(draw);return TT}
-SFX.cine=()=>{if(!S.set.snd.on)return;tone(55,9.5,{type:'sine',v:.2,lp:300,atk:1.6});tone(82.4,9,{type:'triangle',v:.1,lp:500,atk:2});noise(2.4,{f:150,to:5200,v:.1,q:.7});
- [196,294,392,523].forEach((f,i)=>tone(f,2.6,{at:2.6+i*.14,v:.07,type:'triangle',atk:.4}));tone(70,1.4,{at:4.7,to:28,v:.35,type:'sine'});noise(1.2,{f:3000,to:200,v:.12,q:.5});[784,988,1319,1568].forEach((f,i)=>tone(f,1.8,{at:4.9+i*.18,v:.08}));noise(1.1,{f:300,to:6000,v:.14,q:.8});}
-function runSplash(){try{runSplash0()}catch(e){console.error(e);endSplash()}setTimeout(endSplash,15000)}
-function runSplash0(){const sp=$('#splash'),k=todayKey();if(!S.set.splash||new URLSearchParams(location.search).get('splash')==='0'){sp.remove();SPDONE=true;afterSplash();return}
- const shortRun=S.set.splashDay===k;S.set.splashDay=k;save();SPSHORT=shortRun&&!S.set.flags.fullSplash;
- $('#sptag').textContent=TAGLINE;$('#spq').textContent='"'+SPLASH_Q[Math.floor(Math.random()*SPLASH_Q.length)]+'"';
- const it=todayItems(k).filter(i=>i.st.s==='due'),mx=S.goals.filter(g=>g.priority==='must'&&dueState(g,k).s==='due');
- $('#sps').textContent=S.goals.length?(it.length?`${it.length} goal${it.length===1?'':'s'} due today${mx.length?', '+mx.length+' marked Must':''}`:'Nothing due. Rest or get ahead.'):'Welcome. Plant your first neuron.';
- sp.classList.toggle('short',SPSHORT);
- const sk=$('#spskip');if(sk)sk.onclick=e=>{e.stopPropagation();endSplash()};const sb=$('#spsnd');if(sb){sb.style.display=S.set.snd.on?'':'none';sb.onclick=e=>{e.stopPropagation();try{ac()}catch(x){}try{SFX.cine()}catch(x){}sb.style.display='none'}}
- if(!reduced()){$('#spname').textContent='';let dur=3000;const go=()=>{try{dur=splashAnim(SPSHORT?.62:1)*1000/(SPSHORT?1:1)}catch(e){$('#spname').innerHTML=`<div class="b" style="font-size:44px">${APPNAME}</div>`}setTimeout(endSplash,dur-200)};
-  try{SFX.cine()}catch(e){}
-  if(document.fonts&&document.fonts.load){Promise.race([document.fonts.load('800 60px "Bricolage Grotesque"'),new Promise(r=>setTimeout(r,700))]).then(go)}else go()}
- else{$('#spname').innerHTML=`<div class="b" style="font-size:40px;letter-spacing:-.02em">${APPNAME}</div>`;setTimeout(endSplash,1800)}
- sp.addEventListener('click',()=>{try{ac()}catch(e){}})}
-function afterSplash(){BADGE_QUIET=false;setTimeout(()=>{try{pulseMaybe()}catch(e){}},2600);if(!S.set.flags.tourV5&&new URLSearchParams(location.search).get('tour')!=='0')setTimeout(()=>tourShow(0),700);if(S.set.music.on)musSync();setTimeout(()=>{catchUp();checkAlerts()},400);handleParams();if(S.set.snd.amb)ambience(true)}
-function handleParams(){const p=new URLSearchParams(location.search);let ch=false;
- if(p.get('done')){const g=gById(p.get('done'));if(g&&dueState(g).s!=='done'){logDone(g);save();toast('Logged from notification: '+g.name);ch=true}}
- if(p.get('goal')){const g=gById(p.get('goal'));if(g)setTimeout(()=>openDrawer(g.id),500)}
- if(p.get('view'))go(p.get('view'));
- if(p.toString()){try{history.replaceState(null,'',location.pathname)}catch(e){}}if(ch)renderAll()}
-function init(){try{init0()}catch(e){console.error(e);try{const sp=$('#splash');if(sp)sp.remove();SPDONE=true;requestAnimationFrame(frame)}catch(_){}showFail(e)}}
-function init0(){const st=loadState();BADGE_QUIET=true;
- /* map mode/layout also refresh settings */
- const _m=ACT.mode,_l=ACT.layout;ACT.mode=(el,e)=>{_m(el,e);if(UI.view==='set')renderSet()};ACT.layout=(el,e)=>{_l(el,e);if(UI.view==='set')renderSet()};
- applyTheme();qualityInit();$('#tagline').textContent=TAGLINE;size();initStars();relink();buildNav();
- $('#fsx').innerHTML=ic('fsx');checkBadges();
- UI.view=S.set.view&&VIEWS.some(v=>v[0]===S.set.view)?S.set.view:'home';go(UI.view);startQuotes();swInit();
- if(st==='migrated')setTimeout(()=>toast(`Welcome to NeuroOrbitSynapse. Your ${S.goals.length} earlier goal${S.goals.length===1?'':'s'} and all logs carried over.`),4200);
- runSplash();requestAnimationFrame(frame);
- let lastDay=todayKey();
- setInterval(()=>{tickClock();const k=todayKey();if(k!==lastDay){lastDay=k;REV++;renderAll()}},1000);
- setInterval(()=>{checkAlerts()},15000);setInterval(()=>{if(!document.hidden&&UI.view==='home'){renderHero();renderToday()}},60000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden){const k=todayKey();if(k!==lastDay){lastDay=k;REV++}checkAlerts();renderAll();size()}});
- addEventListener('resize',()=>{size()});if(window.ResizeObserver)new ResizeObserver(()=>size()).observe(mapwrap);
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(UI.fs)setFS(false);else if($('#modal').classList.contains('on'))closeModal();else closeDrawer()}});
- if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.type==='done'&&d.goal){const g=gById(d.goal);if(g&&dueState(g).s!=='done'){logDone(g);save();renderAll();toast('Logged: '+g.name)}}else if(d.type==='open'&&d.goal)openDrawer(d.goal)});
- document.addEventListener('pointerdown',()=>{try{ac()}catch(e){}},{once:true});
- window.__nos={S:()=>S,go,UI,fireGoal,ORDER:()=>ORDER}}
-init();
-
 /* ===== Guide: how to use, how it works, why it works + first-run tour ===== */
 const G_STEPS=[
  ['target','Add a goal','Tap New goal. Pick a template (reading, workout, trading discipline, quit smoking and more) or start blank. Choose how often: every day, certain weekdays, a number of times per week, every few days, or per month. Give it a start date and a round length. 100 days is the default, you can set any.'],
@@ -3705,9 +3625,9 @@ function tourShow(i){TI=i;let el=$('#tour');if(!el){el=document.createElement('d
 function tourEnd(){const el=$('#tour');if(el){el.classList.remove('on');setTimeout(()=>el.remove(),300)}S.set.flags.tourV5=true;save()}
 ACT.tour=()=>{go('home');sfx('open');tourShow(0)};ACT.tourskip=()=>{tourEnd();sfx('close')};ACT.tournext=()=>{sfx('nav');if(TI>=TOUR.length-1)tourEnd();else tourShow(TI+1)};
 /* ===== About the developer ===== */
-/* EDIT HERE: [title, one line, file you upload to GitHub]. Put the PDFs in a folder called books next to index.html */
+/* EDIT HERE: [title, one line, file you upload to GitHub]. Put the PDFs in the same folder as index.html */
 const ABOUT_PHOTO=['raghu.jpg','raghu.png','raghu.jpeg','raghu.webp'];
-const ABOUT_BOOKS=[['The False Green','Trading psychology: why a green screen can lie to you, and what it does to decisions.','books/the-false-green.pdf'],['Who\u2019s Trading Your Account? The Second Trader','The other trader inside you, the one who takes over when emotion kicks in.','books/who-is-trading-your-account.pdf'],['The Eight Power and Trading Paradoxes','The contradictions every trader has to live with.','books/eight-power-and-trading-paradoxes.pdf'],['The Inner Citadel Trade','Building the inside of a trader so the outside can follow.','books/inner-citadel-trade.pdf'],['The Blind Candle','Reading price and your own mind when the picture is incomplete.','books/the-blind-candle.pdf']];
+const ABOUT_BOOKS=[['The False Green','Trading psychology: why a green screen can lie to you, and what it does to decisions.','the-false-green.pdf'],['Who\u2019s Trading Your Account? The Second Trader','The other trader inside you, the one who takes over when emotion kicks in.','who-is-trading-your-account.pdf'],['The Eight Power and Trading Paradoxes','The contradictions every trader has to live with.','eight-power-and-trading-paradoxes.pdf'],['The Inner Citadel Trade','Building the inside of a trader so the outside can follow.','inner-citadel-trade.pdf'],['The Blind Candle','Reading price and your own mind when the picture is incomplete.','the-blind-candle.pdf']];
 const ABOUT_STORY=[['2018','First steps in the markets','I started trading in 2018. In those early days I lost money, mostly because I did not yet understand how markets actually behave.'],['2020 to 2023','Away from the screen, closer to the truth','I stepped back and worked freelance and regular jobs: video editing, After Effects, Blender. I also took an entry-level role at Fyers, answering calls from traders. Listening to so many of them taught me how markets really behave, and how human psychology shows up in trading: gaps in knowledge, technical problems, and the same emotional mistakes again and again. Later I left Fyers.'],['A hard stretch','Habits that became hurdles','This was also a heavy period personally. I went through depression and difficult life events, and fell into drinking and smoking. In time I saw that these habits distracted me from the goals I wanted and had become hurdles. I decided to quit, but I kept failing to control the urges. That is what sent me into books on neuroscience, and on trading, because I needed to make money and I never wanted to work under a boss.'],['2023 to 2024','Trading again, more lessons','I returned to trading while editing videos for creators on Instagram and YouTube. I made small amounts of money, explored trading again, and took more losses along the way.'],['The turning point','Quitting alcohol, and asking why','One day, full of hatred for the habit and the mental hangover that came with it, I quit alcohol. Then I focused on the real question: why could I not quit before? I took working on myself seriously. I studied characters from Breaking Bad, The Mentalist, The Big Bang Theory, Batman and Money Heist, tried to borrow their habits, read more on habits, neuroscience and trading, learned to think in systems, and built my own tools, including the QuantReloaded dashboard.'],['Today','Sober, and still building','I have been completely sober for almost a year now. Smoking still triggers me sometimes, and I know I will quit that too. NeuroOrbitSynapse is what that journey turned into: a way to watch the habits you wire, and the ones you let go of.']];
 const ABOUT_WHY=[['sprout','Repetition builds circuits','Neurons that fire together wire together. The idea behind the app, drawn from Dr Lee Warren’s neuroscience writing, is simple: showing up again and again is what changes you.'],['target','100 is the number','A goal runs a round of 100: 100 days of showing up. Not perfection, just showing up. A missed day dents the path but never erases it.'],['shield','Quit goals matter too','Old habits are pathways. Leaving one alone is not failure, it is the pathway getting weaker. The app shows that as a neuron that shrinks.'],['lotus','Calm is part of the system','Breathing, core training and brain games are in here because a steady mind is what makes the daily reps possible.']];
 const ABOUT_PRIV=['Everything you enter stays on this device, in your browser’s local storage.','There is no account, no sign-up and no server that holds your goals.','Export a backup from Settings and import it on any other device whenever you want.','Install it from your browser menu (Add to Home Screen) and it works offline.'];
@@ -3728,4 +3648,84 @@ ACT.abcopy=()=>{copyText('@NerdyIntruder');toast('Handle copied')};
 ACT.wallfire=el=>{closeModal();ACT.done(el)};
 ACT.wallfull=el=>{closeModal();openDrawer(el.dataset.id)};
 ACT.wallrep=el=>{closeModal();const g=gById(el.dataset.id);if(g)wallReplay(g)};
+/* ===== splash + init ===== */
+let SPDONE=false,SPSHORT=false;
+function endSplash(){if(SPDONE)return;SPDONE=true;const s=$('#splash');s.classList.add('out');setTimeout(()=>s.remove(),900);afterSplash()}
+function splashAnim(sc){const c=$('#spcv'),x=c.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1),w=innerWidth,h=innerHeight,cx0=w/2,cy0=h/2;c.width=w*dpr;c.height=h*dpr;x.scale(dpr,dpr);
+ const th=THEMES[S.set.theme]||THEMES.blue,txt=APPNAME,fs=Math.min(w*.105,86),oc=document.createElement('canvas');oc.width=w;oc.height=Math.ceil(fs*1.6);const ox=oc.getContext('2d');
+ ox.fillStyle='#fff';ox.font=`800 ${fs}px "Bricolage Grotesque",system-ui,sans-serif`;ox.textAlign='center';ox.textBaseline='middle';ox.fillText(txt,w/2,oc.height/2);
+ const img=ox.getImageData(0,0,oc.width,oc.height).data,step=w<600?3:4,P=[],nb=$('#spname').getBoundingClientRect(),ty=nb.top+nb.height/2-oc.height/2,cols=th.neb.map(n=>`rgb(${n})`);
+ for(let yy=0;yy<oc.height;yy+=step)for(let xx=0;xx<oc.width;xx+=step)if(img[(yy*oc.width+xx)*4+3]>128){const a=Math.random()*6.283,r=Math.max(w,h)*(.6+Math.random()*.5);P.push({tx:xx,ty:yy+ty,sx:cx0+Math.cos(a)*r,sy:cy0+Math.sin(a)*r,d:Math.random()*.9,sw:(Math.random()<.5?-1:1)*(1.5+Math.random()*2),c:Math.random()});}
+ const NS=w<600?420:800,F=Math.min(w,h)*.9,ZM=3,ST=[];for(let i=0;i<NS;i++)ST.push({x:(Math.random()-.5)*5,y:(Math.random()-.5)*5,z:Math.random()*ZM,px:null,py:null,c:Math.random()});
+ const NN=7,NEU=[];for(let i=0;i<NN;i++)NEU.push({x:(Math.random()-.5)*3.4,y:(Math.random()-.5)*2.2,z:ZM*(i+.5)/NN,segs:genTree(500+i),sc:.5+Math.random()*.4,col:th.neb[i%3]});
+ const T0=performance.now(),TT=10.6*sc;let last=T0,camZ=0;
+ const ease=k=>1-Math.pow(1-clamp(k,0,1),3),sm=k=>{k=clamp(k,0,1);return k*k*(3-2*k)};
+ const draw0=now=>{if(SPDONE)return;const t=(now-T0)/1000/sc,dt=Math.min(.05,(now-last)/1000);last=now;
+  /* camera speed: warp, glide, hold, then dive through the logo */
+  const v=(t<2.6?1.6+2.4*sm(t/1.2):1.2*(1-sm((t-2.6)/1.6))+.05)+(t>8.6?sm((t-8.6)/.9)*9:0);
+  x.globalCompositeOperation='source-over';x.fillStyle=`rgba(${th.bg0||'2,6,16'},${t>8.6?.4:.34})`;x.fillRect(0,0,w,h);
+  x.globalCompositeOperation='lighter';
+  ST.forEach(s=>{s.z-=v*dt/sc;if(s.z<=.04){s.z=ZM;s.px=null}const k=F/s.z,X=cx0+s.x*k,Y=cy0+s.y*k;if(X<-50||X>w+50||Y<-50||Y>h+50){s.z=ZM;s.px=null;return}
+   const a=clamp(1-s.z/ZM,0,1)*(t<3.2?1:Math.max(.25,1-(t-3.2)*.6));if(s.px!=null){x.strokeStyle=s.c<.2?`rgba(${th.neb[0]},${a})`:`rgba(200,220,255,${a*.9})`;x.lineWidth=.6+a*1.8;x.beginPath();x.moveTo(s.px,s.py);x.lineTo(X,Y);x.stroke()}s.px=X;s.py=Y});
+  /* neurons flying past */
+  NEU.forEach(n=>{n.z-=v*dt/sc*.9;if(n.z<=.12){n.z+=ZM;n.x=(Math.random()-.5)*3.4;n.y=(Math.random()-.5)*2.2}const k=F/n.z,X=cx0+n.x*k,Y=cy0+n.y*k,R=n.sc*k*.5,fade=clamp(n.z<.4?n.z/.4:1,0,1)*clamp((ZM-n.z)/1.2,0,1)*(t>5.4?Math.max(0,1-(t-5.4)*1.2):1);if(fade<=.01||Math.abs(X-cx0)>w||Math.abs(Y-cy0)>h)return;
+   x.strokeStyle=`rgba(${n.col},${.5*fade})`;x.lineWidth=Math.max(.5,1.4*k/F*3);x.beginPath();n.segs.forEach(s=>{if(s.d>3)return;const ax=X+s.a[0]*R,ay=Y+s.a[1]*R,bx=X+s.b[0]*R,by=Y+s.b[1]*R;x.moveTo(ax,ay);x.lineTo(bx,by)});x.stroke();
+   const g=x.createRadialGradient(X,Y,0,X,Y,R*.6);g.addColorStop(0,`rgba(255,255,255,${.9*fade})`);g.addColorStop(.3,`rgba(${n.col},${.5*fade})`);g.addColorStop(1,`rgba(${n.col},0)`);x.fillStyle=g;x.fillRect(X-R,Y-R,R*2,R*2)});
+  /* nebula glow */
+  for(let i=0;i<4;i++){const a=t*.25+i*1.6,rx=cx0+Math.cos(a)*w*.3,ry=cy0+Math.sin(a*1.2)*h*.25,g=x.createRadialGradient(rx,ry,0,rx,ry,w*.28);g.addColorStop(0,`rgba(${th.neb[i%3]},.07)`);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(rx-w*.3,ry-w*.3,w*.6,w*.6)}
+  /* title particles gather out of the swarm, then burst through the camera */
+  const form=t-2.0,ex=t>8.6?(t-8.6)/1.2:0;
+  if(form>0){P.forEach((p,i)=>{const k=ease((form-p.d*.9)/2.7);let X=p.sx+(p.tx-p.sx)*k,Y=p.sy+(p.ty-p.sy)*k;const sw=(1-k)*p.sw;if(sw){const dx=X-cx0,dy=Y-cy0,ca=Math.cos(sw),sa=Math.sin(sw);X=cx0+dx*ca-dy*sa;Y=cy0+dx*sa+dy*ca}
+   if(k>=1){const wb=Math.sin(t*2+i)*.6;X+=wb;Y+=wb}
+   if(ex>0){const f=1+ex*ex*22;X=cx0+(X-cx0)*f;Y=cy0+(Y-cy0)*f}
+   const al=clamp(.15+.85*k,0,1)*(1-clamp(ex*1.1,0,1));if(al<=.01)return;x.globalAlpha=al;x.fillStyle=p.c<.14?th.acc:p.c<.28?cols[0]:'#ffffff';const z=2.2+(ex>0?ex*3:0);x.fillRect(X-z/2,Y-z/2,z,z)});x.globalAlpha=1;
+   /* flash and shock ring when the name locks in */
+   const fl=form-2.7;if(fl>0&&fl<1.2){const rr=fl*Math.max(w,h)*.55;x.strokeStyle=`rgba(${th.neb[0]},${(1-fl/1.2)*.7})`;x.lineWidth=2+6*(1-fl/1.2);x.beginPath();x.arc(cx0,cy0,rr,0,6.283);x.stroke();const g=x.createRadialGradient(cx0,cy0,0,cx0,cy0,w*.4);g.addColorStop(0,`rgba(255,255,255,${(1-fl/1.2)*.18})`);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}}
+  if(ex>0){const g=x.createRadialGradient(cx0,cy0,0,cx0,cy0,Math.max(w,h)*.7);g.addColorStop(0,`rgba(255,255,255,${Math.min(1,ex)*.28})`);g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}
+  x.globalCompositeOperation='source-over';
+  const lay=$('#splash .sc');if(lay)lay.style.opacity=t>8.5?String(Math.max(0,1-(t-8.5)/.7)):'1';
+  if(t<TT/sc)requestAnimationFrame(draw)};
+ const draw=now=>{try{draw0(now)}catch(e){console.error(e);endSplash()}};
+ x.fillStyle=th.bg;x.fillRect(0,0,w,h);requestAnimationFrame(draw);return TT}
+SFX.cine=()=>{if(!S.set.snd.on)return;tone(55,9.5,{type:'sine',v:.2,lp:300,atk:1.6});tone(82.4,9,{type:'triangle',v:.1,lp:500,atk:2});noise(2.4,{f:150,to:5200,v:.1,q:.7});
+ [196,294,392,523].forEach((f,i)=>tone(f,2.6,{at:2.6+i*.14,v:.07,type:'triangle',atk:.4}));tone(70,1.4,{at:4.7,to:28,v:.35,type:'sine'});noise(1.2,{f:3000,to:200,v:.12,q:.5});[784,988,1319,1568].forEach((f,i)=>tone(f,1.8,{at:4.9+i*.18,v:.08}));noise(1.1,{f:300,to:6000,v:.14,q:.8});}
+function runSplash(){try{runSplash0()}catch(e){console.error(e);endSplash()}setTimeout(endSplash,15000)}
+function runSplash0(){const sp=$('#splash'),k=todayKey();if(!S.set.splash||new URLSearchParams(location.search).get('splash')==='0'){sp.remove();SPDONE=true;afterSplash();return}
+ const shortRun=S.set.splashDay===k;S.set.splashDay=k;save();SPSHORT=shortRun&&!S.set.flags.fullSplash;
+ $('#sptag').textContent=TAGLINE;$('#spq').textContent='"'+SPLASH_Q[Math.floor(Math.random()*SPLASH_Q.length)]+'"';
+ const it=todayItems(k).filter(i=>i.st.s==='due'),mx=S.goals.filter(g=>g.priority==='must'&&dueState(g,k).s==='due');
+ $('#sps').textContent=S.goals.length?(it.length?`${it.length} goal${it.length===1?'':'s'} due today${mx.length?', '+mx.length+' marked Must':''}`:'Nothing due. Rest or get ahead.'):'Welcome. Plant your first neuron.';
+ sp.classList.toggle('short',SPSHORT);
+ const sk=$('#spskip');if(sk)sk.onclick=e=>{e.stopPropagation();endSplash()};const sb=$('#spsnd');if(sb){sb.style.display=S.set.snd.on?'':'none';sb.onclick=e=>{e.stopPropagation();try{ac()}catch(x){}try{SFX.cine()}catch(x){}sb.style.display='none'}}
+ if(!reduced()){$('#spname').textContent='';let dur=3000;const go=()=>{try{dur=splashAnim(SPSHORT?.62:1)*1000/(SPSHORT?1:1)}catch(e){$('#spname').innerHTML=`<div class="b" style="font-size:44px">${APPNAME}</div>`}setTimeout(endSplash,dur-200)};
+  try{SFX.cine()}catch(e){}
+  if(document.fonts&&document.fonts.load){Promise.race([document.fonts.load('800 60px "Bricolage Grotesque"'),new Promise(r=>setTimeout(r,700))]).then(go)}else go()}
+ else{$('#spname').innerHTML=`<div class="b" style="font-size:40px;letter-spacing:-.02em">${APPNAME}</div>`;setTimeout(endSplash,1800)}
+ sp.addEventListener('click',()=>{try{ac()}catch(e){}})}
+function afterSplash(){BADGE_QUIET=false;setTimeout(()=>{try{pulseMaybe()}catch(e){}},2600);if(!S.set.flags.tourV5&&new URLSearchParams(location.search).get('tour')!=='0')setTimeout(()=>tourShow(0),700);if(S.set.music.on)musSync();setTimeout(()=>{catchUp();checkAlerts()},400);handleParams();if(S.set.snd.amb)ambience(true)}
+function handleParams(){const p=new URLSearchParams(location.search);let ch=false;
+ if(p.get('done')){const g=gById(p.get('done'));if(g&&dueState(g).s!=='done'){logDone(g);save();toast('Logged from notification: '+g.name);ch=true}}
+ if(p.get('goal')){const g=gById(p.get('goal'));if(g)setTimeout(()=>openDrawer(g.id),500)}
+ if(p.get('view'))go(p.get('view'));
+ if(p.toString()){try{history.replaceState(null,'',location.pathname)}catch(e){}}if(ch)renderAll()}
+function init(){try{init0()}catch(e){console.error(e);try{const sp=$('#splash');if(sp)sp.remove();SPDONE=true;requestAnimationFrame(frame)}catch(_){}showFail(e)}}
+function init0(){const st=loadState();BADGE_QUIET=true;
+ /* map mode/layout also refresh settings */
+ const _m=ACT.mode,_l=ACT.layout;ACT.mode=(el,e)=>{_m(el,e);if(UI.view==='set')renderSet()};ACT.layout=(el,e)=>{_l(el,e);if(UI.view==='set')renderSet()};
+ applyTheme();qualityInit();$('#tagline').textContent=TAGLINE;size();initStars();relink();buildNav();
+ $('#fsx').innerHTML=ic('fsx');checkBadges();
+ UI.view=S.set.view&&VIEWS.some(v=>v[0]===S.set.view)?S.set.view:'home';go(UI.view);startQuotes();swInit();
+ if(st==='migrated')setTimeout(()=>toast(`Welcome to NeuroOrbitSynapse. Your ${S.goals.length} earlier goal${S.goals.length===1?'':'s'} and all logs carried over.`),4200);
+ runSplash();requestAnimationFrame(frame);
+ let lastDay=todayKey();
+ setInterval(()=>{tickClock();const k=todayKey();if(k!==lastDay){lastDay=k;REV++;renderAll()}},1000);
+ setInterval(()=>{checkAlerts()},15000);setInterval(()=>{if(!document.hidden&&UI.view==='home'){renderHero();renderToday()}},60000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden){const k=todayKey();if(k!==lastDay){lastDay=k;REV++}checkAlerts();renderAll();size()}});
+ addEventListener('resize',()=>{size()});if(window.ResizeObserver)new ResizeObserver(()=>size()).observe(mapwrap);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(UI.fs)setFS(false);else if($('#modal').classList.contains('on'))closeModal();else closeDrawer()}});
+ if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{const d=e.data||{};if(d.type==='done'&&d.goal){const g=gById(d.goal);if(g&&dueState(g).s!=='done'){logDone(g);save();renderAll();toast('Logged: '+g.name)}}else if(d.type==='open'&&d.goal)openDrawer(d.goal)});
+ document.addEventListener('pointerdown',()=>{try{ac()}catch(e){}},{once:true});
+ window.__nos={S:()=>S,go,UI,fireGoal,ORDER:()=>ORDER}}
+init();
+
 </script></body></html>
