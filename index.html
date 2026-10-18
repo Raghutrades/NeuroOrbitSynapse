@@ -537,6 +537,15 @@ body.shk #app{animation:shk .4s}
 .wtn{position:relative;padding:0 0 12px}.wtdot{position:absolute;left:-25px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}.wtn:before{content:"";position:absolute;left:-18px;top:13px;width:14px;border-top:2px solid color-mix(in srgb,var(--c) 70%,transparent)}
 .wtbox{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.wtmile{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.wtms{padding:2px 9px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--mute)}.wtms.on{background:var(--c);color:#06080d;border-color:var(--c);font-weight:700}
 .abhero a.btn,.abbook{text-decoration:none!important}
+
+.bsmap{margin-top:12px}.bsroot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:2px solid var(--c);border-radius:14px;background:color-mix(in srgb,var(--c) 14%,var(--panel));margin-bottom:12px}.bsroot b{font-size:16px}.bsroot em{font-style:normal;font-size:12px;color:var(--mute)}
+.bsbrs{position:relative;margin-left:10px;padding-left:16px;border-left:2px solid var(--line)}
+.bsbr{position:relative;padding:0 0 14px}.bsbr:before{content:"";position:absolute;left:-16px;top:15px;width:14px;border-top:2px solid var(--b)}
+.bsbn{display:inline-block;padding:4px 12px;border:2px solid var(--b);border-radius:8px;font-weight:700;font-size:13.5px;color:var(--ink);background:color-mix(in srgb,var(--b) 12%,transparent)}
+.bsleaves{margin:6px 0 0 8px}.bsleaf{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;padding:5px 2px 4px;border-bottom:2px solid var(--b);font-size:13.5px;line-height:1.3}
+.bsx{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--mute);font-size:15px;line-height:1}
+.bsadd{display:flex;gap:6px;margin-top:8px}.bsin{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel)!important;color:var(--ink)!important;font:inherit}
+.bssugs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.bssug{padding:4px 10px;border:1px dashed var(--b);border-radius:999px;background:none;color:var(--mute);font-size:12px;text-align:left}.bssug:hover{color:var(--ink);background:color-mix(in srgb,var(--b) 14%,transparent)}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -759,7 +768,7 @@ const HANDLE_URL='https://www.instagram.com/nerdyintruder/';
 
 /* ===== state, persistence, migration ===== */
 const KEY='nos-v4';
-const defSet=()=>({theme:'blue',mode:'universe',layout:'orbit',rot:true,quality:'auto',snd:{on:true,vol:.6,amb:false},music:{on:false,vol:.5},labels:false,pulseOn:true,widgets:['ring','next','week','streak'],synAll:false,synGoal:'',splashDay:'',notif:{risk:true,riskTime:'20:00',wrap:true,wrapTime:'21:30',round:true,catchup:true,escalate:true},name:'',lastExport:'',view:'home',flags:{},fired:{day:'',m:{}},reduceMotion:false,splash:true});
+const defSet=()=>({theme:'blue',mode:'wall',wallv:1,layout:'orbit',rot:true,quality:'auto',snd:{on:true,vol:.6,amb:false},music:{on:false,vol:.5},labels:false,pulseOn:true,widgets:['ring','next','week','streak'],synAll:false,synGoal:'',splashDay:'',notif:{risk:true,riskTime:'20:00',wrap:true,wrapTime:'21:30',round:true,catchup:true,escalate:true},name:'',lastExport:'',view:'home',flags:{},fired:{day:'',m:{}},reduceMotion:false,splash:true});
 let S={v:4,goals:[],daily:{},journal:[],reminders:[],badges:[],set:defSet()};
 let REV=0;
 const normField=f=>({id:f.id||uid('f'),label:f.label||'Field',type:['number','text','longtext','rating','select','check','time'].includes(f.type)?f.type:'text',unit:f.unit||'',ex:f.ex==null?'':String(f.ex),opts:Array.isArray(f.opts)?f.opts.slice():[],primary:!!f.primary});
@@ -772,7 +781,7 @@ function normGoal(g){
   tasks:Array.isArray(g.tasks)?g.tasks.slice():[],chk:g.chk||{},fields:(g.fields||[]).map(normField),
   core:Object.assign({min:true,prep:false,q:true},g.core||{}),defMin:g.defMin==null?20:+g.defMin,limit:g.limit==null||g.limit===''?null:+g.limit,
   weeklyTarget:g.weeklyTarget?+g.weeklyTarget:null,logs:g.logs||{},reviews:g.reviews||[],jr:g.jr||[],rounds:g.rounds||[],rev:g.rev||[],
-  rel:Array.isArray(g.rel)?g.rel.filter(r=>r&&r.to&&RELK[r.k]):[],paused:!!g.paused,hideEx:!!g.hideEx,created:g.created||todayKey()};
+  rel:Array.isArray(g.rel)?g.rel.filter(r=>r&&r.to&&RELK[r.k]):[],paused:!!g.paused,hideEx:!!g.hideEx,created:g.created||todayKey(),bs:(b=>({h:Array.isArray(b.h)?b.h.map(x=>String(x).slice(0,120)).slice(0,30):[],d:Array.isArray(b.d)?b.d.map(x=>String(x).slice(0,120)).slice(0,30):[],n:Array.isArray(b.n)?b.n.map(x=>String(x).slice(0,120)).slice(0,30):[]}))(g.bs&&typeof g.bs==='object'?g.bs:{})};
  if(!d.end||d.end<d.start)d.end=addD(d.start,(g.target>=7?g.target:100)-1);
  if(diffD(d.start,d.end)>729)d.end=addD(d.start,729);
  if(t==='break')d.sched={t:'daily',days:[],n:1,every:1};
@@ -791,7 +800,7 @@ function normState(o){
  const d=defSet(),u=o.set||{};
  s.set=Object.assign(d,u,{snd:Object.assign(d.snd,u.snd||{}),music:Object.assign(d.music,u.music||{}),notif:Object.assign(d.notif,u.notif||{}),flags:Object.assign({},u.flags||{}),fired:u.fired||d.fired});
  if(!THEMES[s.set.theme])s.set.theme='blue';
- if(!['universe','synapse','path','ladder','tree','wall'].includes(s.set.mode))s.set.mode='universe';
+ if(!['universe','synapse','path','ladder','tree','wall'].includes(s.set.mode))s.set.mode='wall';if(!s.set.wallv){s.set.mode='wall';s.set.wallv=1}
  if(!['orbit','web','helix','spiral'].includes(s.set.layout))s.set.layout='orbit';
  return s}
 function legacy(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
@@ -1183,7 +1192,7 @@ cv.addEventListener('dblclick',()=>resetView());
 ['touchstart','touchmove'].forEach(n=>cv.addEventListener(n,e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false}));
 ['gesturestart','gesturechange','gestureend'].forEach(n=>{cv.addEventListener(n,e=>e.preventDefault());document.addEventListener(n,e=>e.preventDefault())});
 document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1&&e.target.closest&&e.target.closest('#mapwrap'))e.preventDefault()},{passive:false});
-function onTap(x,y){if(UI.opt){UI.opt=false;mapwrap.classList.remove('opt')}const h=pickAt(x,y);if(!h){const lk=!is2D()&&pickLink(x,y);if(lk){insLink(lk.a,lk.b);return}const bk=is2D()&&pathBrickAt(x,y);if(bk){if(bk.wall)wallOpen(bk.g.id);else insGoal(bk.g.id,INS.on?INS.tab:'ov');return}if(INS.on){insClose();return}if(UI.sel){UI.sel=null;renderMapInfo()}return}
+function onTap(x,y){if(UI.opt){UI.opt=false;mapwrap.classList.remove('opt')}const h=pickAt(x,y);if(!h){const lk=!is2D()&&pickLink(x,y);if(lk){insLink(lk.a,lk.b);return}const bk=is2D()&&pathBrickAt(x,y);if(bk){if(bk.add)wallNew(bk.add);else if(bk.wall)wallOpen(bk.g.id);else insGoal(bk.g.id,INS.on?INS.tab:'ov');return}if(INS.on){insClose();return}if(UI.sel){UI.sel=null;renderMapInfo()}return}
  const again=UI.sel===h.g.id;UI.sel=h.g.id;rt(h.g).flash=Math.max(rt(h.g).flash,.5);RINGS.push({x:rt(h.g).x,y:rt(h.g).y,z:rt(h.g).z,r0:h.r,max:h.r*2.4,life:.8,c:h.g.color,w:.6});sfx('tap');
  insGoal(h.g.id,INS.on&&INS.m==='goal'?INS.tab:'ov')}
 function resetView(){cam.yaw=.6;cam.pit=.3;cam.zoom=1;cam.vy=cam.vp=0;VW.x=VW.y=0;VW.z=1;VW.yaw=VW.pit=VW.vy=VW.vp=0}
@@ -1660,104 +1669,170 @@ function drawTree(now,dt){const t=now*.001,g=focusG(),rd=reduced();BHIT=[];
  const mx=x=>W/2+SH.x+(x-W/2)*SH.s,my=y=>H/2+SH.y+(y-H/2)*SH.s;HITS.forEach(h=>{if(h.g===g&&h.z>=1&&!h._m){h._m=1;h.x=mx(h.x);h.y=my(h.y);h.r*=SH.s}})}
 
 Object.assign(GI,{vm_universe:'M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM3 12c0-2.2 4-4 9-4s9 1.8 9 4s-4 4-9 4s-9-1.8-9-4z',vm_synapse:'M5 19l5-6l4 3l5-10M4.5 18.5a1.2 1.2 0 1 0 .01 0M18.5 5.5a1.2 1.2 0 1 0 .01 0M10 13a1.2 1.2 0 1 0 .01 0',vm_path:'M3 19h5v-4h5v-4h5V7h3',vm_ladder:'M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8',vm_tree:'M12 21v-7M12 14c-4 0-6-3-5-6c1-3 3-4 5-4s4 1 5 4c1 3-1 6-5 6z',vm_wall:'M3 4h18v12H3zM8 20h8M12 16v4M6.5 8.5h6M6.5 12h9'});
-/* ===== Board view: a stick man stands in front of a giant chalkboard. New goals are written on it by hand; he steps back, thinks, paces and brainstorms. Tap a goal on the board to open its tree. ===== */
-const WL={w:{},bar:{},cnt:{},q:[],task:null,cells:[],dust:[],init:false,man:{x:0,d:1,ph:0,v:0,pt:2,sub:'stand',tx:null,T:{},lift:0,cheer:0}};
+/* ===== Board view (the main visual): a stick man in front of a giant chalkboard. Build goals on the left, quit goals on the right. New goals are written by hand; tap a goal to brainstorm it. ===== */
+const WL={w:{},bar:{},cnt:{},q:[],task:null,dust:[],init:false,nt:'build',man:{x:0,d:1,ph:0,v:0,pt:2,sub:'stand',tx:null,T:{},lift:0,cheer:0}};
 const WL_FONT='"Bradley Hand","Segoe Print","Chalkboard SE","Comic Neue","Comic Sans MS",cursive';
 function wallReplay(g){const ids=g?[g.id]:ORDER.map(x=>x.id);ids.forEach(id=>{WL.w[id]=0;WL.bar[id]=0;if(!WL.q.some(x=>x.id===id))WL.q.push({type:'write',id})});WL.task=null}
 function wallBarTarget(g){const real=clamp(gStats(g).prog||0,0,1);return PV.m==='start'?0:PV.m==='done'?1:RP.on?real*rpP():real}
-function drawWall(now,dt){const t=now*.001,rd=reduced(),th=TH(),M=WL.man;BHIT=[];WL.cells=[];
- const gs=ORDER.slice(0,18),n=gs.length;
+function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];
+ const gs=ORDER.slice(0,24),n=gs.length,B=gs.filter(g=>!isB(g)),Q=gs.filter(isB);
  /* wall and floor */
- const wy=H*.83,bx=W*.035,bw=W*.93,by=H*.37,bh=H*.46;
+ const bx=W*.02,bw=W*.96,by=H*.075,bh=H*.68,wy=by+bh+H*.012;
  let gr=cx.createLinearGradient(0,0,0,wy);gr.addColorStop(0,'rgba(58,64,80,.55)');gr.addColorStop(1,'rgba(34,38,50,.55)');cx.fillStyle=gr;cx.fillRect(0,0,W,wy);
- glow(W/2,H*.04,W*.5,'255,236,190',.16,true);
  gr=cx.createLinearGradient(0,wy,0,H);gr.addColorStop(0,'#4a3624');gr.addColorStop(1,'#2a1d13');cx.fillStyle=gr;cx.fillRect(0,wy,W,H-wy);
  cx.strokeStyle='rgba(0,0,0,.35)';cx.lineWidth=1;for(let i=-6;i<=14;i++){cx.beginPath();cx.moveTo(W/2+(i-4)*W*.07,wy);cx.lineTo(W/2+(i-4)*W*.22,H);cx.stroke()}
  for(let j=1;j<5;j++){const y=wy+(H-wy)*(j/5)**1.6;cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
- /* banner */
- const done0=gs.filter(g=>dueState(g).s==='done').length;cx.fillStyle='rgba(235,240,255,.75)';cx.textAlign='center';cx.font='700 '+clamp(W*.034,12,17)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillText(n?'Today: '+done0+' of '+n+' goals fired':'Your board is empty',W/2,H*.1);
- cx.fillStyle='rgba(235,240,255,.45)';cx.font='500 '+clamp(W*.026,10,13)+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillText(n?'Tap any goal on the board to open it':'Add a goal and he will write it up here',W/2,H*.1+clamp(W*.045,16,22));
- /* wall clock (real time) and a lamp */
- {const cr=clamp(Math.min(W,H)*.075,16,34),cx0=W*.86,cy0=H*.2,nw=new Date(),hh=(nw.getHours()%12+nw.getMinutes()/60)/12*6.283,mm=nw.getMinutes()/60*6.283;cx.save();cx.fillStyle='rgba(235,240,255,.1)';cx.strokeStyle='rgba(235,240,255,.55)';cx.lineWidth=2;cx.beginPath();cx.arc(cx0,cy0,cr,0,6.283);cx.fill();cx.stroke();cx.lineCap='round';cx.beginPath();cx.moveTo(cx0,cy0);cx.lineTo(cx0+Math.sin(hh)*cr*.5,cy0-Math.cos(hh)*cr*.5);cx.stroke();cx.beginPath();cx.moveTo(cx0,cy0);cx.lineTo(cx0+Math.sin(mm)*cr*.8,cy0-Math.cos(mm)*cr*.8);cx.stroke();cx.restore()}
  /* the board */
- cx.save();cx.shadowColor='rgba(0,0,0,.6)';cx.shadowBlur=22;cx.fillStyle='#5b3d22';cx.fillRect(bx-7,by-7,bw+14,bh+14);cx.restore();
+ cx.save();cx.shadowColor='rgba(0,0,0,.6)';cx.shadowBlur=22;cx.fillStyle='#5b3d22';cx.fillRect(bx-6,by-6,bw+12,bh+12);cx.restore();
  gr=cx.createLinearGradient(0,by,0,by+bh);gr.addColorStop(0,'#1d2a27');gr.addColorStop(1,'#141d1b');cx.fillStyle=gr;cx.fillRect(bx,by,bw,bh);
- cx.fillStyle='rgba(255,255,255,.035)';for(let i=0;i<5;i++){cx.beginPath();cx.ellipse(bx+bw*(.15+i*.2),by+bh*(.3+(i%2)*.4),bw*.12,bh*.07,-.3,0,6.283);cx.fill()}
- cx.fillStyle='#7a5530';cx.fillRect(bx-7,by+bh,bw+14,7);cx.fillStyle='rgba(255,255,255,.7)';cx.fillRect(bx+bw*.62,by+bh-2,bw*.08,3);cx.fillRect(bx+bw*.74,by+bh-3,bw*.04,4);
+ cx.fillStyle='#7a5530';cx.fillRect(bx-6,by+bh,bw+12,6);cx.fillStyle='rgba(255,255,255,.7)';cx.fillRect(bx+bw*.62,by+bh-2,bw*.08,3);cx.fillRect(bx+bw*.74,by+bh-3,bw*.04,4);
  const CH='rgba(246,248,238,.93)';
- /* layout */
- const cols=n<=4?1:n<=12?2:3,rows=Math.max(1,Math.ceil(n/cols)),ix=bx+bw*.035,iw=bw*.93,iy=by+bh*.17,ih=bh*.8,cw=iw/cols,ch=ih/rows;
- const fs=clamp(Math.min(ch*.34,cw*.085,22),9,22);
- /* title */
- cx.font='700 '+clamp(bh*.1,13,26)+'px '+WL_FONT;cx.textAlign='left';cx.fillStyle=CH;cx.fillText('My goals',ix,by+bh*.12);cx.strokeStyle='rgba(246,248,238,.55)';cx.lineWidth=1.6;cx.beginPath();cx.moveTo(ix,by+bh*.145);cx.quadraticCurveTo(ix+iw*.25,by+bh*.16,ix+iw*.5,by+bh*.143);cx.stroke();
+ /* two halves */
+ const hw=bw*.5,ix=bx,iy=by+bh*.12,ih=bh*.86;
+ const secs=[{t:'build',list:B,x:ix,w:hw},{t:'quit',list:Q,x:ix+hw,w:hw}];
+ const cell={},adds=[];let fsMin=22;
+ secs.forEach(sc=>{const cnt=sc.list.length+1,cols=cnt>10?2:1,rows=Math.ceil(cnt/cols),cw=(sc.w-bw*.03)/cols,ch=Math.min(ih/rows,bh*.2);sc.fs=clamp(Math.min(ch*.3,cw*.1,19),8,19);fsMin=Math.min(fsMin,sc.fs)});
+ secs.forEach(sc=>{const cnt=sc.list.length+1,cols=cnt>10?2:1,rows=Math.ceil(cnt/cols),cw=(sc.w-bw*.03)/cols,ch=Math.min(ih/rows,bh*.2),fs=fsMin;
+  cx.font='700 '+fs+'px '+WL_FONT;
+  for(let i=0;i<cnt;i++){const col=Math.floor(i/rows),row=i%rows,x=sc.x+bw*.012+col*cw,y=iy+row*ch;
+   if(i===sc.list.length){adds.push({t:sc.t,x,y,w:cw,h:ch,fs});continue}
+   const g=sc.list[i],nx=x+fs*1.9,maxW=cw-fs*1.9-fs*3.2;let nm=g.name,tw=cx.measureText(nm).width;while(nm.length>3&&tw>maxW){nm=nm.slice(0,-2);tw=cx.measureText(nm+'…').width;if(tw<=maxW){nm+='…';break}}tw=cx.measureText(nm).width;
+   cell[g.id]={g,i,x,y,w:cw,h:ch,fs,nx,nm,tw,by:y+ch*.4,barY:y+ch*.58,barW:cw-fs*1.1}}});
+ /* headings, divider, counter */
+ const hf=clamp(bh*.065,12,22);cx.font='700 '+hf+'px '+WL_FONT;cx.textAlign='left';cx.fillStyle=CH;
+ cx.fillText('Build'+(B.length?' · '+B.length:''),ix+bw*.03,by+bh*.075);cx.fillStyle='rgba(255,140,160,.95)';cx.fillText('Quit'+(Q.length?' · '+Q.length:''),ix+hw+bw*.03,by+bh*.075);
+ cx.strokeStyle='rgba(246,248,238,.5)';cx.lineWidth=1.6;cx.beginPath();cx.moveTo(ix+bw*.03,by+bh*.095);cx.quadraticCurveTo(ix+hw*.5,by+bh*.108,ix+hw-bw*.03,by+bh*.093);cx.stroke();
+ cx.strokeStyle='rgba(255,140,160,.55)';cx.beginPath();cx.moveTo(ix+hw+bw*.03,by+bh*.095);cx.quadraticCurveTo(ix+hw*1.5,by+bh*.108,ix+bw-bw*.03,by+bh*.093);cx.stroke();
+ cx.setLineDash([3,5]);cx.strokeStyle='rgba(246,248,238,.22)';cx.beginPath();cx.moveTo(ix+hw,by+bh*.05);cx.lineTo(ix+hw,by+bh*.97);cx.stroke();cx.setLineDash([]);
+ const done0=gs.filter(g=>dueState(g).s==='done').length;cx.textAlign='right';cx.fillStyle='rgba(246,248,238,.55)';cx.font='600 '+Math.max(9,hf*.62)+'px '+WL_FONT;cx.fillText(n?'today '+done0+'/'+n:'',ix+bw-bw*.02,by+bh*.03+hf*.3);
  /* first run: everything already on the board; later new goals get written live */
  if(!WL.init){gs.forEach(g=>{WL.w[g.id]=1;WL.bar[g.id]=wallBarTarget(g);WL.cnt[g.id]=doneCount(g)});WL.init=true;M.x=W*.5}
  gs.forEach(g=>{if(WL.w[g.id]==null){WL.w[g.id]=0;WL.bar[g.id]=0;WL.cnt[g.id]=doneCount(g);WL.q.push({type:'write',id:g.id})}
   else{const c=doneCount(g);if(c>WL.cnt[g.id]&&WL.w[g.id]>=1&&!WL.q.some(x=>x.id===g.id)&&!(WL.task&&WL.task.id===g.id))WL.q.push({type:'tick',id:g.id});WL.cnt[g.id]=c}});
  WL.q=WL.q.filter(x=>gs.some(g=>g.id===x.id));
- /* geometry per goal */
- const cell={};gs.forEach((g,i)=>{const col=Math.floor(i/rows),row=i%rows,x=ix+col*cw,y=iy+row*ch;cx.font='700 '+fs+'px '+WL_FONT;const nx=x+fs*1.9,maxW=cw-fs*1.9-fs*3.4;let nm=g.name,tw=cx.measureText(nm).width;while(nm.length>3&&tw>maxW){nm=nm.slice(0,-2);tw=cx.measureText(nm+'…').width;if(tw<=maxW){nm+='…';break}}tw=cx.measureText(nm).width;cell[g.id]={g,i,x,y,w:cw,h:ch,nx,nm,tw,by:y+ch*.42,barY:y+ch*.62,barW:cw-fs*1.2}});
  /* the man's work */
- const mh=clamp(H*.33,84,230),u=mh/10,gy=H*.94,reachTop=gy-10.5*u;
- if(!WL.task&&WL.q.length){WL.task=Object.assign({stage:'walk',t:0},WL.q.shift())}
- let task=WL.task,pose='stand',hx=0,hy=0,wantX=null,moving=false;const sp=mh*1.7;
+ const mh=clamp(H*.28,80,200),u=mh/10,gy=H*.93,reachTop=gy-10.5*u,deskX=W*.16,seatBase=deskX+.2*u;
+ if(!WL.task&&WL.q.length){WL.task=Object.assign({stage:'walk',t:0},WL.q.shift());M.sit=false;M.sitT=0}
+ let task=WL.task,pose='stand',hx=0,hy=0,wantX=null,moving=false;const sp=mh*1.0;
  const mv=(tx,s2)=>{const dx=tx-M.x,ad=Math.abs(dx);if(ad<2){M.v=0;return false}M.d=Math.sign(dx);const tv=Math.sign(dx)*Math.min(s2,ad*4+8);M.v=(M.v||0)+(tv-(M.v||0))*Math.min(1,dt*6);let st=M.v*dt;if(Math.abs(st)>ad)st=dx;M.x+=st;M.ph+=Math.abs(st)/(1.25*u)*3.1416;return true};
- let liftT=0;
+ let liftT=0;const cl=x=>clamp(x,W*.08,W*.92);
  if(task){const c=cell[task.id];if(!c){WL.task=null;task=null}else{
   const tx0=c.nx;
-  if(task.stage==='walk'){wantX=tx0-1.8*u;wantX=clamp(wantX,W*.1,W*.9);moving=mv(wantX,sp);pose=moving?'walk':'stand';if(rd){M.x=wantX}if(!moving||rd){task.stage=task.type==='write'?'text':'bar';task.t=0;M.d=1}}
-  else if(task.stage==='text'){const dur=rd?.01:.7+c.nm.length*.11;WL.w[task.id]=Math.min(1,(WL.w[task.id]||0)+dt/dur);hx=tx0+c.tw*WL.w[task.id];hy=c.by-fs*.3;wantX=clamp(hx-2*u,W*.1,W*.9);M.d=1;moving=mv(wantX,sp*.7);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-hy+.8*u);
+  if(task.stage==='walk'){wantX=cl(tx0-1.8*u);moving=mv(wantX,sp);pose=moving?'walk':'stand';liftT=0;if(rd){M.x=wantX}if(!moving||rd){task.stage=task.type==='write'?'text':'bar';task.t=0;M.d=1}}
+  else if(task.stage==='text'){const dur=rd?.01:1+c.nm.length*.15;WL.w[task.id]=Math.min(1,(WL.w[task.id]||0)+dt/dur);hx=tx0+c.tw*WL.w[task.id];hy=c.by-c.fs*.3;wantX=cl(hx-2*u);M.d=1;moving=mv(wantX,sp*.7);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-hy+.8*u);
    if(!rd&&Math.random()<dt*14)WL.dust.push({x:hx,y:hy,vx:(Math.random()-.5)*14,vy:10+Math.random()*20,l:1});if(WL.w[task.id]>=1){task.stage='bar';task.t=0;sfx('tick')}}
-  else if(task.stage==='bar'){task.t+=dt;const tg=wallBarTarget(c.g),cur=WL.bar[task.id]||0;const dur=rd?.01:1.5;if(task.type==='write'||task.t<dur)WL.bar[task.id]=cur+(tg-cur)*Math.min(1,dt*(2.2/Math.max(.3,dur/1.5)));hx=c.x+fs*.6+c.barW*(WL.bar[task.id]||0);hy=c.barY+fs*.25;wantX=clamp(hx-2*u,W*.1,W*.9);M.d=1;moving=mv(wantX,sp*.7);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-hy+.8*u);
-   if(!rd&&Math.random()<dt*12)WL.dust.push({x:hx,y:hy,vx:(Math.random()-.5)*14,vy:10+Math.random()*20,l:1});if(task.t>dur){WL.task=null;if(!rd){M.sub=task.type==='write'?'look':'cheer';M.pt=task.type==='write'?3:1.6;M.tx=clamp(c.x+c.w*.5+(c.x+c.w*.5<W*.5?1:-1)*W*.22,W*.1,W*.9);if(M.sub==='cheer')M.cheer=1.6}}}}}
- if(!WL.task){/* brainstorming idle life in front of the board */
+  else if(task.stage==='bar'){task.t+=dt;const tg=wallBarTarget(c.g),cur=WL.bar[task.id]||0;const dur=rd?.01:2.2;if(task.type==='write'||task.t<dur)WL.bar[task.id]=cur+(tg-cur)*Math.min(1,dt*2.2);hx=c.x+c.fs*.6+c.barW*(WL.bar[task.id]||0);hy=c.barY+c.fs*.25;wantX=cl(hx-2*u);M.d=1;moving=mv(wantX,sp*.7);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-hy+.8*u);
+   if(!rd&&Math.random()<dt*12)WL.dust.push({x:hx,y:hy,vx:(Math.random()-.5)*14,vy:10+Math.random()*20,l:1});if(task.t>dur){WL.task=null;if(!rd){M.sub=task.type==='write'?'look':'cheer';M.pt=task.type==='write'?3:1.6;M.tx=cl(c.x+c.w*.5+(c.x+c.w*.5<W*.5?1:-1)*W*.22);if(M.sub==='cheer')M.cheer=1.6}}}}}
+ if(!WL.task&&M.sit){/* sits at the desk in front of the board: types, thinks, sips, rolls the chair around */
+  M.sitT-=dt;M.pt-=dt;pose=M.ss||'sit-type';M.d=1;
+  if(M.ss==='roll'){pose='sit-think'}
+  if(M.pt<=0){const pk=['sit-type','sit-type','sit-think','sit-drink','roll','roll','sit-write','sit-think'];M.ss=pk[Math.floor(Math.random()*pk.length)];M.pt=2.6+Math.random()*2.6;M.rt=M.ss==='roll'?seatBase+(Math.random()<.5?-1:1)*(1.5+Math.random()*3)*u:seatBase+(Math.random()-.5)*1.2*u;M.rt=clamp(M.rt,W*.08,W*.5)}
+  if(M.rt!=null){const dx=M.rt-M.x,sp2=u*(M.ss==='roll'?2.2:.9);M.x+=Math.sign(dx)*Math.min(Math.abs(dx),sp2*dt*(M.ss==='roll'?1:.8))}
+  if(M.sitT<=0){M.sit=false;M.sub='stretch';M.pt=2.5;M.x=Math.max(M.x,seatBase)}}
+ else if(!WL.task){/* brainstorming idle life in front of the board */
   M.pt-=dt;if(M.sub==='cheer'){M.cheer-=dt;pose='cheer';if(M.cheer<=0)M.pt=0}
-  else if(M.sub==='pace'||M.sub==='review'){moving=mv(M.tx,sp*.55);pose=moving?'walk':'stand';if(!moving&&M.sub==='review'){const c=cell[M.rid];if(c){hx=c.nx+c.tw*.5;hy=c.by;pose='point';M.d=hx>M.x?1:-1}}}
+  else if(M.sub==='sitdown'){moving=mv(M.tx,sp*.6);pose=moving?'walk':'stand';if(!moving){M.sit=true;M.sitT=11+Math.random()*8;M.ss='sit-type';M.pt=2;M.rt=seatBase;M.sub='stand';M.d=1}}
+  else if(M.sub==='pace'||M.sub==='review'){moving=mv(M.tx,sp*.55);pose=moving?'walk':'stand';if(!moving&&M.sub==='review'){const c=cell[M.rid];if(c){hx=c.nx+c.tw*.5;hy=Math.max(c.by,reachTop+u);pose='point';M.d=hx>M.x?1:-1}}}
   else if(M.tx!=null&&Math.abs(M.tx-M.x)>3&&M.sub==='look'&&M.pt>1.5){moving=mv(M.tx,sp*.6);pose=moving?'walk':'look'}
   else pose=M.sub==='stand'?'stand':M.sub;
-  if(M.pt<=0&&!rd){const pk=['think','look','scratch','stretch','pace','pace','review','stand','think'];M.sub=pk[Math.floor(Math.random()*pk.length)];M.pt=2.4+Math.random()*3;M.d=Math.random()<.5?-1:1;if(M.sub==='pace')M.tx=clamp(M.x+(Math.random()<.5?-1:1)*W*(.15+Math.random()*.2),W*.1,W*.9);if(M.sub==='review'&&n){const c=gs[Math.floor(Math.random()*n)];M.rid=c.id;const cc=cell[c.id];M.tx=clamp(cc.nx+cc.tw*.5-3*u*(Math.random()<.5?1:-1),W*.1,W*.9)}else if(M.sub==='review')M.sub='think';M.cheer=0}}
- M.lift+=((WL.task?liftT:0)-M.lift)*Math.min(1,dt*4);M.x=clamp(M.x,W*.1,W*.9);
+  if(M.pt<=0&&!rd){const pk=['think','look','scratch','stretch','pace','pace','review','stand','think','sitdown','sitdown'];M.sub=pk[Math.floor(Math.random()*pk.length)];if(M.sub==='sitdown'){M.tx=seatBase;M.pt=30}M.pt=3.5+Math.random()*3.5;M.d=Math.random()<.5?-1:1;if(M.sub==='pace')M.tx=cl(M.x+(Math.random()<.5?-1:1)*W*(.15+Math.random()*.2));if(M.sub==='review'&&n){const c=gs[Math.floor(Math.random()*n)];M.rid=c.id;const cc=cell[c.id];M.tx=cl(cc.nx+cc.tw*.5-3*u*(Math.random()<.5?1:-1))}else if(M.sub==='review')M.sub='think';M.cheer=0}}
+ M.lift+=((WL.task?liftT:0)-M.lift)*Math.min(1,dt*4);M.x=M.sit?clamp(M.x,W*.06,W*.6):cl(M.x);
  /* bars drift toward the real value when nothing is being written */
  gs.forEach(g=>{if(WL.task&&WL.task.id===g.id&&WL.task.stage!=='walk')return;if((WL.w[g.id]||0)<1)return;const tg=wallBarTarget(g),cur=WL.bar[g.id]||0;WL.bar[g.id]=rd||PV.m?tg:cur+(tg-cur)*Math.min(1,dt*1.8)});
  /* draw the chalk */
- gs.forEach(g=>{const c=cell[g.id],w=WL.w[g.id]||0,pr=clamp(WL.bar[g.id]||0,0,1),done=dueState(g).s==='done',q=isB(g),rgb=rgbOf(g.color);
+ gs.forEach(g=>{const c=cell[g.id],fs=c.fs,w=WL.w[g.id]||0,pr=clamp(WL.bar[g.id]||0,0,1),done=dueState(g).s==='done',rgb=rgbOf(g.color);
   const x=c.x,y=c.y;cx.save();cx.lineCap='round';cx.lineJoin='round';
-  /* soft tap highlight and a chalk box with the goal color */
-  cx.fillStyle='rgba(255,255,255,'+(UI.sel===g.id?.07:.0)+')';cx.fillRect(x+2,y+2,c.w-4,c.h-4);
+  if(false){cx.fillStyle='rgba(255,255,255,.06)';cx.fillRect(x,y+2,c.w-2,c.h-4)}
   if(w>0){cx.strokeStyle=rgba(g.color,.95);cx.lineWidth=1.8;const s2=fs*.95;cx.beginPath();cx.moveTo(x+fs*.5,c.by-s2*.85);cx.lineTo(x+fs*.5+s2,c.by-s2*.9);cx.lineTo(x+fs*.5+s2*1.02,c.by+s2*.1);cx.lineTo(x+fs*.5-.5,c.by+s2*.05);cx.closePath();cx.stroke();
    if(done){cx.strokeStyle='rgba(120,255,170,.95)';cx.lineWidth=2.2;cx.beginPath();cx.moveTo(x+fs*.7,c.by-s2*.4);cx.lineTo(x+fs*1.05,c.by-s2*.05);cx.lineTo(x+fs*1.6,c.by-s2*1.15);cx.stroke()}
-   cx.font='700 '+fs+'px '+WL_FONT;cx.textAlign='left';cx.save();cx.beginPath();cx.rect(c.nx-2,c.by-fs*1.2,c.tw*w+4,fs*1.8);cx.clip();cx.fillStyle=CH;cx.fillText(c.nm,c.nx,c.by);cx.fillText(c.nm,c.nx+.5,c.by+.4);cx.restore();
-   if(q&&w>=1){cx.fillStyle='rgba(255,120,140,.9)';cx.font='700 '+Math.max(8,fs*.6)+'px '+WL_FONT;cx.fillText('quit',c.nx+c.tw+fs*.4,c.by-fs*.45)}}
-  /* progress bar drawn like a rough chalk rectangle with hatching */
+   cx.font='700 '+fs+'px '+WL_FONT;cx.textAlign='left';cx.save();cx.beginPath();cx.rect(c.nx-2,c.by-fs*1.2,c.tw*w+4,fs*1.8);cx.clip();cx.fillStyle=CH;cx.fillText(c.nm,c.nx,c.by);cx.fillText(c.nm,c.nx+.5,c.by+.4);cx.restore()}
   if(w>=1||(WL.task&&WL.task.id===g.id&&WL.task.stage==='bar')){const bx2=x+fs*.6,bw2=c.barW,bh2=fs*.62;cx.strokeStyle='rgba(246,248,238,.6)';cx.lineWidth=1.3;cx.strokeRect(bx2,c.barY,bw2,bh2);
    cx.strokeStyle=rgba(g.color,.95);cx.lineWidth=1.6;const fw=bw2*pr;cx.save();cx.beginPath();cx.rect(bx2,c.barY,fw,bh2);cx.clip();for(let hxx=bx2-bh2;hxx<bx2+fw+bh2;hxx+=5){cx.beginPath();cx.moveTo(hxx,c.barY+bh2);cx.lineTo(hxx+bh2,c.barY);cx.stroke()}cx.restore();
-   cx.fillStyle='rgba(246,248,238,.78)';cx.font='600 '+Math.max(8,fs*.62)+'px '+WL_FONT;cx.textAlign='right';cx.fillText((PV.m==='start'?0:PV.m==='done'?lenDays(g):Math.round(pr*lenDays(g)))+'/'+lenDays(g),x+c.w-fs*.5,c.by);
+   cx.fillStyle='rgba(246,248,238,.78)';cx.font='600 '+Math.max(8,fs*.62)+'px '+WL_FONT;cx.textAlign='right';cx.fillText((PV.m==='start'?0:PV.m==='done'?lenDays(g):Math.round(pr*lenDays(g)))+'/'+lenDays(g),x+c.w-fs*.4,c.by);
    BHIT.push({g,x:c.x,w:c.w,y0:c.y,y1:c.y+c.h,wall:true,d0:g.start,d1:g.end})}
   cx.restore()});
+ /* "+ add" spots */
+ adds.forEach(a=>{const fs=a.fs,q=a.t==='quit';cx.save();cx.lineCap='round';cx.setLineDash([4,5]);cx.strokeStyle=q?'rgba(255,140,160,.55)':'rgba(246,248,238,.5)';cx.lineWidth=1.4;const rx=a.x+fs*.5,ry=a.y+a.h*.22,rw=Math.min(a.w-fs,fs*9),rh=Math.min(a.h*.56,fs*2.1);cx.strokeRect(rx,ry,rw,rh);cx.setLineDash([]);
+  cx.fillStyle=q?'rgba(255,170,185,.9)':'rgba(246,248,238,.82)';cx.font='700 '+fs*1.05+'px '+WL_FONT;cx.textAlign='left';cx.fillText('+ new '+(q?'quit':'goal'),rx+fs*.6,ry+rh*.5+fs*.35);cx.restore();
+  BHIT.push({add:a.t,g:null,x:a.x,w:a.w,y0:a.y,y1:a.y+a.h,wall:true})});
+ if(!n){cx.fillStyle='rgba(246,248,238,.5)';cx.font='600 '+clamp(bh*.05,11,16)+'px '+WL_FONT;cx.textAlign='center';cx.fillText('Tap "+ new goal" and he will write it up',ix+bw/2,by+bh*.62)}
  /* chalk dust */
  WL.dust=WL.dust.filter(p=>(p.l-=dt*1.1)>0);WL.dust.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;cx.fillStyle='rgba(246,248,238,'+p.l*.7+')';cx.fillRect(p.x,p.y,1.6,1.6)});
- /* stool, man */
+ /* stool or rolling ladder under his feet, then the man */
  const lf=M.lift,fy=gy-lf;
- if(lf>2){cx.fillStyle='#a07844';cx.fillRect(M.x-2.6*u,fy,5.2*u,lf);cx.fillStyle='#c79a5c';cx.fillRect(M.x-2.9*u,fy-.5*u,5.8*u,.5*u);cx.fillStyle='rgba(0,0,0,.25)';cx.fillRect(M.x-2.6*u,fy+lf*.45,5.2*u,2)}
- cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(M.x,gy+1,3.6*u,.45*u,0,0,6.283);cx.fill();
- const M2=Object.assign({},M);
+ if(lf>2){const hw2=lf>mh*.5?3.6*u:2.6*u;if(lf>mh*.5){cx.strokeStyle='#c79a5c';cx.lineWidth=Math.max(2,u*.3);cx.lineCap='round';[-1,1].forEach(sd=>{cx.beginPath();cx.moveTo(M.x+sd*hw2*.55,fy);cx.lineTo(M.x+sd*hw2,gy);cx.stroke()});cx.lineWidth=Math.max(1.5,u*.2);for(let k=1;k<=Math.floor(lf/(1.6*u));k++){const yy=gy-k*1.6*u,f2=(gy-yy)/lf,hx2=hw2*(1-f2*.45);cx.beginPath();cx.moveTo(M.x-hx2,yy);cx.lineTo(M.x+hx2,yy);cx.stroke()}cx.fillStyle='#c79a5c';cx.fillRect(M.x-hw2*.62,fy-.4*u,hw2*1.24,.5*u)}
+  else{cx.fillStyle='#a07844';cx.fillRect(M.x-2.6*u,fy,5.2*u,lf);cx.fillStyle='#c79a5c';cx.fillRect(M.x-2.9*u,fy-.5*u,5.8*u,.5*u);cx.fillStyle='rgba(0,0,0,.25)';cx.fillRect(M.x-2.6*u,fy+lf*.45,5.2*u,2)}}
+ wallDesk(deskX,gy,u,t,rd);if(M.sit)wallChair(M.x,gy,u,rd?0:(M.ss==='roll'?t*6:0));
+ else{cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(M.x,gy+1,3.6*u,.45*u,0,0,6.283);cx.fill()}
  trMan(M.x,fy-(lf>2?.5*u:0),mh,{d:M.d,t,ph:M.ph,pose,bend:0,rd,T:M.T,dt,hx,hy});
- if(pose==='think'&&!rd){cx.fillStyle='rgba(255,255,255,.8)';for(let j=0;j<3;j++){cx.globalAlpha=.4+.6*Math.max(0,Math.sin(t*3-j*.8));cx.beginPath();cx.arc(M.x+mh*.2+j*mh*.1,fy-mh*1.15-j*mh*.05,mh*.03+j*.8,0,6.283);cx.fill()}cx.globalAlpha=1}
- if(WL.task&&WL.task.stage!=='walk'&&!rd){cx.globalAlpha=.9;cx.fillStyle='rgba(246,248,238,.9)';cx.font='600 '+clamp(W*.026,10,13)+'px Bricolage Grotesque,system-ui,sans-serif';cx.textAlign='center';cx.fillText(WL.task.type==='write'?'Writing it up...':'Marking today...',M.x,fy-mh*1.28);cx.globalAlpha=1}}
-/* tap a goal on the board: open its tree */
-function wallOpen(id){const g=gById(id);if(!g)return;sfx('open');UI.sel=id;const t=todayKey(),s=gStats(g),L=lenDays(g),day=clamp(diffD(g.start,t)+1,0,L),left=Math.max(0,L-day),q=isB(g),done=dueState(g).s==='done';
- const miles=PMILE.map(m=>`<span class="wtms ${s.done>=m?'on':''}">${m}</span>`).join('');
- const node=(ico,lab,val,sub)=>`<div class="wtn"><span class="wtdot"></span><div class="wtbox"><div class="xs mute">${ico?ic(ico,12)+' ':''}${esc(lab)}</div><div class="b sm">${val}</div>${sub?`<div class="xs mute">${sub}</div>`:''}</div></div>`;
- const tasks=(g.tasks||[]).length?node('check','Steps',(g.tasks||[]).map(x=>esc(typeof x==='string'?x:(x.t||x.name||x.text||''))).filter(Boolean).join(' · ')):'';
- FM=null;$('#modal').classList.add('on');$('#shade').classList.add('on');$('#mbox').innerHTML=`<div class="row wrapr"><div class="row" style="gap:10px"><span class="gico" style="--c:${g.color}">${gI(g,18)}</span><div><h2 class="vt" style="margin:0">${esc(g.name)}</h2><div class="xs mute">${q?'Quit goal':'Build goal'}${g.priority==='must'?' · Must':''} · ${esc(schedText(g))}</div></div></div><span class="sp"></span><button class="ibtn" data-act="recx" aria-label="Close">${ic('x')}</button></div>
- <div class="wtree" style="--c:${g.color}"><div class="wtroot">${gI(g,16)} ${esc(g.name)}</div>
- ${node('target','End goal',esc(g.why||(q?'Free of this habit for the whole round':'Complete the full round of '+L+' days')),g.metric?'Target: '+esc(g.metric):'')}
- ${node('cal','Duration',L+' days',fmtD(g.start)+' to '+fmtD(g.end)+' · day '+day+' of '+L+' · '+left+' days left')}
- ${node('flag','Progress',s.done+' of '+s.expT+' reps ('+Math.round(clamp(s.prog||0,0,1)*100)+'% of the round)','Streak '+s.streak+(s.unit==='d'?' days':' '+s.unit)+' · best '+s.best)}
- ${node('flame','Today',done?(q?'Clean day logged':'Fired. Done for today'):'Not logged yet')}
- ${g.cue?node('clock','Cue',esc(g.cue)):''}${tasks}
- <div class="wtn"><span class="wtdot"></span><div class="wtbox"><div class="xs mute">Milestones reached</div><div class="wtmile">${miles}</div></div></div></div>
- <div class="row wrapr" style="gap:8px;margin-top:12px"><button class="btn pri" data-act="wallfire" data-id="${g.id}">${ic('flame',14)} ${done?'Undo today':q?'Clean day':'Fire'}</button><button class="btn" data-act="wallfull" data-id="${g.id}">Full details</button><button class="btn" data-act="wallrep" data-id="${g.id}">${ic('play',13)} Rewrite on board</button></div>`;$('#mbox').scrollTop=0}
+ if(pose==='think'&&!rd){cx.fillStyle='rgba(255,255,255,.8)';for(let j=0;j<3;j++){cx.globalAlpha=.4+.6*Math.max(0,Math.sin(t*3-j*.8));cx.beginPath();cx.arc(M.x+mh*.2+j*mh*.1,fy-mh*1.15-j*mh*.05,mh*.03+j*.8,0,6.283);cx.fill()}cx.globalAlpha=1}}
+/* ---------- brainstorm map for one goal ---------- */
+const WB_SUG={
+ h:{learn:['No one to practise speaking with','Words not sticking','Skipping when I feel stuck','Sessions too long, I put them off'],trade:['Overtrading after a loss','Not following my plan','Revenge trades','No time to journal after the market'],fit:['Too tired or sore','Bad weather','No time in the morning','Skipping once and quitting'],quit:['The urge hits at the usual time','Stress or boredom','Friends who still do it','Evenings alone','"Just one" thinking'],gen:['No time in the day','Low energy','Forgetting to do it','The task feels too big','It feels slow, I get bored']},
+ d:{quit:['Seeing it around me','Ads and shops on the way','Peer pressure','Old routines and places','Hungry, angry, lonely or tired'],gen:['Phone and notifications','Reels and social media','Messages and calls','Noise at home','Other work pulling me away']},
+ n:['Tie it to one fixed cue','Do the 2-minute version on bad days','Put the phone in another room','Tell one person what I am doing','Prepare tomorrow tonight']};
+function wbKind(g){const s=(g.name+' '+(g.cat||'')).toLowerCase();return isB(g)?'quit':/hindi|language|learn|study|read|course|class|english|spanish|french|code|coding|skill/.test(s)?'learn':/trad|market|stock|option|intraday|chart/.test(s)?'trade':/gym|run|walk|workout|exercise|yoga|swim|cycle|fit/.test(s)?'fit':'gen'}
+function wallInsights(g){const t=todayKey(),s=gStats(g),N=goalNums(g),work=[],not=[],next=[],q=isB(g),pc=v=>Math.round(v*100)+'%';
+ const wd=wdPerf([g],56).filter(x=>x.n>=3),best=wd.slice().sort((a,b)=>b.v-a.v)[0],worst=wd.slice().sort((a,b)=>a.v-b.v)[0];
+ let miss=0,run=0,maxRun=0,logged=0;for(let i=27;i>=0;i--){const k=addD(t,-i);if(k<g.start||k>=t)continue;const r=isOpp(g,k,t);if(r.o){logged++;if(r.d){run=0}else{miss++;run++;maxRun=Math.max(maxRun,run)}}}
+ if(!s.done){work.push('Nothing logged yet. The first '+(q?'clean day':'fire')+' starts the circuit.')}
+ else{if(s.streak>0)work.push('Current streak: '+s.streak+(s.unit==='d'?' days':' '+s.unit)+(s.best>s.streak?' (best '+s.best+')':''));
+  if(N.r7!=null)work.push('Last 7 days: '+pc(N.r7)+' followed through');
+  if(best&&best.v>=60)work.push('Strongest day: '+best.l+' ('+best.v+'%)');
+  if(N.trend!=null&&N.trend>=.1)work.push('Rising: up '+Math.round(N.trend*100)+' points on the week before');
+  const ms=PMILE.filter(m=>s.done>=m).pop();if(ms)work.push('Passed the day-'+ms+' milestone');
+  try{const c=correl([g]);if(c.length)work.push(c[0])}catch(e){}
+  if(!work.length)work.push('Early days. Keep logging so patterns show.')}
+ if(miss>0)not.push('Missed '+miss+' of the last '+logged+' days that counted');
+ if(maxRun>=2)not.push('A run of '+maxRun+' misses in a row. Two in a row is the habit to watch');
+ if(worst&&worst.v<=60&&wd.length>1)not.push('Weakest day: '+worst.l+' ('+worst.v+'%)');
+ if(N.trend!=null&&N.trend<=-.1)not.push('Slipping: down '+Math.round(-N.trend*100)+' points on the week before');
+ if(s.gap!=null&&s.gap>=2)not.push('No log for '+s.gap+' days');
+ if(q&&s.slips)not.push(s.slips+' slip'+(s.slips>1?'s':'')+' so far. Each one is data, not failure');
+ if(!not.length)not.push(s.done?'Nothing is clearly failing right now.':'Nothing to judge yet.');
+ if(worst&&worst.v<=60&&wd.length>1)next.push('Make a smaller version for '+worst.l);
+ if(N.r28!=null&&N.r28<.6)next.push('Shrink it: do the 2-minute version on bad days');
+ if(s.gap!=null&&s.gap>=2)next.push('Do the smallest version today. Never miss twice');
+ if(!next.length)next.push('Keep going. Review again in a week');
+ return{work,not,next}}
+function wallOpen(id){const g=gById(id);if(!g)return;sfx('open');WL.open=id;const t=todayKey(),s=gStats(g),L=lenDays(g),day=clamp(diffD(g.start,t)+1,0,L),left=Math.max(0,L-day),q=isB(g),done=dueState(g).s==='done',I=wallInsights(g),bs=g.bs||(g.bs={h:[],d:[],n:[]}),kind=wbKind(g);
+ const leaf=(txt,b,del)=>`<div class="bsleaf" style="--b:${b}"><span>${esc(txt)}</span>${del?`<button class="bsx" data-act="wbdel" data-id="${g.id}" data-k="${del[0]}" data-i="${del[1]}" aria-label="Remove">×</button>`:''}</div>`;
+ const plan=[];plan.push(['End goal',g.why||(q?'Free of this habit for the whole round':'Complete the full round of '+L+' days')+(g.metric?' · target: '+g.metric:'')]);plan.push(['Duration',L+' days · '+fmtD(g.start)+' to '+fmtD(g.end)+' · day '+day+' · '+left+' left']);plan.push(['Schedule',schedText(g)+(g.cue?' · cue: '+g.cue:'')]);(g.tasks||[]).forEach(x=>{const tx=typeof x==='string'?x:(x.t||x.name||x.text||'');if(tx)plan.push(['Step',tx])});
+ const sugOf=(k,list)=>list.filter(x=>!(bs[k]||[]).includes(x)).slice(0,5).map(x=>`<button class="bssug" data-act="wbadd" data-id="${g.id}" data-k="${k}" data-v="${esc(x)}">+ ${esc(x)}</button>`).join('');
+ const edit=(k,b,ph,sug)=>`<div class="bsadd"><input id="wbi_${k}" class="bsin" placeholder="${ph}" maxlength="120" autocomplete="off" data-enter="wbaddin" data-id="${g.id}" data-k="${k}"><button class="btn sm" data-act="wbaddin" data-id="${g.id}" data-k="${k}">Add</button></div><div class="bssugs" style="--b:${b}">${sug}</div>`;
+ const hs=WB_SUG.h[kind]||WB_SUG.h.gen,ds=q?WB_SUG.d.quit:WB_SUG.d.gen;
+ const br=(name,b,body)=>`<div class="bsbr" style="--b:${b}"><div class="bsbn">${name}</div><div class="bsleaves">${body}</div></div>`;
+ const mood=done?(q?'Clean day logged':'Fired today'):'Not logged yet today';
+ FM=null;$('#modal').classList.add('on');$('#shade').classList.add('on');$('#mbox').innerHTML=`<div class="row wrapr"><div><div class="xs mute">Brainstorm</div><h2 class="vt" style="margin:0">${esc(g.name)}</h2></div><span class="sp"></span><button class="ibtn" data-act="recx" aria-label="Close">${ic('x')}</button></div>
+ <div class="bsmap" style="--c:${g.color}"><div class="bsroot"><span class="gico" style="--c:${g.color}">${gI(g,22)}</span><b>${esc(g.name)}</b><em>${q?'Quit':'Build'} · ${L} days</em><em>${esc(mood)}</em></div>
+ <div class="bsbrs">
+ ${br('Plan','#5b7cff',plan.map(p=>leaf(p[0]+': '+p[1],'#5b7cff')).join(''))}
+ ${br('Hurdles','#ff5d73',(bs.h||[]).map((x,i)=>leaf(x,'#ff5d73',['h',i])).join('')+edit('h','#ff5d73','What could get in the way?',sugOf('h',hs)))}
+ ${br('Distractions','#ff9f43',(bs.d||[]).map((x,i)=>leaf(x,'#ff9f43',['d',i])).join('')+edit('d','#ff9f43','What could pull me away?',sugOf('d',ds)))}
+ ${br('What is working','#3ddc97',I.work.map(x=>leaf(x,'#3ddc97')).join(''))}
+ ${br('What is not working','#f472b6',I.not.map(x=>leaf(x,'#f472b6')).join(''))}
+ ${br('Next move','#b388ff',I.next.map(x=>leaf(x,'#b388ff')).join('')+(bs.n||[]).map((x,i)=>leaf(x,'#b388ff',['n',i])).join('')+edit('n','#b388ff','My own next step',sugOf('n',WB_SUG.n)))}
+ </div></div>
+ <div class="xs mute" style="margin-top:6px">Working and not working come from your own logs. Hurdles, distractions and next steps are yours: tap a suggestion or type your own.</div>
+ <div class="row wrapr" style="gap:8px;margin-top:10px"><button class="btn pri" data-act="wallfire" data-id="${g.id}">${ic('flame',14)} ${done?'Undo today':q?'Clean day':'Fire'}</button><button class="btn" data-act="wallfull" data-id="${g.id}">Full details</button><button class="btn" data-act="wallrep" data-id="${g.id}">${ic('play',13)} Rewrite on board</button></div>`}
+/* ---------- quick add: type it, pick build or quit, set the days ---------- */
+function wallNew(type){WL.nt=type==='quit'?'quit':'build';sfx('open');FM=null;$('#modal').classList.add('on');$('#shade').classList.add('on');
+ $('#mbox').innerHTML=`<div class="row wrapr"><div><h2 class="vt" style="margin:0">New goal</h2><div class="xs mute">He will write it on the board.</div></div><span class="sp"></span><button class="ibtn" data-act="recx" aria-label="Close">${ic('x')}</button></div>
+ <label class="f" style="margin-top:12px">What is it?</label><input id="wnn" class="bsin" style="width:100%" placeholder="For example: Learn Hindi" maxlength="60" autocomplete="off" data-enter="wallmake">
+ <label class="f">Kind</label><div class="seg" id="wnt"><button data-act="wallty" data-v="build" class="${WL.nt==='build'?'on':''}">Build a habit</button><button data-act="wallty" data-v="quit" class="${WL.nt==='quit'?'on':''}">Quit a habit</button></div>
+ <label class="f">For how many days?</label><div class="row wrapr" style="gap:6px"><input id="wnd" class="bsin" type="number" inputmode="numeric" min="1" max="730" value="21" style="width:90px">${[7,21,30,66,100].map(d=>`<button class="chip" data-act="wallday" data-v="${d}">${d}</button>`).join('')}</div>
+ <label class="f">Why? <span class="mute xs">(optional)</span></label><input id="wnw" class="bsin" style="width:100%" placeholder="Your end goal in a few words" maxlength="120" autocomplete="off" data-enter="wallmake">
+ <div class="row wrapr" style="gap:8px;margin-top:14px"><button class="btn pri" data-act="wallmake">${ic('pen',14)} Write it on the board</button><button class="btn" data-act="recx">Cancel</button></div>
+ <div class="xs mute" style="margin-top:8px">Want a schedule, reminders or time windows? Open the goal afterwards and tap Full details.</div>`;setTimeout(()=>{const i=$('#wnn');if(i)i.focus()},120)}
+
+function wallDesk(x,gy,u,t,rd){const c=cx;c.save();c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(206,176,138,.95)';c.lineWidth=Math.max(2,u*.35);
+ c.beginPath();c.moveTo(x+3.2*u,gy-4.2*u);c.lineTo(x+9*u,gy-4.2*u);c.moveTo(x+3.6*u,gy-4.2*u);c.lineTo(x+3.6*u,gy);c.moveTo(x+8.6*u,gy-4.2*u);c.lineTo(x+8.6*u,gy);c.stroke();
+ const lx=x+5.6*u,ly=gy-4.2*u;c.strokeStyle='rgba(235,240,255,.85)';c.lineWidth=Math.max(1.4,u*.2);c.beginPath();c.moveTo(lx,ly);c.lineTo(lx+2*u,ly);c.stroke();
+ c.fillStyle='rgba(150,205,255,.2)';c.beginPath();c.moveTo(lx+2*u,ly);c.lineTo(lx+2.7*u,ly-3*u);c.lineTo(lx+3.2*u,ly-3*u);c.lineTo(lx+2.5*u,ly);c.closePath();c.fill();c.stroke();
+ c.fillStyle='#e8c9a0';c.fillRect(x+8*u,ly-.9*u,.8*u,.9*u);c.restore()}
+function wallChair(x,gy,u,wheel){const c=cx;c.save();c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(206,176,138,.95)';c.fillStyle='rgba(206,176,138,.95)';c.lineWidth=Math.max(2,u*.35);
+ c.beginPath();c.moveTo(x-1.4*u,gy-5.8*u);c.lineTo(x-1.4*u,gy-2.4*u);c.lineTo(x+1.2*u,gy-2.4*u);c.moveTo(x-.1*u,gy-2.4*u);c.lineTo(x-.1*u,gy-.7*u);c.moveTo(x-1.5*u,gy-.7*u);c.lineTo(x+1.3*u,gy-.7*u);c.stroke();
+ c.lineWidth=Math.max(1.4,u*.2);[-1.3,.2,1.2].forEach((dx,i)=>{const wx=x+dx*u,wy=gy-.35*u;c.beginPath();c.arc(wx,wy,.35*u,0,6.283);c.stroke();c.beginPath();c.moveTo(wx,wy);c.lineTo(wx+Math.cos(wheel+i)*.3*u,wy+Math.sin(wheel+i)*.3*u);c.stroke()});c.restore()}
 /* ===== screen-level fire effects: a burst wherever you tap, plus a bolt of light into the brand neuron ===== */
 const FXC=$('#fxcv'),fxx=FXC.getContext('2d');let FXW=0,FXH=0,FXP=[],FXR=[],FXT=[],FXB=[],fxOn=false,fxLast=0;
 function fxSize(){const d=Math.min(2,devicePixelRatio||1);FXW=innerWidth;FXH=innerHeight;FXC.width=Math.round(FXW*d);FXC.height=Math.round(FXH*d);FXC.style.width=FXW+'px';FXC.style.height=FXH+'px';fxx.setTransform(d,0,0,d,0,0)}
@@ -1917,7 +1992,7 @@ ACT.legtog=()=>{UI.leg=!UI.leg;sfx('tap');mapwrap.classList.toggle('leg',UI.leg)
 function pvSync(){const e=$('#pvtag');if(!e)return;if(!PV.m){e.hidden=true;return}e.hidden=false;e.innerHTML=`<span>Preview: ${PV.m==='start'?'day 1':'finished'}</span><button data-act="pv" data-v="now">Back to now</button>`}
 ACT.pv=el=>{const v=el.dataset.v;PV.m=v==='now'?null:v;if(PV.m&&UI.sel&&!focusG()){}sfx('mode');if(PV.m==='start'&&S.set.mode==='universe'||PV.m==='start'&&S.set.mode==='synapse')ORDER.forEach(g=>{rt(g).gr=0});buildMapCtl()};
 function replayG(g){PV.m=null;const m=S.set.mode;if(m==='wall'){wallReplay(g)}else if(m==='tree'){const T=TRE[g.id];if(T){T.k=0;T.gr=0;T.planted=false;T.fullcel=false;T.phase='idle';T.sit=true;T.x=T.x;T.wonly=false;T.sub='type';T.pt=1;T.cap=null}}else if(m==='ladder'){const L=LA[g.id];if(L){L.pos=0;L.v=0;L.rate=Math.max(1.1,Math.min(5,pathStat(g).k/9))}}else if(m==='path'){RP.on=true;RP.t0=performance.now();RP.dur=clamp(pathStat(g).k*330,4500,14000)}else{RP.on=true;RP.t0=performance.now();RP.dur=7500}sfx('open');buildMapCtl()}
-ACT.replay=()=>{const g=focusG();if(g)replayG(g)};
+ACT.replay=()=>{if(S.set.mode==='wall'){wallReplay();sfx('open');return}const g=focusG();if(g)replayG(g)};
 ACT.layout=el=>{S.set.layout=el.dataset.v;sfx('mode');ORDER.forEach(g=>{rt(g).placed=false});save();buildMapCtl()};
 ACT.fs=()=>{sfx('open');setFS(true)};ACT.fsx=()=>{sfx('close');setFS(false)};ACT.resetview=()=>{resetView();sfx('tap')};
 /* map info */
@@ -3562,7 +3637,7 @@ const G_MODEL=[
  ['sprout','5. Recover and grow','A missed day shows honestly: a cracked brick, a snapped rung, a weak branch. It is not erased and it is not the end. The rule is simple: never miss twice. Return the next day, even with the smallest version, and the path keeps going.','After a miss: do the 2-minute version tomorrow. Do not try to catch up. When a round ends, extend it or start the next one.']];
 const G_RHYTHM=[['Every day (2 minutes)','Fire your goals at their cue. Log mood, energy and sleep in the check-in if you like. Glance at the visual.'],['Every week (5 minutes)','Open Insights. Read the strongest and weakest day. Pick ONE change: shrink the goal, move it to a better time, or add a cue.'],['Every month','Read the Board: are lines spreading (building) and narrowing (quitting)? Retire goals that no longer matter, add one new one.'],['When you slip or miss','Say it plainly, log it, and return tomorrow. A single miss barely moves the model. Two in a row is the habit to watch.'],['When motivation is gone','Do the smallest version: one minute, one page, one rep. Use Breathe or a brain game to reset, then fire.']];
 const G_NEW=[
- ['target','Board: the man and the giant chalkboard','Pick Board in the view menu. A stick man stands in front of a giant chalkboard. Every goal is written on it by hand (he climbs a stool for the high rows), with a chalk progress bar that fills as you show up. When you add a goal he writes it live; when you fire a goal he marks it. In between he thinks, paces, scratches his head and steps back to look. Tap any goal on the board to open its tree: end goal, duration, progress, steps and milestones, with Fire and Full details buttons. Replay rewrites the board from nothing.'],
+ ['target','The Board: your main screen','Board is the default view when you open the app. A stick man stands in front of a giant chalkboard. Build goals are written on the left and quit goals on the right, each with a chalk progress bar. Tap + new goal (or + new quit), type what it is, pick the number of days (21, for example) and he writes it on the board by hand, climbing a ladder for the high rows. When you fire a goal he marks it; in between he thinks, paces and steps back to look. Tap any goal to open its brainstorm map: Plan, Hurdles, Distractions, What is working, What is not working and Next move. Working and not working come from your own logs. Hurdles, distractions and next steps are yours to write, with tappable ideas to start from. All the other visuals are still in the view menu.'],
  ['shield','Missed days show as weak spots','A missed day in the middle of a streak no longer disappears. On the Path the brick for that day is cracked, on the Ladder the rung is snapped or cracked, and on the Tree the branch grown that day is thin, drooping and bare. You can still keep going; the weak spot stays as an honest mark.'],
  ['heart','About tab','The About tab (in the side menu, or tap About at the bottom of any page) tells you who built the app, the books behind it, why it exists, and how your data stays on your device.'],
  ['ins','Insights and Board','Insights has a tidy Overview / Board switch, with the single-goal dashboards in their own wrapped row below it. Tap almost any card or chart to open the rows of data behind it. On the Board, build goals fan out from one point as you keep showing up, and quit goals start wide and narrow as clean days add up (a slip widens them again).'],
@@ -3626,6 +3701,7 @@ function tourEnd(){const el=$('#tour');if(el){el.classList.remove('on');setTimeo
 ACT.tour=()=>{go('home');sfx('open');tourShow(0)};ACT.tourskip=()=>{tourEnd();sfx('close')};ACT.tournext=()=>{sfx('nav');if(TI>=TOUR.length-1)tourEnd();else tourShow(TI+1)};
 /* ===== About the developer ===== */
 /* EDIT HERE: [title, one line, file you upload to GitHub]. Put the PDFs in the same folder as index.html */
+const ABOUT_SKILLS=['Front-end development','Scrum','Kanban','Jira','Azure tools','Systems thinking','Building trading tools (QuantReloaded)','Video editing: After Effects, Blender','Testing ideas before using them'];
 const ABOUT_PHOTO=['raghu.jpg','raghu.png','raghu.jpeg','raghu.webp'];
 const ABOUT_BOOKS=[['The False Green','Trading psychology: why a green screen can lie to you, and what it does to decisions.','the-false-green.pdf'],['Who\u2019s Trading Your Account? The Second Trader','The other trader inside you, the one who takes over when emotion kicks in.','who-is-trading-your-account.pdf'],['The Eight Power and Trading Paradoxes','The contradictions every trader has to live with.','eight-power-and-trading-paradoxes.pdf'],['The Inner Citadel Trade','Building the inside of a trader so the outside can follow.','inner-citadel-trade.pdf'],['The Blind Candle','Reading price and your own mind when the picture is incomplete.','the-blind-candle.pdf']];
 const ABOUT_STORY=[['2018','First steps in the markets','I started trading in 2018. In those early days I lost money, mostly because I did not yet understand how markets actually behave.'],['2020 to 2023','Away from the screen, closer to the truth','I stepped back and worked freelance and regular jobs: video editing, After Effects, Blender. I also took an entry-level role at Fyers, answering calls from traders. Listening to so many of them taught me how markets really behave, and how human psychology shows up in trading: gaps in knowledge, technical problems, and the same emotional mistakes again and again. Later I left Fyers.'],['A hard stretch','Habits that became hurdles','This was also a heavy period personally. I went through depression and difficult life events, and fell into drinking and smoking. In time I saw that these habits distracted me from the goals I wanted and had become hurdles. I decided to quit, but I kept failing to control the urges. That is what sent me into books on neuroscience, and on trading, because I needed to make money and I never wanted to work under a boss.'],['2023 to 2024','Trading again, more lessons','I returned to trading while editing videos for creators on Instagram and YouTube. I made small amounts of money, explored trading again, and took more losses along the way.'],['The turning point','Quitting alcohol, and asking why','One day, full of hatred for the habit and the mental hangover that came with it, I quit alcohol. Then I focused on the real question: why could I not quit before? I took working on myself seriously. I studied characters from Breaking Bad, The Mentalist, The Big Bang Theory, Batman and Money Heist, tried to borrow their habits, read more on habits, neuroscience and trading, learned to think in systems, and built my own tools, including the QuantReloaded dashboard.'],['Today','Sober, and still building','I have been completely sober for almost a year now. Smoking still triggers me sometimes, and I know I will quit that too. NeuroOrbitSynapse is what that journey turned into: a way to watch the habits you wire, and the ones you let go of.']];
@@ -3634,8 +3710,9 @@ const ABOUT_PRIV=['Everything you enter stays on this device, in your browser’
 function abImg(el){const i=+el.dataset.i+1;if(i<ABOUT_PHOTO.length){el.dataset.i=i;el.src=ABOUT_PHOTO[i]}else el.style.display='none'}
 function renderAbout(){const card=(i,t,p,c)=>`<div class="card gstep"><div class="row"><span class="gico" style="--c:${c||'var(--acc)'}">${ic(i,16)}</span><b>${esc(t)}</b></div><p class="sm mute" style="margin:8px 0 0">${esc(p)}</p></div>`;
  $('#aboutc').innerHTML=`<div class="row wrapr"><div><h2 class="vt">About</h2><div class="mute sm">The person behind NeuroOrbitSynapse, and why it exists.</div></div></div>
- <div class="ghero card abhero"><div class="abph"><span class="abav">R</span><img src="${ABOUT_PHOTO[0]}" data-i="0" alt="Raghu" onerror="abImg(this)" onload="this.classList.add('ok')"></div><div><div class="serif" style="font-size:26px;line-height:1.15">Raghu</div><div class="mute">Developer, trader and author, writing as <b style="color:var(--ink)">@NerdyIntruder</b></div><div class="row wrapr" style="gap:8px;margin-top:10px"><a class="btn pri" href="https://www.instagram.com/nerdyintruder/" target="_blank" rel="noopener">${ic('heart',14)} @NerdyIntruder</a><button class="btn" data-act="abcopy">Copy handle</button></div></div></div>
- <div class="card" style="margin-top:14px"><h3>Who I am</h3><p class="sm" style="margin:6px 0">I am an active retail trader in the Indian equity and F&amp;O markets, mostly intraday on NSE and BSE. Trading is the centre of my work and my thinking, and the hardest part of it has never been the chart. It is the person looking at the chart.</p><p class="sm" style="margin:6px 0">That is why I write about trading psychology, discipline and performance as @NerdyIntruder, and why I built this app: to give daily habits the same honest, measurable attention that a trading journal gives to trades.</p></div>
+ <div class="ghero card abhero"><div class="abph"><span class="abav">R</span><img src="${ABOUT_PHOTO[0]}" data-i="0" alt="Raghu" onerror="abImg(this)" onload="this.classList.add('ok')"></div><div><div class="serif" style="font-size:26px;line-height:1.15">Raghu</div><div class="mute">Trader, author and builder. I never follow random advice: I test it, from every angle, before it touches my trading.</div><div class="row wrapr" style="gap:8px;margin-top:10px"><a class="btn pri" href="https://www.instagram.com/nerdyintruder/" target="_blank" rel="noopener">${ic('heart',14)} @NerdyIntruder</a><button class="btn" data-act="abcopy">Copy handle</button></div></div></div>
+ <div class="card" style="margin-top:14px"><h3>Who I am</h3><p class="sm" style="margin:6px 0">I am an active retail trader. I trade equity and F&amp;O, mostly intraday, on NSE and BSE. I also trade crypto (BTC and ETH) and Nasdaq perpetual contracts on Delta Exchange. Trading is the centre of my work and my thinking, and the hardest part of it has never been the chart. It is the person looking at the chart.</p><p class="sm" style="margin:6px 0">I do not copy what I am told. Every idea, indicator and tool gets tested first: what works for me, what does not, and why. I look at it from my own point of view and from several others, and I only deploy it in my trading after it has survived the test. That is also how I built this app.</p><p class="sm" style="margin:6px 0">I write about trading psychology, discipline and performance as @NerdyIntruder. NeuroOrbitSynapse is what I built to give daily habits the same honest, measurable attention that a trading journal gives to trades.</p></div>
+ <div class="card" style="margin-top:14px"><h3>Skills</h3><div class="row wrapr" style="gap:6px;margin-top:8px">${ABOUT_SKILLS.map(x=>`<span class="chip on" style="cursor:default">${esc(x)}</span>`).join('')}</div><p class="sm mute" style="margin:10px 0 0">I have the skills for a software career and I did try to get there. Personal problems kept holding me back and the jobs never came. That was never for lack of trying. Meanwhile I went fully into trading, and I have not looked back.</p></div>
  <h3 class="h3 gh">My story</h3><div class="abtl">${ABOUT_STORY.map(x=>`<div class="abstep"><span class="abdot"></span><div class="xs mute">${esc(x[0])}</div><b>${esc(x[1])}</b><p class="sm" style="margin:4px 0 0">${esc(x[2])}</p></div>`).join('')}</div>
  <h3 class="h3 gh">My books</h3><div class="xs mute" style="margin:-4px 0 8px">If you are interested, have a look at my work. Tap a title to download it.</div><div class="grid g2">${ABOUT_BOOKS.map(b=>`<a class="card gstep abbook" href="${esc(b[2])}" download target="_blank" rel="noopener"><div class="row"><span class="gico" style="--c:var(--acc)">${ic('book',16)}</span><b>${esc(b[0])}</b></div><p class="sm mute" style="margin:8px 0 0">${esc(b[1])}</p><span class="btn sm" style="margin-top:8px;align-self:flex-start">${ic('dl',13)} Download</span></a>`).join('')}</div>
  <div class="card" style="margin-top:12px"><div class="row"><span class="gico" style="--c:var(--acc2)">${ic('pen',16)}</span><b>In progress</b></div><p class="sm mute" style="margin:8px 0 0">A book on the full-time trader\u2019s life beyond the chart, and a shorter one on distraction and noise. Both are written from the inside.</p></div>
@@ -3644,10 +3721,21 @@ function renderAbout(){const card=(i,t,p,c)=>`<div class="card gstep"><div class
  <div class="card" style="margin-top:14px"><h3>Your data and privacy</h3><div class="col" style="gap:6px;margin-top:6px">${ABOUT_PRIV.map(x=>`<div class="sm row" style="gap:8px;align-items:flex-start"><span style="color:var(--acc)">${ic('check',14)}</span><span>${esc(x)}</span></div>`).join('')}</div></div>
  <div class="card" style="margin-top:14px;text-align:center"><div class="serif" style="font-size:20px">Wire your habits. Orbit your goals.</div><div class="mute sm" style="margin-top:6px">Made with <span class="heart">&#10084;</span> by Raghu · <a href="https://www.instagram.com/nerdyintruder/" target="_blank" rel="noopener">@NerdyIntruder</a></div><div class="row wrapr" style="justify-content:center;gap:8px;margin-top:10px"><button class="btn" data-act="nav" data-v="guide">${ic('book',14)} Read the guide</button><button class="btn" data-act="nav" data-v="set">${ic('set',14)} Settings and backup</button></div></div>`}
 ACT.abcopy=()=>{copyText('@NerdyIntruder');toast('Handle copied')};
-
+/* Board actions */
+const wbRe=id=>{const m=$('#mbox'),st=m?m.scrollTop:0;wallOpen(id);if(m)m.scrollTop=st};
 ACT.wallfire=el=>{closeModal();ACT.done(el)};
 ACT.wallfull=el=>{closeModal();openDrawer(el.dataset.id)};
 ACT.wallrep=el=>{closeModal();const g=gById(el.dataset.id);if(g)wallReplay(g)};
+ACT.wbdel=el=>{const g=gById(el.dataset.id);if(!g||!g.bs)return;g.bs[el.dataset.k].splice(+el.dataset.i,1);save();sfx('tick');wbRe(g.id)};
+ACT.wbadd=el=>{const g=gById(el.dataset.id);if(!g)return;g.bs=g.bs||{h:[],d:[],n:[]};const k=el.dataset.k,v=(el.dataset.v||'').trim();if(v&&!g.bs[k].includes(v))g.bs[k].push(v);save();sfx('tick');wbRe(g.id)};
+ACT.wbaddin=el=>{const k=el.dataset.k,i=$('#wbi_'+k);if(!i)return;const v=i.value.trim();if(!v)return;const g=gById(el.dataset.id);if(!g)return;g.bs=g.bs||{h:[],d:[],n:[]};if(!g.bs[k].includes(v))g.bs[k].push(v);save();sfx('tick');wbRe(g.id);const j=$('#wbi_'+k);if(j)j.focus()};
+ACT.wallty=el=>{WL.nt=el.dataset.v;document.querySelectorAll('#wnt button').forEach(b=>b.classList.toggle('on',b.dataset.v===WL.nt));sfx('tick')};
+ACT.wallday=el=>{const d=$('#wnd');if(d)d.value=el.dataset.v;sfx('tick')};
+ACT.wallmake=()=>{const nm=($('#wnn')||{}).value||'';if(!nm.trim()){toast('Type what the goal is first.');return}
+ const dur=clamp(Math.round(+($('#wnd')||{}).value)||21,1,730),why=(($('#wnw')||{}).value||'').trim(),b=blankGoal(WL.nt==='quit'?'break':'build');
+ const used=S.goals.map(g=>g.color),free=GCOLORS.filter(c=>!used.includes(c));b.color=(free.length?free:GCOLORS)[Math.floor(Math.random()*(free.length||GCOLORS.length))];
+ b.name=nm.trim().slice(0,60);b.why=why;b.sched=Object.assign({},b.sched,{t:'daily'});b.start=todayKey();b.end=addD(b.start,dur-1);delete b.dur;delete b.isNew;
+ const ng=normGoal(b);S.goals.push(ng);UI.sel=null;sfx('create');save();closeModal();checkBadges();S.set.mode='wall';save();renderAll();toast('Writing it on the board. Tap it to brainstorm.')};
 /* ===== splash + init ===== */
 let SPDONE=false,SPSHORT=false;
 function endSplash(){if(SPDONE)return;SPDONE=true;const s=$('#splash');s.classList.add('out');setTimeout(()=>s.remove(),900);afterSplash()}
