@@ -546,6 +546,7 @@ body.shk #app{animation:shk .4s}
 .bsx{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--mute);font-size:15px;line-height:1}
 .bsadd{display:flex;gap:6px;margin-top:8px}.bsin{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel)!important;color:var(--ink)!important;font:inherit}
 .bssugs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.bssug{padding:4px 10px;border:1px dashed var(--b);border-radius:999px;background:none;color:var(--mute);font-size:12px;text-align:left}.bssug:hover{color:var(--ink);background:color-mix(in srgb,var(--b) 14%,transparent)}
+#wbin{position:absolute;left:8px;right:8px;top:8px;z-index:30;display:flex;gap:6px;padding:8px;border-radius:14px;background:rgba(18,22,30,.96);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.5)}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -800,7 +801,7 @@ function normState(o){
  const d=defSet(),u=o.set||{};
  s.set=Object.assign(d,u,{snd:Object.assign(d.snd,u.snd||{}),music:Object.assign(d.music,u.music||{}),notif:Object.assign(d.notif,u.notif||{}),flags:Object.assign({},u.flags||{}),fired:u.fired||d.fired});
  if(!THEMES[s.set.theme])s.set.theme='blue';
- if(!['universe','synapse','path','ladder','tree','wall'].includes(s.set.mode))s.set.mode='wall';if(!s.set.wallv){s.set.mode='wall';s.set.wallv=1}
+ if(!['universe','synapse','path','ladder','tree','wall','house'].includes(s.set.mode))s.set.mode='wall';if(!s.set.wallv){s.set.mode='wall';s.set.wallv=1}
  if(!['orbit','web','helix','spiral'].includes(s.set.layout))s.set.layout='orbit';
  return s}
 function legacy(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
@@ -1083,7 +1084,7 @@ function relink(){ORDER=orderGoals();LINKS=[];NB={};const n=ORDER.length,seen=ne
  const ex=[];S.goals.forEach(g=>(g.rel||[]).forEach(r=>{const a=ORDER.findIndex(o=>o.id===g.id),b=ORDER.findIndex(o=>o.id===r.to);if(a>=0&&b>=0)ex.push([a,b])}));
  if(ex.length)ex.forEach(([a,b])=>add(a,b));else for(let i=0;i<n;i++){add(i,(i+1)%n);if(n>=5)add(i,(i+2)%n)}ORD_REV=REV}
 /* Synapse mode shows one neuron (the selected goal) unless Show all is on or the layout is Web */
-const is2D=()=>['path','ladder','tree','wall'].includes(S.set.mode);
+const is2D=()=>['path','ladder','tree','wall','house'].includes(S.set.mode);
 const synOne=()=>(is2D()&&S.set.mode!=='wall'&&ORDER.length>0)||(S.set.mode==='synapse'&&!S.set.synAll&&S.set.layout!=='web'&&ORDER.length>0);
 function focusG(){let g=UI.sel&&gById(UI.sel);if(g){if(S.set.synGoal!==g.id)S.set.synGoal=g.id;return g}g=S.set.synGoal&&gById(S.set.synGoal);return g||ORDER[0]||null}
 const synVis=g=>!synOne()||focusG()===g;
@@ -1159,7 +1160,7 @@ function frame(now){requestAnimationFrame(frame);if(document.hidden||!W)return;i
  {const two=is2D(),m=S.set.mode,rotd=false;
   if(rotd){if(!OC||OC.canvas.width!==Math.round(W*DPR)||OC.canvas.height!==Math.round(H*DPR)){const c=document.createElement('canvas');c.width=Math.round(W*DPR);c.height=Math.round(H*DPR);OC={canvas:c,ctx:c.getContext('2d')}}cx=OC.ctx;cx.setTransform(DPR,0,0,DPR,0,0);cx.clearRect(0,0,W,H)}
   if(two){cx.save();cx.translate(W/2+VW.x,H/2+VW.y);cx.scale(VW.z,VW.z);cx.translate(-W/2,-H/2)}
-  try{if(m==='universe')drawUniverse(now,dt);else if(m==='path')drawPath(now,dt);else if(m==='ladder')drawLadder(now,dt);else if(m==='tree')drawTree(now,dt);else if(m==='wall')drawWall(now,dt);else drawSynapse(now,dt)}
+  try{if(m==='universe')drawUniverse(now,dt);else if(m==='path')drawPath(now,dt);else if(m==='ladder')drawLadder(now,dt);else if(m==='tree')drawTree(now,dt);else if(m==='wall')drawWall(now,dt);else if(m==='house')drawHouse(now,dt);else drawSynapse(now,dt)}
   catch(e){if(!window.__de||performance.now()-window.__de>4000){window.__de=performance.now();console.error(e)}try{cx.setTransform(DPR,0,0,DPR,0,0);cx.globalAlpha=1;cx.shadowBlur=0;cx.globalCompositeOperation='source-over'}catch(x){}}
   if(two){cx.restore();if(VW.z!==1||VW.x||VW.y){const mx=x=>W/2+VW.x+(x-W/2)*VW.z,my=y=>H/2+VW.y+(y-H/2)*VW.z;HITS.forEach(h=>{h.x=mx(h.x);h.y=my(h.y);h.r*=VW.z});BHIT.forEach(b=>{b.x=mx(b.x);b.w*=VW.z;b.y0=my(b.y0);b.y1=my(b.y1)})}}
   if(rotd){cx=CX0;compose2D(cx,OC.ctx);HITS.forEach(h=>{const q=rot2(h.x,h.y);h.x=q[0];h.y=q[1];h.r*=q[2]});BHIT.forEach(b=>{const q=rot2(b.x+b.w/2,(b.y0+b.y1)/2);b.x=q[0]-b.w*q[2]/2;b.y0=q[1]-(b.y1-b.y0)*q[2]/2;b.y1=q[1]+(b.y1-b.y0)*q[2]/2;b.w*=q[2]})}}
@@ -1181,18 +1182,18 @@ cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();
  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
  if(cam.pinch&&ptrs.size>=2){const zz=clamp(cam.pinch.z*pinchDist()/cam.pinch.d,.55,3);if(is2D())VW.z=zz;else{cam.zoom=zz;const m=pinchMid(),mx=m[0]-cam.pinch.m[0],my=m[1]-cam.pinch.m[1];cam.yaw+=mx*.006;cam.pit=clamp(cam.pit+my*.0045,-1.2,1.2);cam.pinch.m=m}return}
  if(!cam.drag)return;const dx=e.clientX-cam.drag.x,dy=e.clientY-cam.drag.y;if(Math.abs(dx)+Math.abs(dy)>5)cam.drag.moved=true;
- if(cam.drag.moved&&is2D()){return}else if(cam.drag.moved){cam.yaw+=dx*.0075;cam.pit=clamp(cam.pit+dy*.0055,-1.2,1.2);cam.vy=dx*.0075*.9;cam.vp=dy*.0055*.9;cam.drag.x=e.clientX;cam.drag.y=e.clientY;showFsx()}});
+ if(cam.drag.moved&&is2D()){if(WL.foc&&S.set.mode==='wall'){WL.foc.scT=clamp(WL.foc.scT-(e.clientY-cam.drag.y)/VW.z,0,WL.foc.max||0);cam.drag.y=e.clientY;cam.drag.x=e.clientX}return}else if(cam.drag.moved){cam.yaw+=dx*.0075;cam.pit=clamp(cam.pit+dy*.0055,-1.2,1.2);cam.vy=dx*.0075*.9;cam.vp=dy*.0055*.9;cam.drag.x=e.clientX;cam.drag.y=e.clientY;showFsx()}});
 const endPtr=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)cam.pinch=null};
 cv.addEventListener('pointerup',e=>{const wasTap=cam.drag&&!cam.drag.moved&&ptrs.size===1;const r=cv.getBoundingClientRect();endPtr(e);if(!ptrs.size)cam.drag=null;if(wasTap)onTap(e.clientX-r.left,e.clientY-r.top)});
 cv.addEventListener('pointercancel',e=>{endPtr(e);if(!ptrs.size)cam.drag=null});
 cv.addEventListener('pointerleave',()=>{UI.hover=null});
-cv.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.1:.91;if(is2D())VW.z=clamp(VW.z*f,.55,3);else cam.zoom=clamp(cam.zoom*f,.55,3)},{passive:false});
+cv.addEventListener('wheel',e=>{e.preventDefault();if(WL.foc&&S.set.mode==='wall'){WL.foc.scT=clamp(WL.foc.scT+e.deltaY,0,WL.foc.max||0);return}const f=e.deltaY<0?1.1:.91;if(is2D())VW.z=clamp(VW.z*f,.55,3);else cam.zoom=clamp(cam.zoom*f,.55,3)},{passive:false});
 cv.addEventListener('dblclick',()=>resetView());
 /* stop the browser zooming the whole page while pinching the visual */
 ['touchstart','touchmove'].forEach(n=>cv.addEventListener(n,e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false}));
 ['gesturestart','gesturechange','gestureend'].forEach(n=>{cv.addEventListener(n,e=>e.preventDefault());document.addEventListener(n,e=>e.preventDefault())});
 document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1&&e.target.closest&&e.target.closest('#mapwrap'))e.preventDefault()},{passive:false});
-function onTap(x,y){if(UI.opt){UI.opt=false;mapwrap.classList.remove('opt')}const h=pickAt(x,y);if(!h){const lk=!is2D()&&pickLink(x,y);if(lk){insLink(lk.a,lk.b);return}const bk=is2D()&&pathBrickAt(x,y);if(bk){if(bk.add)wallNew(bk.add);else if(bk.wall)wallOpen(bk.g.id);else insGoal(bk.g.id,INS.on?INS.tab:'ov');return}if(INS.on){insClose();return}if(UI.sel){UI.sel=null;renderMapInfo()}return}
+function onTap(x,y){if(UI.opt){UI.opt=false;mapwrap.classList.remove('opt')}const h=pickAt(x,y);if(!h){const lk=!is2D()&&pickLink(x,y);if(lk){insLink(lk.a,lk.b);return}const bk=is2D()&&pathBrickAt(x,y);if(bk){if(bk.add)wallNew(bk.add);else if(bk.wb)wallHit(bk);else if(bk.wall)wallFocus(bk.g.id);else insGoal(bk.g.id,INS.on?INS.tab:'ov');return}if(INS.on){insClose();return}if(UI.sel){UI.sel=null;renderMapInfo()}return}
  const again=UI.sel===h.g.id;UI.sel=h.g.id;rt(h.g).flash=Math.max(rt(h.g).flash,.5);RINGS.push({x:rt(h.g).x,y:rt(h.g).y,z:rt(h.g).z,r0:h.r,max:h.r*2.4,life:.8,c:h.g.color,w:.6});sfx('tap');
  insGoal(h.g.id,INS.on&&INS.m==='goal'?INS.tab:'ov')}
 function resetView(){cam.yaw=.6;cam.pit=.3;cam.zoom=1;cam.vy=cam.vp=0;VW.x=VW.y=0;VW.z=1;VW.yaw=VW.pit=VW.vy=VW.vp=0}
@@ -1529,7 +1530,7 @@ function trMan(x,gy,h,o){const c=cx,u=h/10,d=o.d,w=Math.max(1.8,h*.07),t=o.t,ph=
   feet=[[x+d*2.5*u,gy],[x+d*2.9*u,gy]];const dk=gy-4.5*u;
   if(P==='sit-type'){const j=o.rd?0:1;hands=[[x+d*(4.5*u+Math.sin(t*15)*.18*u*j),dk+Math.sin(t*19)*.2*u*j],[x+d*(4.9*u+Math.sin(t*13+1)*.18*u*j),dk+Math.sin(t*17+2)*.2*u*j]];hd[1]+=Math.sin(t*2.2)*u*.12}
   else if(P==='sit-write'){hands=[[x+d*(4.2*u+Math.sin(t*2.6)*.7*u),dk],[x+d*3.3*u,dk]]}
-  else if(P==='sit-drink'){const up=Math.sin(t*1.6)>.15;hands=[[x+d*3.6*u,dk],up?[hd[0]+d*.9*u,hd[1]+.7*u]:[x+d*5.6*u,dk]];cup=hands[1]}
+  else if(P==='sit-drink'){const sv=o.rd?1:clamp(.5+.95*Math.sin(t*1.3),0,1),ss2=sv*sv*(3-2*sv),mg=[o.mx!=null?o.mx:x+d*5.6*u,dk-.25*u],mo=[hd[0]+d*.9*u,hd[1]+.7*u];hands=[[x+d*3.6*u,dk],[mg[0]+(mo[0]-mg[0])*ss2,mg[1]+(mo[1]-mg[1])*ss2]];cup=hands[1]}
   else if(P==='sit-think'){hands=[[x+d*3.4*u,dk],[hd[0]+d*.5*u,hd[1]+1.3*u]];hd[0]+=d*.3*u}
   else if(P==='sit-sad'){hd=[sh[0]+d*.9*u,sh[1]-1*u];hands=[[x+d*1.6*u,hip[1]-.2*u],[x+d*1.2*u,hip[1]-.1*u]]}
   else hands=[[x+d*4.5*u,dk],[x+d*4.9*u,dk]]}
@@ -1545,8 +1546,10 @@ function trMan(x,gy,h,o){const c=cx,u=h/10,d=o.d,w=Math.max(1.8,h*.07),t=o.t,ph=
    else if(P==='scratch')hands=[[hd[0]+d*.2*u,hd[1]-1.4*u+Math.sin(t*12)*.25*u],[sh[0]+d*.2*u,sh[1]+2.8*u]];
    else if(P==='write'||P==='point'){const j=o.rd||P==='point'?0:1;hands=[[o.hx+Math.sin(t*13)*.22*u*j,o.hy+Math.sin(t*17+1)*.25*u*j],[sh[0]-d*.3*u,sh[1]+2.8*u]];hd[0]+=d*.5*u;hd[1]+=0}
    else if(P==='look')hands=[[hd[0]+d*1.4*u,hd[1]-.2*u],[sh[0]+d*.3*u,sh[1]+2.8*u]];
+   else if(P==='sip'){const sv=o.rd?1:clamp(.5+.95*Math.sin(t*1.2),0,1),ss2=sv*sv*(3-2*sv),lo=[sh[0]+d*1.5*u,sh[1]+2.2*u],mo=[hd[0]+d*.9*u,hd[1]+.7*u];hands=[[sh[0]-d*.3*u,sh[1]+2.8*u],[lo[0]+(mo[0]-lo[0])*ss2,lo[1]+(mo[1]-lo[1])*ss2]];cup=hands[1]}
+   else if(P==='throw'){const p=o.tp||0,a=p<.45?p/.45:1,b=p<.45?0:clamp((p-.45)/.3,0,1),bk=[sh[0]-d*1.7*u,sh[1]-.4*u],fr=[sh[0]+d*2.6*u,sh[1]-2.6*u];hands=[[bk[0]+(fr[0]-bk[0])*b*b,bk[1]+(fr[1]-bk[1])*b*b-(1-a)*0],[sh[0]+d*.9*u,sh[1]+1.4*u]];sh[0]+=d*(b*.5-a*.2)*u}
    else if(P==='cheer')hands=[[sh[0]-2.2*u,sh[1]-3.2*u-Math.abs(Math.sin(t*7))*.6*u],[sh[0]+2.2*u,sh[1]-3.2*u-Math.abs(Math.sin(t*7+1))*.6*u]];
-   else if(P==='plant')hands=[[o.hx,gy-.2*u],[sh[0]+d*1.2*u,sh[1]+2.2*u]];
+   else if(P==='plant')hands=[[o.hx,o.py!=null?o.py:gy-.2*u],[sh[0]+d*1.2*u,sh[1]+2.2*u]];
    else if(P==='pour'){hands=[[sh[0]+d*2.2*u,sh[1]+1.8*u],[sh[0]+d*1.3*u,sh[1]+2.4*u]];can=[hands[0],o.tilt]}
    else{const k=o.rd?0:Math.sin(t*1.3);hands=[[sh[0]+d*.5*u+k*.2*u,sh[1]+2.8*u],[sh[0]-d*.3*u,sh[1]+2.8*u]]}}}
  const L=(a,b,m)=>{c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(m[0],m[1]);c.lineTo(b[0],b[1]);c.stroke()};
@@ -1560,6 +1563,7 @@ function trMan(x,gy,h,o){const c=cx,u=h/10,d=o.d,w=Math.max(1.8,h*.07),t=o.t,ph=
  hands.forEach(hh=>{const r=trIK(sh,hh,1.65*u,1.65*u,pe);L(sh,r[1],r[0])});
  c.beginPath();c.arc(hd[0],hd[1],u*1.15,0,6.283);c.fill();
  if(cup){c.fillStyle='#e8c9a0';c.fillRect(cup[0]-.45*u,cup[1]-.5*u,.9*u,.9*u)}
+ if(o.brick){const bh=hands[0];c.shadowBlur=0;c.fillStyle='#e0873f';c.fillRect(bh[0]-.9*u,bh[1]-.5*u,1.8*u,.9*u)}
  let tip=null;if(can){c.shadowBlur=0;tip=trCan(c,hands[0][0],hands[0][1],d,u,can[1])}
  c.restore();return tip}
 /* desk, chair and laptop at the left; a small can waits beside it */
@@ -1668,11 +1672,11 @@ function drawTree(now,dt){const t=now*.001,g=focusG(),rd=reduced();BHIT=[];
  cx.restore();
  const mx=x=>W/2+SH.x+(x-W/2)*SH.s,my=y=>H/2+SH.y+(y-H/2)*SH.s;HITS.forEach(h=>{if(h.g===g&&h.z>=1&&!h._m){h._m=1;h.x=mx(h.x);h.y=my(h.y);h.r*=SH.s}})}
 
-Object.assign(GI,{vm_universe:'M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM3 12c0-2.2 4-4 9-4s9 1.8 9 4s-4 4-9 4s-9-1.8-9-4z',vm_synapse:'M5 19l5-6l4 3l5-10M4.5 18.5a1.2 1.2 0 1 0 .01 0M18.5 5.5a1.2 1.2 0 1 0 .01 0M10 13a1.2 1.2 0 1 0 .01 0',vm_path:'M3 19h5v-4h5v-4h5V7h3',vm_ladder:'M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8',vm_tree:'M12 21v-7M12 14c-4 0-6-3-5-6c1-3 3-4 5-4s4 1 5 4c1 3-1 6-5 6z',vm_wall:'M3 4h18v12H3zM8 20h8M12 16v4M6.5 8.5h6M6.5 12h9'});
+Object.assign(GI,{vm_universe:'M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM3 12c0-2.2 4-4 9-4s9 1.8 9 4s-4 4-9 4s-9-1.8-9-4z',vm_synapse:'M5 19l5-6l4 3l5-10M4.5 18.5a1.2 1.2 0 1 0 .01 0M18.5 5.5a1.2 1.2 0 1 0 .01 0M10 13a1.2 1.2 0 1 0 .01 0',vm_path:'M3 19h5v-4h5v-4h5V7h3',vm_ladder:'M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8',vm_tree:'M12 21v-7M12 14c-4 0-6-3-5-6c1-3 3-4 5-4s4 1 5 4c1 3-1 6-5 6z',vm_house:'M3 11l9-7l9 7M5 10v10h14V10M10 20v-6h4v6',vm_wall:'M3 4h18v12H3zM8 20h8M12 16v4M6.5 8.5h6M6.5 12h9'});
 /* ===== Board view (the main visual): a stick man in front of a giant chalkboard. Build goals on the left, quit goals on the right. New goals are written by hand; tap a goal to brainstorm it. ===== */
-const WL={w:{},bar:{},cnt:{},q:[],task:null,dust:[],init:false,nt:'build',man:{x:0,d:1,ph:0,v:0,pt:2,sub:'stand',tx:null,T:{},lift:0,cheer:0}};
+const WL={w:{},bar:{},cnt:{},ck:{},hold:{},lay:{},lw:{},foc:null,q:[],task:null,dust:[],init:false,nt:'build',man:{x:0,d:1,ph:0,v:0,pt:2,sub:'stand',tx:null,T:{},lift:0,cheer:0}};
 const WL_FONT='"Bradley Hand","Segoe Print","Chalkboard SE","Comic Neue","Comic Sans MS",cursive';
-function wallReplay(g){const ids=g?[g.id]:ORDER.map(x=>x.id);ids.forEach(id=>{WL.w[id]=0;WL.bar[id]=0;if(!WL.q.some(x=>x.id===id))WL.q.push({type:'write',id})});WL.task=null}
+function wallReplay(g){const ids=g?[g.id]:ORDER.map(x=>x.id);ids.forEach(id=>{WL.w[id]=0;WL.bar[id]=0;WL.ck[id]=0;WL.hold[id]=true;if(!WL.q.some(x=>x.id===id))WL.q.push({type:'write',id})});WL.task=null}
 function wallBarTarget(g){const real=clamp(gStats(g).prog||0,0,1);return PV.m==='start'?0:PV.m==='done'?1:RP.on?real*rpP():real}
 function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];
  const gs=ORDER.slice(0,24),n=gs.length,B=gs.filter(g=>!isB(g)),Q=gs.filter(isB);
@@ -1686,7 +1690,7 @@ function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];
  cx.save();cx.shadowColor='rgba(0,0,0,.6)';cx.shadowBlur=22;cx.fillStyle='#5b3d22';cx.fillRect(bx-6,by-6,bw+12,bh+12);cx.restore();
  gr=cx.createLinearGradient(0,by,0,by+bh);gr.addColorStop(0,'#1d2a27');gr.addColorStop(1,'#141d1b');cx.fillStyle=gr;cx.fillRect(bx,by,bw,bh);
  cx.fillStyle='#7a5530';cx.fillRect(bx-6,by+bh,bw+12,6);cx.fillStyle='rgba(255,255,255,.7)';cx.fillRect(bx+bw*.62,by+bh-2,bw*.08,3);cx.fillRect(bx+bw*.74,by+bh-3,bw*.04,4);
- const CH='rgba(246,248,238,.93)';
+ const CH='rgba(246,248,238,.93)',fa=WL.foc?WL.foc.t:0;cx.globalAlpha=1-fa;
  /* two halves */
  const hw=bw*.5,ix=bx,iy=by+bh*.12,ih=bh*.86;
  const secs=[{t:'build',list:B,x:ix,w:hw},{t:'quit',list:Q,x:ix+hw,w:hw}];
@@ -1706,55 +1710,75 @@ function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];
  cx.setLineDash([3,5]);cx.strokeStyle='rgba(246,248,238,.22)';cx.beginPath();cx.moveTo(ix+hw,by+bh*.05);cx.lineTo(ix+hw,by+bh*.97);cx.stroke();cx.setLineDash([]);
  const done0=gs.filter(g=>dueState(g).s==='done').length;cx.textAlign='right';cx.fillStyle='rgba(246,248,238,.55)';cx.font='600 '+Math.max(9,hf*.62)+'px '+WL_FONT;cx.fillText(n?'today '+done0+'/'+n:'',ix+bw-bw*.02,by+bh*.03+hf*.3);
  /* first run: everything already on the board; later new goals get written live */
- if(!WL.init){gs.forEach(g=>{WL.w[g.id]=1;WL.bar[g.id]=wallBarTarget(g);WL.cnt[g.id]=doneCount(g)});WL.init=true;M.x=W*.5}
- gs.forEach(g=>{if(WL.w[g.id]==null){WL.w[g.id]=0;WL.bar[g.id]=0;WL.cnt[g.id]=doneCount(g);WL.q.push({type:'write',id:g.id})}
-  else{const c=doneCount(g);if(c>WL.cnt[g.id]&&WL.w[g.id]>=1&&!WL.q.some(x=>x.id===g.id)&&!(WL.task&&WL.task.id===g.id))WL.q.push({type:'tick',id:g.id});WL.cnt[g.id]=c}});
+ if(!WL.init){gs.forEach(g=>{WL.w[g.id]=1;WL.bar[g.id]=wallBarTarget(g);WL.ck[g.id]=dueState(g).s==='done'?1:0;WL.cnt[g.id]=doneCount(g)});WL.init=true;M.x=W*.5}
+ gs.forEach(g=>{if(WL.w[g.id]==null){WL.w[g.id]=0;WL.bar[g.id]=0;WL.ck[g.id]=0;WL.hold[g.id]=true;WL.cnt[g.id]=doneCount(g);WL.q.push({type:'write',id:g.id})}
+  else{const c=doneCount(g);if(c>WL.cnt[g.id]&&WL.w[g.id]>=1&&!WL.q.some(x=>x.id===g.id&&x.type!=='leaf')&&!(WL.task&&WL.task.id===g.id&&WL.task.type!=='leaf')){WL.q.push({type:'tick',id:g.id});WL.hold[g.id]=true;if(dueState(g).s==='done')WL.ck[g.id]=0};WL.cnt[g.id]=c}});
  WL.q=WL.q.filter(x=>gs.some(g=>g.id===x.id));
- /* the man's work */
- const mh=clamp(H*.28,80,200),u=mh/10,gy=H*.93,reachTop=gy-10.5*u,deskX=W*.16,seatBase=deskX+.2*u;
- if(!WL.task&&WL.q.length){WL.task=Object.assign({stage:'walk',t:0},WL.q.shift());M.sit=false;M.sitT=0}
- let task=WL.task,pose='stand',hx=0,hy=0,wantX=null,moving=false;const sp=mh*1.0;
- const mv=(tx,s2)=>{const dx=tx-M.x,ad=Math.abs(dx);if(ad<2){M.v=0;return false}M.d=Math.sign(dx);const tv=Math.sign(dx)*Math.min(s2,ad*4+8);M.v=(M.v||0)+(tv-(M.v||0))*Math.min(1,dt*6);let st=M.v*dt;if(Math.abs(st)>ad)st=dx;M.x+=st;M.ph+=Math.abs(st)/(1.25*u)*3.1416;return true};
+/* the man's work */
+ const mh=clamp(H*.28,80,200),u=mh/10,gy=H*.93,reachTop=gy-10.5*u,deskX=W*.16,seatBase=deskX+.2*u,foc=WL.foc;
+ if(M.cx==null)M.cx=seatBase;M.cx=clamp(M.cx,W*.08,W*.5);
+ const taskCell=p=>p.type==='leaf'?WL.lay[p.key]:cell[p.id];
+ if(!WL.task&&WL.q.length){const pool=foc?WL.q.filter(x=>x.type==='leaf'):WL.q;
+  if(pool.length){let bi=0,bd=1e9;pool.forEach((p,i)=>{const cc=taskCell(p),dd=cc?Math.abs((cc.nx!=null?cc.nx:cc.x)-M.x):0;if(dd<bd){bd=dd;bi=i}});const p=pool[bi];WL.q.splice(WL.q.indexOf(p),1);WL.task=Object.assign({stage:'walk',t:0},p);M.sit=false;M.sitT=0;M.cheer=0}}
+ const TS=1+Math.min(2.4,WL.q.length*.6);
+ let task=WL.task,pose='stand',hx=0,hy=0,wantX=null,moving=false;const sp=mh*1.0*(task?TS:1);
+ /* walking has hysteresis so the pose never flickers between walk and write */
+ const mv=(tx,s2,th,keepD)=>{const dx=tx-M.x,ad=Math.abs(dx);if(ad<2||(!M.wk&&ad<(th||0))){M.v=0;M.wk=false;return false}M.wk=true;if(!keepD)M.d=Math.sign(dx);const tv=Math.sign(dx)*Math.min(s2,ad*4+8);M.v=(M.v||0)+(tv-(M.v||0))*Math.min(1,dt*6);let st=M.v*dt;if(Math.abs(st)>ad)st=dx;M.x+=st;M.ph+=Math.abs(st)/(1.25*u)*3.1416;return true};
  let liftT=0;const cl=x=>clamp(x,W*.08,W*.92);
- if(task){const c=cell[task.id];if(!c){WL.task=null;task=null}else{
-  const tx0=c.nx;
-  if(task.stage==='walk'){wantX=cl(tx0-1.8*u);moving=mv(wantX,sp);pose=moving?'walk':'stand';liftT=0;if(rd){M.x=wantX}if(!moving||rd){task.stage=task.type==='write'?'text':'bar';task.t=0;M.d=1}}
-  else if(task.stage==='text'){const dur=rd?.01:1+c.nm.length*.15;WL.w[task.id]=Math.min(1,(WL.w[task.id]||0)+dt/dur);hx=tx0+c.tw*WL.w[task.id];hy=c.by-c.fs*.3;wantX=cl(hx-2*u);M.d=1;moving=mv(wantX,sp*.7);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-hy+.8*u);
-   if(!rd&&Math.random()<dt*14)WL.dust.push({x:hx,y:hy,vx:(Math.random()-.5)*14,vy:10+Math.random()*20,l:1});if(WL.w[task.id]>=1){task.stage='bar';task.t=0;sfx('tick')}}
-  else if(task.stage==='bar'){task.t+=dt;const tg=wallBarTarget(c.g),cur=WL.bar[task.id]||0;const dur=rd?.01:2.2;if(task.type==='write'||task.t<dur)WL.bar[task.id]=cur+(tg-cur)*Math.min(1,dt*2.2);hx=c.x+c.fs*.6+c.barW*(WL.bar[task.id]||0);hy=c.barY+c.fs*.25;wantX=cl(hx-2*u);M.d=1;moving=mv(wantX,sp*.7);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-hy+.8*u);
-   if(!rd&&Math.random()<dt*12)WL.dust.push({x:hx,y:hy,vx:(Math.random()-.5)*14,vy:10+Math.random()*20,l:1});if(task.t>dur){WL.task=null;if(!rd){M.sub=task.type==='write'?'look':'cheer';M.pt=task.type==='write'?3:1.6;M.tx=cl(c.x+c.w*.5+(c.x+c.w*.5<W*.5?1:-1)*W*.22);if(M.sub==='cheer')M.cheer=1.6}}}}}
+ const dust=(x,y,r)=>{if(!rd&&Math.random()<dt*r)WL.dust.push({x,y,vx:(Math.random()-.5)*14,vy:10+Math.random()*20,l:1})};
+ const hand=(x,y,fs2,k)=>{/* lettering: the hand never rests, it loops and flicks like real writing */hx=x+Math.sin(t*19)*fs2*.2*k+Math.sin(t*31)*fs2*.08*k;hy=y+(Math.abs(Math.sin(t*11))-.45)*fs2*.45*k+Math.sin(t*23)*fs2*.12*k};
+ const stepTo=(x2,y2)=>{wantX=cl(x2-2*u);M.d=1;moving=mv(wantX,sp*.7,1.4*u,true);pose=moving?'walk':'write';liftT=Math.max(0,reachTop-y2+.8*u)};
+ if(task){const lc=task.type==='leaf'?WL.lay[task.key]:null,c=task.type==='leaf'?null:cell[task.id];
+  if(!c&&!lc){task.wait=(task.wait||0)+dt;if(task.wait>.7||!foc&&task.type==='leaf'){if(task.type==='leaf')WL.lw[task.key]=1;WL.task=null;task=null}}else{
+  const tx0=c?c.nx:lc.x;
+  if(task.stage==='walk'){wantX=cl(tx0-1.8*u);moving=mv(wantX,sp,0);pose=moving?'walk':'stand';if(rd)M.x=wantX;if(!moving||rd){task.stage=task.type==='write'?'text':task.type==='leaf'?'ltext':(dueState(c.g).s==='done'?'check':'bar');task.t=0;M.d=1;if(task.stage==='check')WL.ck[task.id]=0}}
+  else if(task.stage==='text'){const dur=rd?.01:(1+c.nm.length*.15)/Math.sqrt(TS);WL.w[task.id]=Math.min(1,(WL.w[task.id]||0)+dt/dur);hand(tx0+c.tw*WL.w[task.id],c.by-c.fs*.3,c.fs,1);stepTo(hx,hy);dust(hx,hy,14);if(WL.w[task.id]>=1){task.stage='bar';task.t=0;sfx('tick')}}
+  else if(task.stage==='ltext'){const tot=lc.n||1,dur=rd?.01:(.8+tot*.05)/Math.sqrt(TS);WL.lw[task.key]=Math.min(1,(WL.lw[task.key]||0)+dt/dur);let acc=0,tg=WL.lw[task.key]*tot,ln=lc.lines[0];for(const l of lc.lines){ln=l;if(acc+l.s.length>=tg)break;acc+=l.s.length}const fr=clamp((tg-acc)/Math.max(1,ln.s.length),0,1);hand(ln.x+ln.w*fr,ln.y-lc.fs*.3,lc.fs,1);stepTo(hx,hy);dust(hx,hy,14);
+   if(WL.lw[task.key]>=1){WL.task=null;WL.hold[task.id]=false;if(!rd){M.sub='look';M.pt=2.5;M.tx=null}}}
+  else if(task.stage==='check'){task.t+=dt;const dur=rd?.01:.85/TS,p=clamp(task.t/dur,0,1);WL.ck[task.id]=p;const s2=c.fs*.95,P=[[c.x+c.fs*.7,c.by-s2*.4],[c.x+c.fs*1.05,c.by-s2*.05],[c.x+c.fs*1.6,c.by-s2*1.15]],sg=p<.35?[P[0],P[1],p/.35]:[P[1],P[2],(p-.35)/.65];
+   hand(sg[0][0]+(sg[1][0]-sg[0][0])*sg[2],sg[0][1]+(sg[1][1]-sg[0][1])*sg[2],c.fs,.5);stepTo(hx,hy);dust(hx,hy,12);if(p>=1){task.stage='bar';task.t=0;sfx('tick')}}
+  else if(task.stage==='bar'){task.t+=dt;const tg=wallBarTarget(c.g),cur=WL.bar[task.id]||0,dur=rd?.01:1.7/TS;if(task.type==='write'||task.t<dur)WL.bar[task.id]=cur+(tg-cur)*Math.min(1,dt*2.4*TS);
+   const bh2=c.fs*.62,tri=.5+.5*Math.sin(t*10*(1+TS*.15)),ex=c.x+c.fs*.6+c.barW*(WL.bar[task.id]||0);hx=ex+bh2*(tri-.5)*1.4;hy=c.barY+bh2*(1-tri)+c.fs*.05;stepTo(hx,hy);dust(hx,hy,12);
+   if(task.t>dur){WL.task=null;WL.hold[task.id]=false;if(!rd){M.sub=task.type==='write'?'look':'cheer';M.pt=task.type==='write'?3:1.6;M.tx=cl(c.x+c.w*.5+(c.x+c.w*.5<W*.5?1:-1)*W*.22);if(M.sub==='cheer')M.cheer=1.6}}}}}
  if(!WL.task&&M.sit){/* sits at the desk in front of the board: types, thinks, sips, rolls the chair around */
   M.sitT-=dt;M.pt-=dt;pose=M.ss||'sit-type';M.d=1;
-  if(M.ss==='roll'){pose='sit-think'}
-  if(M.pt<=0){const pk=['sit-type','sit-type','sit-think','sit-drink','roll','roll','sit-write','sit-think'];M.ss=pk[Math.floor(Math.random()*pk.length)];M.pt=2.6+Math.random()*2.6;M.rt=M.ss==='roll'?seatBase+(Math.random()<.5?-1:1)*(1.5+Math.random()*3)*u:seatBase+(Math.random()-.5)*1.2*u;M.rt=clamp(M.rt,W*.08,W*.5)}
-  if(M.rt!=null){const dx=M.rt-M.x,sp2=u*(M.ss==='roll'?2.2:.9);M.x+=Math.sign(dx)*Math.min(Math.abs(dx),sp2*dt*(M.ss==='roll'?1:.8))}
-  if(M.sitT<=0){M.sit=false;M.sub='stretch';M.pt=2.5;M.x=Math.max(M.x,seatBase)}}
+  if(M.ss==='roll')pose='sit-think';
+  if(M.pt<=0){const pk=['sit-type','sit-type','sit-think','sit-drink','sit-drink','roll','roll','sit-write','sit-think'];M.ss=pk[Math.floor(Math.random()*pk.length)];M.pt=2.8+Math.random()*2.6;M.rt=M.ss==='roll'?seatBase+(Math.random()<.5?-1:1)*(1.5+Math.random()*3.5)*u:seatBase+(Math.random()-.5)*.8*u;M.rt=clamp(M.rt,W*.08,W*.5)}
+  if(M.rt!=null){const dx=M.rt-M.cx,spd=u*(M.ss==='roll'?2.0:.7),st=Math.sign(dx)*Math.min(Math.abs(dx),spd*dt);M.cx+=st;M.wh=(M.wh||0)+st/(.35*u)}
+  M.x=M.cx;
+  if(M.sitT<=0){M.sit=false;M.sub='stretch';M.pt=2.5}}
  else if(!WL.task){/* brainstorming idle life in front of the board */
   M.pt-=dt;if(M.sub==='cheer'){M.cheer-=dt;pose='cheer';if(M.cheer<=0)M.pt=0}
-  else if(M.sub==='sitdown'){moving=mv(M.tx,sp*.6);pose=moving?'walk':'stand';if(!moving){M.sit=true;M.sitT=11+Math.random()*8;M.ss='sit-type';M.pt=2;M.rt=seatBase;M.sub='stand';M.d=1}}
-  else if(M.sub==='pace'||M.sub==='review'){moving=mv(M.tx,sp*.55);pose=moving?'walk':'stand';if(!moving&&M.sub==='review'){const c=cell[M.rid];if(c){hx=c.nx+c.tw*.5;hy=Math.max(c.by,reachTop+u);pose='point';M.d=hx>M.x?1:-1}}}
-  else if(M.tx!=null&&Math.abs(M.tx-M.x)>3&&M.sub==='look'&&M.pt>1.5){moving=mv(M.tx,sp*.6);pose=moving?'walk':'look'}
+  else if(M.sub==='sitdown'){moving=mv(M.cx,sp*.6,0);pose=moving?'walk':'stand';if(!moving){M.sit=true;M.x=M.cx;M.sitT=11+Math.random()*8;M.ss='sit-type';M.pt=2;M.rt=seatBase;M.sub='stand';M.d=1}}
+  else if(M.sub==='pace'||M.sub==='review'){moving=mv(M.tx,sp*.55,0);pose=moving?'walk':'stand';if(!moving&&M.sub==='review'){const c=cell[M.rid];if(c&&!foc){hx=c.nx+c.tw*.5;hy=Math.max(c.by,reachTop+u);pose='point';M.d=hx>M.x?1:-1}}}
+  else if(M.tx!=null&&Math.abs(M.tx-M.x)>3&&M.sub==='look'&&M.pt>1.5){moving=mv(M.tx,sp*.6,0);pose=moving?'walk':'look'}
   else pose=M.sub==='stand'?'stand':M.sub;
-  if(M.pt<=0&&!rd){const pk=['think','look','scratch','stretch','pace','pace','review','stand','think','sitdown','sitdown'];M.sub=pk[Math.floor(Math.random()*pk.length)];if(M.sub==='sitdown'){M.tx=seatBase;M.pt=30}M.pt=3.5+Math.random()*3.5;M.d=Math.random()<.5?-1:1;if(M.sub==='pace')M.tx=cl(M.x+(Math.random()<.5?-1:1)*W*(.15+Math.random()*.2));if(M.sub==='review'&&n){const c=gs[Math.floor(Math.random()*n)];M.rid=c.id;const cc=cell[c.id];M.tx=cl(cc.nx+cc.tw*.5-3*u*(Math.random()<.5?1:-1))}else if(M.sub==='review')M.sub='think';M.cheer=0}}
- M.lift+=((WL.task?liftT:0)-M.lift)*Math.min(1,dt*4);M.x=M.sit?clamp(M.x,W*.06,W*.6):cl(M.x);
- /* bars drift toward the real value when nothing is being written */
- gs.forEach(g=>{if(WL.task&&WL.task.id===g.id&&WL.task.stage!=='walk')return;if((WL.w[g.id]||0)<1)return;const tg=wallBarTarget(g),cur=WL.bar[g.id]||0;WL.bar[g.id]=rd||PV.m?tg:cur+(tg-cur)*Math.min(1,dt*1.8)});
+  if(M.pt<=0&&!rd){const pk=foc?['think','look','scratch','stretch','pace','sip','stand','think','sitdown','sitdown']:['think','look','scratch','stretch','pace','pace','review','sip','stand','think','sitdown','sitdown'];let sub=pk[Math.floor(Math.random()*pk.length)];M.cheer=0;M.d=Math.random()<.5?-1:1;
+   if(sub==='review'&&!n)sub='think';M.sub=sub;M.pt=sub==='sitdown'?99:3.5+Math.random()*3.5;
+   if(sub==='pace')M.tx=cl(M.x+(Math.random()<.5?-1:1)*W*(.15+Math.random()*.2));
+   if(sub==='review'){const c=gs[Math.floor(Math.random()*n)];M.rid=c.id;const cc=cell[c.id];M.tx=cl(cc.nx+cc.tw*.5-3*u*(Math.random()<.5?1:-1))}}}
+ M.lift+=((WL.task?liftT:0)-M.lift)*Math.min(1,dt*4);M.x=M.sit?M.cx:cl(M.x);
+ /* bars and ticks follow the real value, except goals still waiting for the man to write them */
+ Object.keys(WL.hold).forEach(id=>{if(!(WL.task&&WL.task.id===id)&&!WL.q.some(x=>x.id===id))delete WL.hold[id]});
+ gs.forEach(g=>{if(WL.hold[g.id])return;const dn=dueState(g).s==='done';WL.ck[g.id]=dn?1:0;if((WL.w[g.id]||0)<1)return;const tg=wallBarTarget(g),cur=WL.bar[g.id]||0;WL.bar[g.id]=rd||PV.m?tg:cur+(tg-cur)*Math.min(1,dt*1.8)});
+
  /* draw the chalk */
  gs.forEach(g=>{const c=cell[g.id],fs=c.fs,w=WL.w[g.id]||0,pr=clamp(WL.bar[g.id]||0,0,1),done=dueState(g).s==='done',rgb=rgbOf(g.color);
   const x=c.x,y=c.y;cx.save();cx.lineCap='round';cx.lineJoin='round';
   if(false){cx.fillStyle='rgba(255,255,255,.06)';cx.fillRect(x,y+2,c.w-2,c.h-4)}
   if(w>0){cx.strokeStyle=rgba(g.color,.95);cx.lineWidth=1.8;const s2=fs*.95;cx.beginPath();cx.moveTo(x+fs*.5,c.by-s2*.85);cx.lineTo(x+fs*.5+s2,c.by-s2*.9);cx.lineTo(x+fs*.5+s2*1.02,c.by+s2*.1);cx.lineTo(x+fs*.5-.5,c.by+s2*.05);cx.closePath();cx.stroke();
-   if(done){cx.strokeStyle='rgba(120,255,170,.95)';cx.lineWidth=2.2;cx.beginPath();cx.moveTo(x+fs*.7,c.by-s2*.4);cx.lineTo(x+fs*1.05,c.by-s2*.05);cx.lineTo(x+fs*1.6,c.by-s2*1.15);cx.stroke()}
+   const ckp=WL.ck[g.id]==null?(done?1:0):WL.ck[g.id];if(ckp>0){cx.strokeStyle='rgba(120,255,170,.95)';cx.lineWidth=2.2;const P=[[x+fs*.7,c.by-s2*.4],[x+fs*1.05,c.by-s2*.05],[x+fs*1.6,c.by-s2*1.15]];cx.beginPath();cx.moveTo(P[0][0],P[0][1]);const a1=Math.min(1,ckp/.35);cx.lineTo(P[0][0]+(P[1][0]-P[0][0])*a1,P[0][1]+(P[1][1]-P[0][1])*a1);if(ckp>.35){const b1=(ckp-.35)/.65;cx.lineTo(P[1][0]+(P[2][0]-P[1][0])*b1,P[1][1]+(P[2][1]-P[1][1])*b1)}cx.stroke()}
    cx.font='700 '+fs+'px '+WL_FONT;cx.textAlign='left';cx.save();cx.beginPath();cx.rect(c.nx-2,c.by-fs*1.2,c.tw*w+4,fs*1.8);cx.clip();cx.fillStyle=CH;cx.fillText(c.nm,c.nx,c.by);cx.fillText(c.nm,c.nx+.5,c.by+.4);cx.restore()}
   if(w>=1||(WL.task&&WL.task.id===g.id&&WL.task.stage==='bar')){const bx2=x+fs*.6,bw2=c.barW,bh2=fs*.62;cx.strokeStyle='rgba(246,248,238,.6)';cx.lineWidth=1.3;cx.strokeRect(bx2,c.barY,bw2,bh2);
    cx.strokeStyle=rgba(g.color,.95);cx.lineWidth=1.6;const fw=bw2*pr;cx.save();cx.beginPath();cx.rect(bx2,c.barY,fw,bh2);cx.clip();for(let hxx=bx2-bh2;hxx<bx2+fw+bh2;hxx+=5){cx.beginPath();cx.moveTo(hxx,c.barY+bh2);cx.lineTo(hxx+bh2,c.barY);cx.stroke()}cx.restore();
    cx.fillStyle='rgba(246,248,238,.78)';cx.font='600 '+Math.max(8,fs*.62)+'px '+WL_FONT;cx.textAlign='right';cx.fillText((PV.m==='start'?0:PV.m==='done'?lenDays(g):Math.round(pr*lenDays(g)))+'/'+lenDays(g),x+c.w-fs*.4,c.by);
-   BHIT.push({g,x:c.x,w:c.w,y0:c.y,y1:c.y+c.h,wall:true,d0:g.start,d1:g.end})}
+   if(fa<.5)BHIT.push({g,x:c.x,w:c.w,y0:c.y,y1:c.y+c.h,wall:true,d0:g.start,d1:g.end})}
   cx.restore()});
  /* "+ add" spots */
  adds.forEach(a=>{const fs=a.fs,q=a.t==='quit';cx.save();cx.lineCap='round';cx.setLineDash([4,5]);cx.strokeStyle=q?'rgba(255,140,160,.55)':'rgba(246,248,238,.5)';cx.lineWidth=1.4;const rx=a.x+fs*.5,ry=a.y+a.h*.22,rw=Math.min(a.w-fs,fs*9),rh=Math.min(a.h*.56,fs*2.1);cx.strokeRect(rx,ry,rw,rh);cx.setLineDash([]);
   cx.fillStyle=q?'rgba(255,170,185,.9)':'rgba(246,248,238,.82)';cx.font='700 '+fs*1.05+'px '+WL_FONT;cx.textAlign='left';cx.fillText('+ new '+(q?'quit':'goal'),rx+fs*.6,ry+rh*.5+fs*.35);cx.restore();
-  BHIT.push({add:a.t,g:null,x:a.x,w:a.w,y0:a.y,y1:a.y+a.h,wall:true})});
+  if(fa<.5)BHIT.push({add:a.t,g:null,x:a.x,w:a.w,y0:a.y,y1:a.y+a.h,wall:true})});cx.globalAlpha=1;
+ if(WL.foc)wallFocusDraw(now,dt,t,rd,bx,by,bw,bh,CH,u);
  if(!n){cx.fillStyle='rgba(246,248,238,.5)';cx.font='600 '+clamp(bh*.05,11,16)+'px '+WL_FONT;cx.textAlign='center';cx.fillText('Tap "+ new goal" and he will write it up',ix+bw/2,by+bh*.62)}
  /* chalk dust */
  WL.dust=WL.dust.filter(p=>(p.l-=dt*1.1)>0);WL.dust.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;cx.fillStyle='rgba(246,248,238,'+p.l*.7+')';cx.fillRect(p.x,p.y,1.6,1.6)});
@@ -1762,9 +1786,9 @@ function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];
  const lf=M.lift,fy=gy-lf;
  if(lf>2){const hw2=lf>mh*.5?3.6*u:2.6*u;if(lf>mh*.5){cx.strokeStyle='#c79a5c';cx.lineWidth=Math.max(2,u*.3);cx.lineCap='round';[-1,1].forEach(sd=>{cx.beginPath();cx.moveTo(M.x+sd*hw2*.55,fy);cx.lineTo(M.x+sd*hw2,gy);cx.stroke()});cx.lineWidth=Math.max(1.5,u*.2);for(let k=1;k<=Math.floor(lf/(1.6*u));k++){const yy=gy-k*1.6*u,f2=(gy-yy)/lf,hx2=hw2*(1-f2*.45);cx.beginPath();cx.moveTo(M.x-hx2,yy);cx.lineTo(M.x+hx2,yy);cx.stroke()}cx.fillStyle='#c79a5c';cx.fillRect(M.x-hw2*.62,fy-.4*u,hw2*1.24,.5*u)}
   else{cx.fillStyle='#a07844';cx.fillRect(M.x-2.6*u,fy,5.2*u,lf);cx.fillStyle='#c79a5c';cx.fillRect(M.x-2.9*u,fy-.5*u,5.8*u,.5*u);cx.fillStyle='rgba(0,0,0,.25)';cx.fillRect(M.x-2.6*u,fy+lf*.45,5.2*u,2)}}
- wallDesk(deskX,gy,u,t,rd);if(M.sit)wallChair(M.x,gy,u,rd?0:(M.ss==='roll'?t*6:0));
- else{cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(M.x,gy+1,3.6*u,.45*u,0,0,6.283);cx.fill()}
- trMan(M.x,fy-(lf>2?.5*u:0),mh,{d:M.d,t,ph:M.ph,pose,bend:0,rd,T:M.T,dt,hx,hy});
+ wallDesk(deskX,gy,u,t,rd,M.sit&&M.ss==='sit-drink');wallChair(M.cx,gy,u,M.wh||0);
+ if(!M.sit){cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(M.x,gy+1,3.6*u,.45*u,0,0,6.283);cx.fill()}
+ trMan(M.x,fy-(lf>2?.5*u:0),mh,{d:M.d,t,ph:M.ph,pose,bend:0,rd,T:M.T,dt,hx,hy,mx:deskX+4.1*u});
  if(pose==='think'&&!rd){cx.fillStyle='rgba(255,255,255,.8)';for(let j=0;j<3;j++){cx.globalAlpha=.4+.6*Math.max(0,Math.sin(t*3-j*.8));cx.beginPath();cx.arc(M.x+mh*.2+j*mh*.1,fy-mh*1.15-j*mh*.05,mh*.03+j*.8,0,6.283);cx.fill()}cx.globalAlpha=1}}
 /* ---------- brainstorm map for one goal ---------- */
 const WB_SUG={
@@ -1825,14 +1849,189 @@ function wallNew(type){WL.nt=type==='quit'?'quit':'build';sfx('open');FM=null;$(
  <div class="row wrapr" style="gap:8px;margin-top:14px"><button class="btn pri" data-act="wallmake">${ic('pen',14)} Write it on the board</button><button class="btn" data-act="recx">Cancel</button></div>
  <div class="xs mute" style="margin-top:8px">Want a schedule, reminders or time windows? Open the goal afterwards and tap Full details.</div>`;setTimeout(()=>{const i=$('#wnn');if(i)i.focus()},120)}
 
-function wallDesk(x,gy,u,t,rd){const c=cx;c.save();c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(206,176,138,.95)';c.lineWidth=Math.max(2,u*.35);
+function wallDesk(x,gy,u,t,rd,hideMug){const c=cx;c.save();c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(206,176,138,.95)';c.lineWidth=Math.max(2,u*.35);
  c.beginPath();c.moveTo(x+3.2*u,gy-4.2*u);c.lineTo(x+9*u,gy-4.2*u);c.moveTo(x+3.6*u,gy-4.2*u);c.lineTo(x+3.6*u,gy);c.moveTo(x+8.6*u,gy-4.2*u);c.lineTo(x+8.6*u,gy);c.stroke();
  const lx=x+5.6*u,ly=gy-4.2*u;c.strokeStyle='rgba(235,240,255,.85)';c.lineWidth=Math.max(1.4,u*.2);c.beginPath();c.moveTo(lx,ly);c.lineTo(lx+2*u,ly);c.stroke();
  c.fillStyle='rgba(150,205,255,.2)';c.beginPath();c.moveTo(lx+2*u,ly);c.lineTo(lx+2.7*u,ly-3*u);c.lineTo(lx+3.2*u,ly-3*u);c.lineTo(lx+2.5*u,ly);c.closePath();c.fill();c.stroke();
- c.fillStyle='#e8c9a0';c.fillRect(x+8*u,ly-.9*u,.8*u,.9*u);c.restore()}
+ if(!hideMug){c.fillStyle='#e8c9a0';c.fillRect(x+3.7*u,ly-.9*u,.8*u,.9*u)}c.restore()}
 function wallChair(x,gy,u,wheel){const c=cx;c.save();c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(206,176,138,.95)';c.fillStyle='rgba(206,176,138,.95)';c.lineWidth=Math.max(2,u*.35);
  c.beginPath();c.moveTo(x-1.4*u,gy-5.8*u);c.lineTo(x-1.4*u,gy-2.4*u);c.lineTo(x+1.2*u,gy-2.4*u);c.moveTo(x-.1*u,gy-2.4*u);c.lineTo(x-.1*u,gy-.7*u);c.moveTo(x-1.5*u,gy-.7*u);c.lineTo(x+1.3*u,gy-.7*u);c.stroke();
  c.lineWidth=Math.max(1.4,u*.2);[-1.3,.2,1.2].forEach((dx,i)=>{const wx=x+dx*u,wy=gy-.35*u;c.beginPath();c.arc(wx,wy,.35*u,0,6.283);c.stroke();c.beginPath();c.moveTo(wx,wy);c.lineTo(wx+Math.cos(wheel+i)*.3*u,wy+Math.sin(wheel+i)*.3*u);c.stroke()});c.restore()}
+/* ===== Board focus: tap a goal and its brainstorm map is written on the board itself (no pop-up). Scroll by dragging. ===== */
+function wbData(g){const t=todayKey(),L=lenDays(g),day=clamp(diffD(g.start,t)+1,0,L),left=Math.max(0,L-day),q=isB(g),I=wallInsights(g),bs=g.bs||(g.bs={h:[],d:[],n:[]}),kind=wbKind(g);
+ ['h','d','n'].forEach(k=>{if(!bs[k])bs[k]=[]});
+ const plan=[['End goal',g.why||(q?'Free of this habit for the whole round':'Complete the full round of '+L+' days')+(g.metric?' · target: '+g.metric:'')],['Duration',L+' days · '+fmtD(g.start)+' to '+fmtD(g.end)+' · day '+day+' · '+left+' left'],['Schedule',schedText(g)+(g.cue?' · cue: '+g.cue:'')]];
+ (g.tasks||[]).forEach(x=>{const tx=typeof x==='string'?x:(x.t||x.name||x.text||'');if(tx)plan.push(['Step',tx])});
+ const own=k=>bs[k].map((x,i)=>({t:x,k,i})),sg=(k,list)=>list.filter(x=>!bs[k].includes(x)).slice(0,4);
+ return[{k:null,name:'Plan',c:'#6f8cff',leaves:plan.map(p=>({t:p[0]+': '+p[1]}))},
+  {k:'h',name:'Hurdles',c:'#ff6b81',leaves:own('h'),sug:sg('h',WB_SUG.h[kind]||WB_SUG.h.gen),ph:'What could get in the way?'},
+  {k:'d',name:'Distractions',c:'#ffab5c',leaves:own('d'),sug:sg('d',q?WB_SUG.d.quit:WB_SUG.d.gen),ph:'What could pull me away?'},
+  {k:null,name:'What is working',c:'#4fe3a5',leaves:I.work.map(x=>({t:x}))},
+  {k:null,name:'What is not working',c:'#f58bc4',leaves:I.not.map(x=>({t:x}))},
+  {k:'n',name:'Next move',c:'#b79cff',leaves:I.next.map(x=>({t:x})).concat(own('n')),sug:sg('n',WB_SUG.n),ph:'My own next step'}]}
+function wbWrap(s,maxW){const w=String(s).split(' '),out=[];let cur='';w.forEach(x=>{const tt=cur?cur+' '+x:x;if(cx.measureText(tt).width>maxW&&cur){out.push(cur);cur=x}else cur=tt});if(cur)out.push(cur);return out}
+function wallFocus(id){const g=gById(id);if(!g)return;UI.sel=null;sfx('open');WL.foc={id,t:0,sc:0,scT:0,max:0,closing:false,dirty:true,dt0:0,data:null};wbInClose()}
+function wallBack(){if(WL.foc){WL.foc.closing=true;sfx('tick');wbInClose()}}
+function wbInClose(){const e=document.getElementById('wbin');if(e)e.remove();if(WL.foc)WL.foc.inK=null}
+function wbInOpen(k){const F=WL.foc,g=F&&gById(F.id);if(!g)return;const b=(F.data||[]).find(x=>x.k===k);F.inK=k;wbInClose();F.inK=k;const e=document.createElement('div');e.id='wbin';
+ e.innerHTML=`<input id="wbinp" class="bsin" maxlength="120" autocomplete="off" placeholder="${esc(b?b.ph:'Write here')}" data-enter="wbfadd"><button class="btn pri sm" data-act="wbfadd">Add</button><button class="btn sm" data-act="wbfx">Done</button>`;
+ (document.getElementById('mapwrap')||document.body).appendChild(e);setTimeout(()=>{const i=document.getElementById('wbinp');if(i)i.focus()},60)}
+function wbAddLeaf(g,k,v){v=String(v||'').trim();if(!v)return false;g.bs=g.bs||{h:[],d:[],n:[]};g.bs[k]=g.bs[k]||[];if(g.bs[k].includes(v))return false;g.bs[k].push(v);const key=k+':'+(g.bs[k].length-1);WL.lw[key]=0;WL.hold[g.id]=WL.hold[g.id];WL.q.push({type:'leaf',id:g.id,key});if(WL.foc){WL.foc.dirty=true;WL.foc.want=key}save();sfx('tick');return true}
+function wallHit(b){const F=WL.foc,g=F&&gById(F.id);if(!g)return;
+ if(b.wb==='back')wallBack();
+ else if(b.wb==='fire'){ACT.done({dataset:{id:g.id}});F.dirty=true}
+ else if(b.wb==='full'){openDrawer(g.id)}
+ else if(b.wb==='rep'){wallBack();wallReplay(g)}
+ else if(b.wb==='sug'){wbAddLeaf(g,b.k,b.v)}
+ else if(b.wb==='own'){wbInOpen(b.k)}
+ else if(b.wb==='del'){if(g.bs&&g.bs[b.k]){g.bs[b.k].splice(b.i,1);Object.keys(WL.lw).forEach(x=>{if(x.indexOf(b.k+':')===0)delete WL.lw[x]});WL.q=WL.q.filter(x=>!(x.type==='leaf'&&x.key.indexOf(b.k+':')===0));F.dirty=true;save();sfx('tick')}}}
+function wallFocusDraw(now,dt,t,rd,bx,by,bw,bh,CH,u){
+ const F=WL.foc,g=F&&gById(F.id);if(!g){WL.foc=null;wbInClose();return}
+ F.t+=((F.closing?0:1)-F.t)*Math.min(1,dt*(rd?40:7));if(rd)F.t=F.closing?0:1;if(F.closing&&F.t<.03){WL.foc=null;wbInClose();return}
+ if(F.dirty||!F.data||now-F.dt0>3000){try{F.data=wbData(g)}catch(e){F.data=F.data||[]}F.dirty=false;F.dt0=now}
+ const a=F.t,hf=clamp(bh*.05,11,18),fs=hf*.82,lh=fs*1.34,pad=bw*.04,left=bx+pad,right=bx+bw-pad,topY=by+bh*.135,botY=by+bh-6,q=isB(g),done=dueState(g).s==='done',live=a>.6&&!F.closing;
+ cx.save();cx.globalAlpha=a;cx.lineCap='round';cx.lineJoin='round';cx.textAlign='left';
+ const rr=(x,y,w,h,r)=>{cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()};
+ /* header chips */
+ {const items=[['back','‹ Back'],['fire',done?'Undo today':q?'Clean day':'Fire'],['full','Details'],['rep','Rewrite']];let f2=hf*.82;cx.font='700 '+f2+'px '+WL_FONT;let tot=items.reduce((s2,i)=>s2+cx.measureText(i[1]).width+f2*1.5,0)+(items.length-1)*6;const av=bw-pad*2;if(tot>av){f2*=av/tot;cx.font='700 '+f2+'px '+WL_FONT}
+  let x=left;const y=by+bh*.03,h=f2*1.9;items.forEach(i=>{const w=cx.measureText(i[1]).width+f2*1.5;cx.strokeStyle=i[0]==='fire'?'rgba(120,255,170,.9)':'rgba(246,248,238,.65)';cx.lineWidth=1.5;rr(x,y,w,h,h/2);cx.stroke();if(i[0]==='fire'){cx.fillStyle='rgba(120,255,170,.1)';cx.fill()}cx.fillStyle=i[0]==='fire'?'rgba(150,255,190,.98)':CH;cx.fillText(i[1],x+f2*.75,y+h*.66);if(live)BHIT.push({wb:i[0],x,w,y0:y,y1:y+h,wall:true});x+=w+6})}
+ cx.strokeStyle='rgba(246,248,238,.3)';cx.lineWidth=1.3;cx.beginPath();cx.moveTo(left,topY-hf*.5);cx.lineTo(right,topY-hf*.5);cx.stroke();
+ /* scrolling content */
+ cx.save();cx.beginPath();cx.rect(bx+2,topY-hf*.3,bw-4,botY-topY+hf*.3);cx.clip();
+ let y=topY-F.sc;const vis=(y0,y1)=>y1>topY-hf*.3&&y0<botY;
+ /* root */
+ {const rh=hf*2.9;cx.strokeStyle=g.color;cx.lineWidth=2.2;rr(left,y,right-left,rh,hf*.7);cx.stroke();cx.fillStyle=rgba(g.color,.09);cx.fill();
+  cx.font='700 '+hf*1.2+'px '+WL_FONT;cx.fillStyle=CH;let nm=g.name;const mw=right-left-hf*2;while(nm.length>3&&cx.measureText(nm).width>mw)nm=nm.slice(0,-2);cx.fillText(nm===g.name?nm:nm+'…',left+hf,y+hf*1.45);
+  const L=lenDays(g),day=clamp(diffD(g.start,todayKey())+1,0,L);cx.font='600 '+fs*.85+'px '+WL_FONT;cx.fillStyle='rgba(246,248,238,.7)';cx.fillText((q?'Quit':'Build')+' · '+L+' days · day '+day+' · '+(done?(q?'clean day logged':'fired today'):'not logged today'),left+hf,y+hf*2.45);y+=rh+hf*.9}
+ const spineX=left+pad*.8,sp0=y-hf*.9,lx=spineX+pad*1.7,lw=right-lx-pad*.2;
+ (F.data||[]).forEach(b=>{
+  cx.font='700 '+hf*.98+'px '+WL_FONT;const tw=cx.measureText(b.name).width,cw=tw+hf*1.5,chh=hf*1.75;
+  cx.strokeStyle=b.c;cx.lineWidth=2;if(vis(y,y+chh)){rr(lx-pad*.6,y,cw,chh,chh/2);cx.stroke();cx.fillStyle=rgba(b.c,.14);cx.fill();cx.fillStyle=CH;cx.fillText(b.name,lx-pad*.6+hf*.75,y+chh*.68);
+   cx.strokeStyle=rgba(b.c,.85);cx.beginPath();cx.moveTo(spineX,y+chh/2);cx.quadraticCurveTo(spineX+pad*.3,y+chh/2,lx-pad*.6,y+chh/2);cx.stroke()}
+  y+=chh+hf*.55;
+  cx.font='600 '+fs+'px '+WL_FONT;
+  b.leaves.forEach(lf=>{const del=lf.k?hf*1.5:0,lines=wbWrap(lf.t,lw-del),hh=lines.length*lh,key=lf.k?lf.k+':'+lf.i:null,rv=key&&WL.lw[key]!=null?WL.lw[key]:1;
+   if(key){let n=0;const ls=lines.map((s2,i)=>{n+=s2.length;return{s:s2,x:lx,y:y+i*lh+fs,w:cx.measureText(s2).width}});WL.lay[key]={lines:ls,n,fs,x:lx,nx:lx,w:lw};
+    if(F.want===key){F.scT=clamp(F.sc+(y-(topY+(botY-topY)*.4)),0,F.max||1e9);F.want=null}}
+   if(vis(y,y+hh)){let shown=Math.floor(rv*lines.reduce((s2,l)=>s2+l.length,0)),acc=0;cx.fillStyle=CH;
+    lines.forEach((s2,i)=>{const k2=Math.max(0,Math.min(s2.length,shown-acc));acc+=s2.length;if(k2>0)cx.fillText(s2.slice(0,k2),lx,y+i*lh+fs)});
+    cx.strokeStyle=rgba(b.c,.75);cx.lineWidth=1.4;cx.beginPath();cx.moveTo(lx,y+hh+fs*.15);cx.lineTo(right-del*.2,y+hh+fs*.15);cx.stroke();
+    if(lf.k){cx.fillStyle='rgba(246,248,238,.55)';cx.font='700 '+fs*1.1+'px '+WL_FONT;cx.fillText('×',right-hf*.9,y+fs);cx.font='600 '+fs+'px '+WL_FONT;if(live)BHIT.push({wb:'del',k:lf.k,i:lf.i,x:right-hf*1.6,w:hf*1.8,y0:Math.max(y-4,topY),y1:Math.min(y+Math.max(hh,hf*1.6),botY),wall:true})}}
+   y+=hh+fs*.6});
+  if(b.k){/* suggestion chips and a way to write your own */
+   const chips=b.sug.map(s2=>({t:'+ '+s2,v:s2,k:'sug'})).concat([{t:'✎ write my own',k:'own'}]);let cxp=lx,cy=y;const ch=fs*1.9,gap=6;cx.font='600 '+fs*.92+'px '+WL_FONT;
+   chips.forEach(c2=>{let w=Math.min(cx.measureText(c2.t).width+fs*1.3,lw);if(cxp+w>right&&cxp>lx){cxp=lx;cy+=ch+gap}
+    if(vis(cy,cy+ch)){cx.setLineDash([4,4]);cx.strokeStyle=rgba(b.c,.7);cx.lineWidth=1.3;rr(cxp,cy,w,ch,ch/2);cx.stroke();cx.setLineDash([]);cx.fillStyle=c2.k==='own'?CH:rgba(b.c,1);cx.save();cx.beginPath();cx.rect(cxp+2,cy,w-4,ch);cx.clip();cx.fillText(c2.t,cxp+fs*.65,cy+ch*.67);cx.restore();
+     if(live)BHIT.push({wb:c2.k,k:b.k,v:c2.v,x:cxp,w,y0:Math.max(cy,topY),y1:Math.min(cy+ch,botY),wall:true})}
+    cxp+=w+gap});y=cy+ch+fs*.4}
+  y+=hf*.9});
+ cx.strokeStyle='rgba(246,248,238,.25)';cx.lineWidth=1.6;cx.beginPath();cx.moveTo(spineX,sp0);cx.lineTo(spineX,y-hf*1.5);cx.stroke();
+ F.ch=y+F.sc-topY;F.max=Math.max(0,F.ch-(botY-topY)+hf);cx.restore();
+ F.scT=clamp(F.scT,0,F.max);F.sc+=(F.scT-F.sc)*Math.min(1,dt*(rd?40:16));
+ if(F.max>4){cx.fillStyle='rgba(246,248,238,.3)';const th=Math.max(18,(botY-topY)*(botY-topY)/(F.ch||1));cx.fillRect(bx+bw-5,topY+(botY-topY-th)*(F.sc/F.max),2.5,th)}
+ cx.restore()}
+/* ===== House view: one brick a day. The stick man carries bricks from his stack and throws each finished day onto a house (quit goals: he tears the old wall down, brick by brick). ===== */
+const HSE={},HGR={};
+function houseGrid(L){if(HGR[L])return HGR[L];let best=null;
+ for(let c=5;c<=36;c++){const r=Math.max(3,Math.round(c*1.15)),rw=[];for(let w=c-2;w>=1;w-=2)rw.push(w);
+  const dw=Math.max(2,Math.round(c*.2)),dh=Math.max(2,Math.round(r*.6)),dc=Math.round(c*.2);let ww=0,wh=0,wc=0,wr=0;
+  if(c>=8){ww=Math.max(2,Math.round(c*.2));wh=Math.max(1,Math.round(r*.28));wc=c-ww-Math.max(1,Math.round(c*.12));wr=Math.max(1,Math.round(r*.45));if(wr+wh>r)wr=r-wh;if(wc<dc+dw+1){ww=0;wh=0}}
+  const T=c*r+rw.reduce((a,b)=>a+b,0)-dw*dh-ww*wh,cand={c,r,rw,dw,dh,dc,ww,wh,wc,wr,N:T};if(!best||Math.abs(T-L)<Math.abs(best.N-L))best=cand}
+ const cells=[],rs=[];const inCut=(i,j)=>(j<best.dh&&i>=best.dc&&i<best.dc+best.dw)||(best.ww&&j>=best.wr&&j<best.wr+best.wh&&i>=best.wc&&i<best.wc+best.ww);
+ for(let j=0;j<best.r;j++){rs[j]=cells.length;for(let i=0;i<best.c;i++)if(!inCut(i,j))cells.push({i,j})}
+ best.rw.forEach((w,k)=>{const j=best.r+k,i0=(best.c-w)/2;rs[j]=cells.length;for(let i=0;i<w;i++)cells.push({i:i0+i,j})});
+ best.cells=cells;best.rs=rs;best.rows=best.r+best.rw.length;rs[best.rows]=cells.length;return HGR[L]=best}
+function hseSp(s,x,y,spc,al){const w=[...s].map(ch=>cx.measureText(ch).width),tot=w.reduce((a,b)=>a+b,0)+spc*(s.length-1);let p=al==='center'?x-tot/2:al==='right'?x-tot:x;const sv=cx.textAlign;cx.textAlign='left';[...s].forEach((ch,i)=>{cx.fillText(ch,p,y);p+=w[i]+spc});cx.textAlign=sv}
+function drawHouse(now,dt){const t=now*.001,g=focusG(),rd=reduced();BHIT=[];
+ if(!g){cx.fillStyle='rgba(235,240,255,.7)';cx.font='600 15px Bricolage Grotesque,system-ui,sans-serif';cx.textAlign='center';cx.fillText('Add a goal to build a house',W/2,H/2);return}
+ cx.save();cx.translate(W/2+SH.x,H/2+SH.y);cx.scale(SH.s,SH.s);cx.translate(-W/2,-H/2);
+ const P=pathStat(g),q=P.q,GRD=houseGrid(P.L),N=GRD.N,H0=HSE[g.id]||(HSE[g.id]={laid:null,fl:[],fa:{},x:W*.4,d:1,ph:0,v:0,T:{},sub:'stand',pt:2,m:'idle',tp:0,hold:false,acc:0,lit:0,cx:null,wh:0,sit:false});
+ const gy=H*.72,mh=clamp(H*.22,64,140),u=mh/10,xs=W*.4,deskX=W*.015,seatBase=deskX+.2*u,xc=W*.715;
+ if(H0.cx==null)H0.cx=seatBase;
+ /* the house geometry */
+ const rows=GRD.rows,hwMax=W*.54,availH=gy-H*.17,cw=Math.min(hwMax/(GRD.c+.5),availH/(rows*.5)),bh=cw*.5,hl=xc-GRD.c*cw/2;
+ const cellXY=ci=>{const c=GRD.cells[ci],off=(c.j%2?.18:-.18)*cw;return[hl+(c.i)*cw+off,gy-(c.j+1)*bh]};
+ const tgt=clamp(Math.round(P.k/P.N*N),0,N);
+ if(H0.laid==null||rd){H0.laid=tgt;H0.fl=[]}
+ if(PV.m||RP.on){if(PV.m==='start'||PV.m==='done'){H0.laid=tgt;H0.fl=[]}}
+ if(!q){if(tgt<H0.laid){H0.laid=tgt;H0.fl=[]}}else{if(tgt<H0.laid){H0.laid=tgt;H0.fl=[]}}
+ const diff=tgt-H0.laid-(q?0:H0.fl.length);
+ /* backdrop */
+ {const rg=cx.createRadialGradient(xc,gy-rows*bh*.5,10,xc,gy-rows*bh*.5,Math.max(W,H)*.6);rg.addColorStop(0,'rgba(255,235,210,'+(.05+.16*H0.lit)+')');rg.addColorStop(1,'rgba(255,235,210,0)');cx.fillStyle=rg;cx.fillRect(0,0,W,H)}
+ cx.fillStyle='rgba(255,255,255,.05)';cx.fillRect(0,gy,W,H*.1);cx.strokeStyle='rgba(235,240,255,.3)';cx.lineWidth=1.5;cx.beginPath();cx.moveTo(W*.02,gy);cx.lineTo(W,gy);cx.stroke();
+ if(H0.lit>.01){const gg=cx.createRadialGradient(xc,gy,4,xc,gy,W*.5);gg.addColorStop(0,'rgba(255,190,100,'+.4*H0.lit+')');gg.addColorStop(1,'rgba(255,190,100,0)');cx.fillStyle=gg;cx.fillRect(0,gy-4,W,H*.14)}
+ /* the bricks */
+ const pal=q?['#8d4a58','#7d4152','#99535f','#70394a']:['#d97a34','#c96a2b','#e58a40','#b95d27','#f0974a'],shown=q?N-H0.laid:H0.laid,hsh=i=>((i*2654435761)>>>0)%pal.length;
+ cx.lineWidth=1;for(let i=0;i<N;i++){const[x,y]=cellXY(i);
+  if(i>=shown){if(!q){cx.strokeStyle='rgba(235,240,255,.13)';cx.strokeRect(x+.5,y+.5,cw-1.6,bh-1.6)}continue}
+  const un=Math.min(P.N-1,Math.floor(i*P.N/N)),wv=!q&&P.wk?P.wk[un]||0:0,fa=H0.fa[i]||0;
+  cx.fillStyle=wv>=.5?'#8a5a48':pal[hsh(i)];cx.fillRect(x,y,cw-1.4,bh-1.4);
+  cx.fillStyle='rgba(255,255,255,.12)';cx.fillRect(x,y,cw-1.4,Math.max(1,bh*.18));
+  if(wv>0){cx.strokeStyle='rgba(60,20,20,.9)';cx.lineWidth=1.2;cx.beginPath();cx.moveTo(x+cw*.3,y);cx.lineTo(x+cw*.42,y+bh*.4);cx.lineTo(x+cw*.34,y+bh*.55);cx.lineTo(x+cw*.5,y+bh-1.4);cx.stroke()}
+  if(fa>.02){cx.fillStyle='rgba(255,230,170,'+fa*.7+')';cx.fillRect(x-1,y-1,cw+.6,bh+.6);H0.fa[i]=Math.max(0,fa-dt*1.4)}
+  const d0=addD(g.start,un*P.per);BHIT.push({g,x,w:cw,y0:y,y1:y+bh,d0,d1:addD(g.start,Math.min(P.L-1,un*P.per+P.per-1))})}
+ /* door and window, lit when the house is finished */
+ {const lit=H0.lit,rowsDone=j=>q?false:H0.laid>=GRD.rs[j+1];let dr=0;while(dr<GRD.dh&&rowsDone(dr))dr++;
+  const frame='#7a4a26',dark='#17110d',warm=lit>.01?'rgba(255,200,120,'+lit+')':null;
+  if(dr>0){const dx=hl+GRD.dc*cw,dw=GRD.dw*cw,dhh=dr*bh;cx.fillStyle=dark;cx.fillRect(dx,gy-dhh,dw,dhh);if(warm){cx.fillStyle=warm;cx.fillRect(dx,gy-dhh,dw,dhh)}cx.strokeStyle=frame;cx.lineWidth=1.6;cx.strokeRect(dx,gy-dhh,dw,dhh);if(dr>=GRD.dh){cx.fillStyle='#f3c37a';cx.beginPath();cx.arc(dx+dw*.82,gy-dhh*.5,Math.max(1,cw*.08),0,6.283);cx.fill()}}
+  if(GRD.ww){let wd=0;while(wd<GRD.wh&&rowsDone(GRD.wr+wd))wd++;if(wd>0){const wx=hl+GRD.wc*cw,ww=GRD.ww*cw,wh=wd*bh,wy=gy-(GRD.wr+wd)*bh;cx.fillStyle='#10161f';cx.fillRect(wx,wy,ww,wh);if(warm){cx.fillStyle=warm;cx.fillRect(wx,wy,ww,wh)}cx.strokeStyle=frame;cx.lineWidth=1.6;cx.strokeRect(wx,wy,ww,wh);cx.beginPath();cx.moveTo(wx+ww/2,wy);cx.lineTo(wx+ww/2,wy+wh);cx.moveTo(wx,wy+wh/2);cx.lineTo(wx+ww,wy+wh/2);cx.stroke()}}}
+ /* the man */
+ const M=H0,fulld=!q&&H0.laid>=N&&tgt>=N,clearedd=q&&H0.laid>=N;H0.lit+=((fulld||clearedd?1:0)-H0.lit)*Math.min(1,dt*1.3);
+ const stackX=xs,stackTop=gy-1.5*cw*.5*2,spd=1+Math.min(2.2,Math.max(0,diff)*.22),volley=diff>=6;
+ let pose='stand',bend=0,hx=0,hy=0,py=null,tp=0,brick=false,moving=false;
+ const mvx=(tx,s2)=>{const dx=tx-M.x,ad=Math.abs(dx);if(ad<2){M.v=0;M.wk=false;return false}M.wk=true;M.d=Math.sign(dx);const tv=Math.sign(dx)*Math.min(s2,ad*4+8);M.v+=(tv-M.v)*Math.min(1,dt*6);let st=M.v*dt;if(Math.abs(st)>ad)st=dx;M.x+=st;M.ph+=Math.abs(st)/(1.25*u)*3.1416;return true};
+ const throwX=stackX-2.0*u,wallL=hl-(q?3.4*u:0);
+ const relPt=()=>[M.x+2.6*u,gy-9.6*u];
+ const spawn=(ci)=>{const[tx,ty]=cellXY(ci),p=relPt(),dist=Math.hypot(tx-p[0],ty-p[1]);M.fl.push({i:ci,x0:p[0],y0:p[1],x1:tx+cw/2,y1:ty+bh/2,t:0,dur:(rd?.01:.5+dist*.0009)*(volley?.75:1),arc:22+dist*.2})};
+ const busy=(!q&&(diff>0||M.fl.length>0||M.m!=='idle'))||(q&&diff>0);
+ if(busy&&M.sit){M.sit=false}
+ if(!q){
+  if(volley){M.m='volley'}else if(M.m==='volley')M.m='idle';
+  if(M.m==='volley'){const p2=throwX;moving=mvx(p2,mh*1.6);pose=moving?'walk':'throw';tp=(t*(2.2+spd))%1;brick=tp<.6&&!moving;M.d=1;M.acc+=dt*clamp(diff*2.2,5,60);while(M.acc>=1&&diff-1>=0){M.acc-=1;spawn(H0.laid+M.fl.length);if(tgt-H0.laid-M.fl.length<6)break}}
+  else if(M.m==='idle'&&diff>0&&!M.sit)M.m='toStack';
+  if(M.m==='toStack'){moving=mvx(throwX,mh*1.1*spd);pose=moving?'walk':'stand';if(!moving){M.m='pick';M.pt=0;M.d=1}}
+  else if(M.m==='pick'){M.pt+=dt*spd;const b=clamp(M.pt/.3,0,1);bend=b*(M.pt>.45?clamp(1-(M.pt-.45)/.25,0,1):1);pose='plant';hx=stackX-.4*u;py=stackTop-.1*u;brick=M.pt>.32;M.d=1;if(M.pt>=.7){M.m='throw';M.tp=0}}
+  else if(M.m==='throw'){M.tp+=dt*spd/.75;pose='throw';tp=M.tp;brick=M.tp<.62;M.d=1;if(!M.rel&&M.tp>=.62&&H0.laid+M.fl.length<N){M.rel=true;spawn(H0.laid+M.fl.length)}if(M.tp>=1){M.m='idle';M.rel=false;M.tp=0;M.pt=.3}}}
+ else{/* quit: he pulls the old wall apart, brick by brick */
+  if(diff>0){M.m='wall';moving=mvx(wallL,mh*1.2*spd);pose=moving?'walk':'point';M.d=1;if(!moving){const ci=N-H0.laid-1,[bx2,by2]=cellXY(Math.max(0,ci));hx=bx2;hy=Math.max(gy-9.5*u,by2+bh/2);M.d=1;M.acc+=dt*spd*(volley?6:1.1);if(M.acc>=1&&ci>=0){M.acc=0;const[tx,ty]=cellXY(ci);M.fl.push({i:ci,x0:tx+cw/2,y0:ty+bh/2,x1:tx-W*.25-Math.random()*40,y1:ty-H*.3,t:0,dur:rd?.01:.9,arc:20,away:true,rot:Math.random()*3});H0.laid++}}}
+  else M.m='idle'}
+ /* flights */
+ M.fl=M.fl.filter(f=>{f.t+=dt;const s2=clamp(f.t/f.dur,0,1),e=f.away?s2:s2;const x=f.x0+(f.x1-f.x0)*e,y=f.y0+(f.y1-f.y0)*e-f.arc*4*e*(1-e)*(f.away?1.4:1);
+  cx.save();cx.translate(x,y);cx.rotate(f.away?(f.rot||0)+s2*9:s2*7);cx.globalAlpha=f.away?1-s2:1;cx.fillStyle=pal[0];cx.fillRect(-cw*.45,-bh*.4,cw*.9,bh*.8);cx.restore();
+  if(s2>=1){if(!f.away){H0.laid=Math.max(H0.laid,f.i+1);H0.fa[f.i]=1;if(!volley)sfx('tick');if(!rd)for(let k=0;k<3;k++)WL.dust.push({x:f.x1,y:f.y1,vx:(Math.random()-.5)*30,vy:-Math.random()*30,l:1})}return false}return true});
+ /* idle life when there is nothing to carry */
+ const idle=!busy&&M.m==='idle';
+ if(idle&&M.sit){M.sitT-=dt;M.pt-=dt;pose=M.ss||'sit-type';M.d=1;if(M.ss==='roll')pose='sit-think';
+  if(M.pt<=0){const pk=['sit-type','sit-type','sit-think','sit-drink','sit-drink','roll','roll','sit-write','sit-think'];M.ss=pk[Math.floor(Math.random()*pk.length)];M.pt=2.8+Math.random()*2.6;M.rt=M.ss==='roll'?seatBase+(Math.random()<.5?-1:1)*(1.5+Math.random()*3)*u:seatBase+(Math.random()-.5)*.8*u;M.rt=clamp(M.rt,W*.04,W*.2)}
+  if(M.rt!=null){const dx=M.rt-M.cx,sd=u*(M.ss==='roll'?2.0:.7),st=Math.sign(dx)*Math.min(Math.abs(dx),sd*dt);M.cx+=st;M.wh+=st/(.35*u)}M.x=M.cx;if(M.sitT<=0){M.sit=false;M.sub='stretch';M.pt=2.5}}
+ else if(idle){M.pt-=dt;
+  if(M.sub==='cheer'){pose='cheer';if(M.pt<=0)M.pt=0}
+  else if(M.sub==='sitdown'){moving=mvx(M.cx,mh*.7);pose=moving?'walk':'stand';if(!moving){M.sit=true;M.x=M.cx;M.sitT=10+Math.random()*8;M.ss='sit-type';M.pt=2;M.rt=seatBase;M.sub='stand';M.d=1}}
+  else if(M.sub==='pace'||M.sub==='admire'){moving=mvx(M.tx,mh*.6);pose=moving?'walk':(M.sub==='admire'?'look':'stand');if(!moving&&M.sub==='admire')M.d=1}
+  else pose=M.sub==='stand'?'stand':M.sub;
+  if(M.pt<=0&&!rd){const pk=['think','look','scratch','stretch','pace','pace','sip','stand','think','sitdown','sitdown','admire',fulld||clearedd?'cheer':'think'];const sub=pk[Math.floor(Math.random()*pk.length)];M.sub=sub;M.pt=sub==='sitdown'?99:3.5+Math.random()*3.5;M.d=Math.random()<.5?-1:1;
+   if(sub==='pace')M.tx=clamp(M.x+(Math.random()<.5?-1:1)*W*(.1+Math.random()*.12),W*.2,throwX);
+   if(sub==='admire')M.tx=clamp(throwX-Math.random()*W*.05,W*.2,throwX);
+   if(sub==='cheer')M.pt=2}}
+ else if(!M.sit&&pose==='stand'&&!moving&&!busy){pose='stand'}
+ M.x=clamp(M.sit?M.cx:M.x,W*.03,W*.97);
+ /* desk, chair, stack and the man */
+ wallDesk(deskX,gy,u,t,rd,M.sit&&M.ss==='sit-drink');wallChair(M.cx,gy,u,M.wh);
+ for(let k=0;k<3;k++){cx.fillStyle=pal[k%pal.length];cx.fillRect(stackX-cw*.9,gy-(k+1)*cw*.5*1.15,cw*1.8,cw*.5*1.05)}
+ if(!M.sit){cx.fillStyle='rgba(0,0,0,.28)';cx.beginPath();cx.ellipse(M.x,gy+1,3.4*u,.4*u,0,0,6.283);cx.fill()}
+ trMan(M.x,gy,mh,{d:M.d,t,ph:M.ph,pose,bend,rd,T:M.T,dt,hx,hy,py,tp,brick,mx:deskX+4.1*u});
+ if(pose==='think'&&!rd){cx.fillStyle='rgba(255,255,255,.8)';for(let j=0;j<3;j++){cx.globalAlpha=.4+.6*Math.max(0,Math.sin(t*3-j*.8));cx.beginPath();cx.arc(M.x+mh*.2+j*mh*.1,gy-mh*1.15-j*mh*.05,mh*.03+j*.8,0,6.283);cx.fill()}cx.globalAlpha=1}
+ /* dust from landings */
+ WL.dust=WL.dust.filter(p=>(p.l-=dt*1.4)>0);WL.dust.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=60*dt;cx.fillStyle='rgba(235,200,160,'+p.l*.7+')';cx.fillRect(p.x,p.y,1.8,1.8)});
+ /* counters and caption */
+ const L2=P.L,day=clamp(diffD(g.start,todayKey())+1,0,L2),laid=q?H0.laid:H0.laid,fp=clamp(W*.1,32,60);
+ cx.textAlign='left';cx.fillStyle='rgba(235,240,255,.55)';cx.font='700 '+clamp(W*.032,11,14)+'px Bricolage Grotesque,system-ui,sans-serif';hseSp('DAY',W*.07,H*.15,4,'left');
+ cx.fillStyle='rgba(245,247,255,.88)';cx.font='700 '+fp+'px Bricolage Grotesque,system-ui,sans-serif';cx.fillText(String(PV.m==='start'?0:PV.m==='done'?L2:day),W*.07,H*.15+fp*.95);
+ cx.fillStyle='rgba(235,240,255,.55)';cx.font='700 '+clamp(W*.03,10,13)+'px Bricolage Grotesque,system-ui,sans-serif';hseSp(laid+(q?(laid===1?' BRICK DOWN':' BRICKS DOWN'):laid===1?' BRICK LAID':' BRICKS LAID'),W*.07,H*.15+fp*1.55,3,'left');
+ cx.fillStyle='rgba(245,247,255,.8)';cx.font='700 '+clamp(W*.04,13,19)+'px Bricolage Grotesque,system-ui,sans-serif';hseSp(q?'ONE CLEAN DAY, ONE BRICK DOWN':'ONE BRICK A DAY',W/2,gy+Math.max(34,H*.07),clamp(W*.012,4,9),'center');
+ cx.fillStyle=rgba(g.color,.9);cx.font='600 '+clamp(W*.032,11,14)+'px Bricolage Grotesque,system-ui,sans-serif';cx.textAlign='center';cx.fillText(g.name,W/2,gy+Math.max(34,H*.07)+22);
+ cx.restore();
+ const mx=x=>W/2+SH.x+(x-W/2)*SH.s,my=y=>H/2+SH.y+(y-H/2)*SH.s;BHIT.forEach(b=>{b.x=mx(b.x);b.w*=SH.s;b.y0=my(b.y0);b.y1=my(b.y1)})}
 /* ===== screen-level fire effects: a burst wherever you tap, plus a bolt of light into the brand neuron ===== */
 const FXC=$('#fxcv'),fxx=FXC.getContext('2d');let FXW=0,FXH=0,FXP=[],FXR=[],FXT=[],FXB=[],fxOn=false,fxLast=0;
 function fxSize(){const d=Math.min(2,devicePixelRatio||1);FXW=innerWidth;FXH=innerHeight;FXC.width=Math.round(FXW*d);FXC.height=Math.round(FXH*d);FXC.style.width=FXW+'px';FXC.style.height=FXH+'px';fxx.setTransform(d,0,0,d,0,0)}
@@ -1958,7 +2157,7 @@ function ringSvg(p,c,sz){const r=24,C=2*Math.PI*r;return `<svg viewBox="0 0 56 5
 const pct=v=>v==null?'–':Math.round(v*100)+'%';
 const dur=m=>m>=60?(Math.floor(m/60)+'h '+Math.round(m%60)+'m'):Math.round(m)+'m';
 
-const MODES=[['universe','Orbit'],['synapse','Synapse'],['path','Path'],['ladder','Ladder'],['tree','Tree'],['wall','Board']];
+const MODES=[['universe','Orbit'],['synapse','Synapse'],['path','Path'],['ladder','Ladder'],['tree','Tree'],['house','House'],['wall','Board']];
 /* ===== Home view ===== */
 const greet=()=>{const h=NOW().getHours();return h<5?'Late night':h<12?'Good morning':h<17?'Good afternoon':h<21?'Good evening':'Good night'};
 let QI=Math.floor(Math.random()*QUOTES.length),QT=null;
@@ -1977,7 +2176,7 @@ function buildMapCtl(){$('#modeseg').innerHTML=MODES.map(m=>`<button data-act="m
  if((S.set.mode==='synapse'||is2D())&&ORDER.length>1&&synOne())$('#opchips').insertAdjacentHTML('beforeend',`<div class="xs mute" style="width:100%;margin-top:6px">Pick a goal</div><div class="chips" style="width:100%">${ORDER.map(g=>`<button class="chip gchip ${focusG()===g?'on':''}" style="--c:${g.color};opacity:1" data-act="synpick" data-id="${g.id}">${gico(g.icon,13)}${esc(g.name)}</button>`).join('')}</div>`);
  synBar();
  $('#fdbtn').style.display=is2D()?'none':'';if(is2D()&&UI.free){UI.free=false;mapwrap.classList.remove('free')}$('#fdbtn').textContent=UI.free?'Free rotate: on (page scroll locked)':'Free rotate: off (swipe scrolls page)';$('#rpbtn').innerHTML=ic('play',13)+' Replay growth';$('#rvbtn').innerHTML=ic('reset')+' Reset view';mapwrap.classList.toggle('leg',!!UI.leg);$('#fsbtn').innerHTML=ic('fs')+' Full screen';$('#fsx').innerHTML=ic('fsx');$('#optbtn').innerHTML=ic('opt');mapwrap.classList.toggle('opt',!!UI.opt);cam.auto=!!S.set.rot;
- const sy=S.set.mode==='synapse',pa=S.set.mode==='path',la=S.set.mode==='ladder',tr=S.set.mode==='tree',wl=S.set.mode==='wall';$('#legend').innerHTML=(wl?`<span><i style="background:#f6f8ee"></i>Every goal is written on the board by hand</span><span><i style="background:var(--acc)"></i>The chalk bar fills as you show up</span><span><i style="background:#fff"></i>He steps back, thinks and paces, always facing the board</span><span><i style="background:var(--acc2)"></i>Tap a goal on the board to open its tree</span>`:tr?`<span><i style="background:#6fcf6a"></i>Day 1 is a seed. Each finished day the stick man waters it and it grows</span><span><i style="background:#e5383b"></i>Full tree with fruit when the goal is complete</span><span><i style="background:var(--bad)"></i>Quit: clean days water it, a slip makes leaves fall</span><span><i style="background:#fff"></i>Meanwhile he sits, stands, stretches and thinks</span>`:la?`<span><i style="background:var(--acc)"></i>Each finished day = one rung up the ladder</span><span><i style="background:var(--bad)"></i>Quit: climb out of the pit, the old rungs fall away</span><span><i style="background:#fff"></i>The glow at the top is your goal</span>`:pa?`<span><i style="background:var(--acc)"></i>Build: each day lays a brick toward your goal</span><span><i style="background:var(--bad)"></i>Quit: each clean day removes a brick, the temptation drifts away</span><span><i style="background:#fff"></i>The glowing dot is you</span>`:sy?`<span><i style="background:var(--acc)"></i>Neuron grows as you repeat</span><span><i style="background:#fff"></i>Lit bead = one slice of the round done</span><span><i style="background:var(--bad)"></i>Quit: branches retract</span><span><i style="background:#ffd23f"></i>Must</span>`:`<span><i style="background:var(--acc)"></i>Planet grows as you repeat</span><span><i style="background:#fff"></i>Orbit beads fill as reps are done</span><span><i style="background:#5a3a42;outline:1px dashed var(--bad)"></i>Quit: shrinking dwarf</span><span><i style="background:#ffd23f"></i>Must</span>`)+'<span class="mute">Tap a goal to see its name. Tap again for details.</span>'}
+ const sy=S.set.mode==='synapse',pa=S.set.mode==='path',la=S.set.mode==='ladder',tr=S.set.mode==='tree',wl=S.set.mode==='wall',hs=S.set.mode==='house';$('#legend').innerHTML=(hs?`<span><i style="background:#d97a34"></i>Build: each finished day, he throws one brick onto the house</span><span><i style="background:#8a5a48"></i>A missed day shows as a cracked brick</span><span><i style="background:#ffc878"></i>Finish the round and the windows and door light up</span><span><i style="background:var(--bad)"></i>Quit: he tears the old wall down, one brick per clean day</span><span><i style="background:#fff"></i>Between bricks he sits at his desk, sips, thinks and paces</span>`:wl?`<span><i style="background:#f6f8ee"></i>Every goal is written on the board by hand</span><span><i style="background:var(--acc)"></i>The chalk bar fills as you show up</span><span><i style="background:#fff"></i>He steps back, thinks and paces, always facing the board</span><span><i style="background:var(--acc2)"></i>Tap a goal on the board to open its brainstorm right on the board</span>`:tr?`<span><i style="background:#6fcf6a"></i>Day 1 is a seed. Each finished day the stick man waters it and it grows</span><span><i style="background:#e5383b"></i>Full tree with fruit when the goal is complete</span><span><i style="background:var(--bad)"></i>Quit: clean days water it, a slip makes leaves fall</span><span><i style="background:#fff"></i>Meanwhile he sits, stands, stretches and thinks</span>`:la?`<span><i style="background:var(--acc)"></i>Each finished day = one rung up the ladder</span><span><i style="background:var(--bad)"></i>Quit: climb out of the pit, the old rungs fall away</span><span><i style="background:#fff"></i>The glow at the top is your goal</span>`:pa?`<span><i style="background:var(--acc)"></i>Build: each day lays a brick toward your goal</span><span><i style="background:var(--bad)"></i>Quit: each clean day removes a brick, the temptation drifts away</span><span><i style="background:#fff"></i>The glowing dot is you</span>`:sy?`<span><i style="background:var(--acc)"></i>Neuron grows as you repeat</span><span><i style="background:#fff"></i>Lit bead = one slice of the round done</span><span><i style="background:var(--bad)"></i>Quit: branches retract</span><span><i style="background:#ffd23f"></i>Must</span>`:`<span><i style="background:var(--acc)"></i>Planet grows as you repeat</span><span><i style="background:#fff"></i>Orbit beads fill as reps are done</span><span><i style="background:#5a3a42;outline:1px dashed var(--bad)"></i>Quit: shrinking dwarf</span><span><i style="background:#ffd23f"></i>Must</span>`)+'<span class="mute">Tap a goal to see its name. Tap again for details.</span>'}
 ACT.synall=()=>{if(S.set.layout==='web'){S.set.layout='orbit';S.set.synAll=false}else S.set.synAll=!S.set.synAll;ORDER.forEach(g=>{rt(g).placed=false});sfx('mode');save();buildMapCtl()};
 ACT.synnav=el=>{if(!ORDER.length)return;const i=Math.max(0,ORDER.indexOf(focusG())),d=+el.dataset.d,g=ORDER[(i+d+ORDER.length)%ORDER.length];UI.sel=g.id;S.set.synGoal=g.id;rt(g).flash=.6;sfx('tap');save();renderMapInfo();buildMapCtl()};
 ACT.synpick=el=>{const g=gById(el.dataset.id);if(!g)return;UI.sel=g.id;S.set.synGoal=g.id;S.set.synAll=false;if(S.set.layout==='web')S.set.layout='orbit';rt(g).flash=.6;sfx('tap');save();renderMapInfo();buildMapCtl()};
@@ -1991,7 +2190,7 @@ ACT.mode=el=>{S.set.mode=el.dataset.v;sfx('mode');UI.opt=false;mapwrap.classList
 ACT.legtog=()=>{UI.leg=!UI.leg;sfx('tap');mapwrap.classList.toggle('leg',UI.leg)};
 function pvSync(){const e=$('#pvtag');if(!e)return;if(!PV.m){e.hidden=true;return}e.hidden=false;e.innerHTML=`<span>Preview: ${PV.m==='start'?'day 1':'finished'}</span><button data-act="pv" data-v="now">Back to now</button>`}
 ACT.pv=el=>{const v=el.dataset.v;PV.m=v==='now'?null:v;if(PV.m&&UI.sel&&!focusG()){}sfx('mode');if(PV.m==='start'&&S.set.mode==='universe'||PV.m==='start'&&S.set.mode==='synapse')ORDER.forEach(g=>{rt(g).gr=0});buildMapCtl()};
-function replayG(g){PV.m=null;const m=S.set.mode;if(m==='wall'){wallReplay(g)}else if(m==='tree'){const T=TRE[g.id];if(T){T.k=0;T.gr=0;T.planted=false;T.fullcel=false;T.phase='idle';T.sit=true;T.x=T.x;T.wonly=false;T.sub='type';T.pt=1;T.cap=null}}else if(m==='ladder'){const L=LA[g.id];if(L){L.pos=0;L.v=0;L.rate=Math.max(1.1,Math.min(5,pathStat(g).k/9))}}else if(m==='path'){RP.on=true;RP.t0=performance.now();RP.dur=clamp(pathStat(g).k*330,4500,14000)}else{RP.on=true;RP.t0=performance.now();RP.dur=7500}sfx('open');buildMapCtl()}
+function replayG(g){PV.m=null;const m=S.set.mode;if(m==='house'){const H0=HSE[g.id];if(H0){H0.laid=0;H0.fl=[];H0.fa={};H0.m='idle'}}else if(m==='wall'){wallReplay(g)}else if(m==='tree'){const T=TRE[g.id];if(T){T.k=0;T.gr=0;T.planted=false;T.fullcel=false;T.phase='idle';T.sit=true;T.x=T.x;T.wonly=false;T.sub='type';T.pt=1;T.cap=null}}else if(m==='ladder'){const L=LA[g.id];if(L){L.pos=0;L.v=0;L.rate=Math.max(1.1,Math.min(5,pathStat(g).k/9))}}else if(m==='path'){RP.on=true;RP.t0=performance.now();RP.dur=clamp(pathStat(g).k*330,4500,14000)}else{RP.on=true;RP.t0=performance.now();RP.dur=7500}sfx('open');buildMapCtl()}
 ACT.replay=()=>{if(S.set.mode==='wall'){wallReplay();sfx('open');return}const g=focusG();if(g)replayG(g)};
 ACT.layout=el=>{S.set.layout=el.dataset.v;sfx('mode');ORDER.forEach(g=>{rt(g).placed=false});save();buildMapCtl()};
 ACT.fs=()=>{sfx('open');setFS(true)};ACT.fsx=()=>{sfx('close');setFS(false)};ACT.resetview=()=>{resetView();sfx('tap')};
@@ -3097,7 +3296,7 @@ ACT.insx=()=>insClose();ACT.instab=el=>{INS.tab=el.dataset.t;INS.anim=true;insRe
 ACT.insnav=el=>{const i=Math.max(0,ORDER.findIndex(g=>g.id===INS.id)),n=ORDER[(i+ +el.dataset.d+ORDER.length)%ORDER.length];if(n){S.set.synGoal=n.id;insGoal(n.id,INS.tab)}};
 ACT.insgo=el=>insGoal(el.dataset.id);ACT.inslink=el=>insLink(el.dataset.a,el.dataset.b);ACT.insday=el=>insRange(el.dataset.id,el.dataset.a,el.dataset.b);
 ACT.insrev=el=>{insClose();openDrawer(el.dataset.id,'rev')};
-ACT.insreplay=el=>{const g=gById(el.dataset.id);if(!g)return;insClose();if(UI.view!=='home')go('home');if(!['path','ladder','tree'].includes(S.set.mode))S.set.mode='path';S.set.synGoal=g.id;UI.sel=g.id;save();buildMapCtl();setTimeout(()=>replayG(g),250)};
+ACT.insreplay=el=>{const g=gById(el.dataset.id);if(!g)return;insClose();if(UI.view!=='home')go('home');if(!['path','ladder','tree','house'].includes(S.set.mode))S.set.mode='path';S.set.synGoal=g.id;UI.sel=g.id;save();buildMapCtl();setTimeout(()=>replayG(g),250)};
 ACT.insprev=el=>{const g=gById(el.dataset.id);if(!g)return;insClose();if(UI.view!=='home')go('home');S.set.synGoal=g.id;UI.sel=g.id;PV.m=el.dataset.v;save();buildMapCtl()};
 ACT.inspect=el=>insGoal(el.dataset.id);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&INS.on)insClose()});
@@ -3557,7 +3756,7 @@ function renderSet(){const s=S.set,N=s.notif,perm=notifPerm(),standalone=matchMe
  $('#setc').innerHTML=`<h2 class="vt">Settings</h2>
  <div class="card" style="margin:14px 0"><h3>You</h3><label class="f" style="margin-top:0">Your name (shown in the greeting)</label><input type="text" value="${esc(s.name)}" data-chg="sv" data-p="name" maxlength="30" style="max-width:300px"></div>
  <div class="card"><h3>Theme</h3><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">${Object.keys(THEMES).map(k=>{const t=THEMES[k];return `<button class="tpl ${s.theme===k?'on':''}" data-act="theme" data-v="${k}" style="padding:0;overflow:hidden"><div style="height:46px;width:100%;background:linear-gradient(110deg,${t.bg} 0 38%,rgb(${t.neb[0]}) 38% 60%,rgb(${t.neb[1]||t.neb[0]}) 60% 80%,${t.acc} 80%)"></div><div style="padding:8px 10px"><b>${t.n}</b></div></button>`}).join('')}</div>
-  <div class="grid g2" style="margin-top:12px"><div><label class="f" style="margin-top:0">Visual mode</label>${chipRow([['universe','Orbit'],['synapse','Synapse neurons'],['path','Path'],['ladder','Ladder'],['tree','Tree']],s.mode,'mode')}</div><div><label class="f" style="margin-top:0">Layout</label>${chipRow([['orbit','Rings'],['web','Web'],['helix','Helix'],['spiral','Spiral']],s.layout,'layout')}</div></div>
+  <div class="grid g2" style="margin-top:12px"><div><label class="f" style="margin-top:0">Visual mode</label>${chipRow([['universe','Orbit'],['synapse','Synapse neurons'],['path','Path'],['ladder','Ladder'],['tree','Tree'],['house','House'],['wall','Board']],s.mode,'mode')}</div><div><label class="f" style="margin-top:0">Layout</label>${chipRow([['orbit','Rings'],['web','Web'],['helix','Helix'],['spiral','Spiral']],s.layout,'layout')}</div></div>
   <label class="f">Graphics quality</label><select data-chg="sv" data-p="quality" style="max-width:260px">${[['auto','Auto (adapts to your device)'],['high','High'],['balanced','Balanced'],['low','Low (saves battery)']].map(o=>`<option value="${o[0]}" ${s.quality===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
   ${tgl('reduceMotion',s.reduceMotion,'Reduce motion','Calms the background, particles and auto-rotation')}${tgl('splash',s.splash,'Show the opening animation')}</div>
  <div class="card" style="margin-top:14px"><h3>Pulse check</h3>${tgl('pulseOn',s.pulseOn!==false,'Ask when I open the app','A short card with a brain fact. Asks how you feel and what you were doing, at most every 4 hours.')}<button class="btn sm" data-act="pulseopen">Try it now</button></div>
@@ -3637,7 +3836,8 @@ const G_MODEL=[
  ['sprout','5. Recover and grow','A missed day shows honestly: a cracked brick, a snapped rung, a weak branch. It is not erased and it is not the end. The rule is simple: never miss twice. Return the next day, even with the smallest version, and the path keeps going.','After a miss: do the 2-minute version tomorrow. Do not try to catch up. When a round ends, extend it or start the next one.']];
 const G_RHYTHM=[['Every day (2 minutes)','Fire your goals at their cue. Log mood, energy and sleep in the check-in if you like. Glance at the visual.'],['Every week (5 minutes)','Open Insights. Read the strongest and weakest day. Pick ONE change: shrink the goal, move it to a better time, or add a cue.'],['Every month','Read the Board: are lines spreading (building) and narrowing (quitting)? Retire goals that no longer matter, add one new one.'],['When you slip or miss','Say it plainly, log it, and return tomorrow. A single miss barely moves the model. Two in a row is the habit to watch.'],['When motivation is gone','Do the smallest version: one minute, one page, one rep. Use Breathe or a brain game to reset, then fire.']];
 const G_NEW=[
- ['target','The Board: your main screen','Board is the default view when you open the app. A stick man stands in front of a giant chalkboard. Build goals are written on the left and quit goals on the right, each with a chalk progress bar. Tap + new goal (or + new quit), type what it is, pick the number of days (21, for example) and he writes it on the board by hand, climbing a ladder for the high rows. When you fire a goal he marks it; in between he thinks, paces and steps back to look. Tap any goal to open its brainstorm map: Plan, Hurdles, Distractions, What is working, What is not working and Next move. Working and not working come from your own logs. Hurdles, distractions and next steps are yours to write, with tappable ideas to start from. All the other visuals are still in the view menu.'],
+ ['target','House: one brick a day','House is a visual in the view menu. Pick a goal and watch a house go up. Each finished day he takes a brick from his stack and throws it onto the house, so about one brick a day, row by row, walls first then the roof. A missed day shows as a cracked brick. Finish the round and the door and windows light up. For a quit goal it runs the other way: the old wall is already standing and each clean day he pulls a brick off it. Between bricks he sits at his desk, sips, thinks and paces. Tap a brick to see which days it stands for.'],
+ ['target','The Board: your main screen','Board is the default view when you open the app. A stick man stands in front of a giant chalkboard. Build goals are written on the left and quit goals on the right, each with a chalk progress bar. Tap + new goal (or + new quit), type what it is, pick the number of days (21, for example) and he writes it on the board by hand, climbing a ladder for the high rows. When you fire a goal he marks it; in between he thinks, paces and steps back to look. Tap any goal and its brainstorm map is written on the board itself, no pop-up: Plan, Hurdles, Distractions, What is working, What is not working and Next move. Drag the board up and down to read it, tap Back to return. When you tick a goal he walks over and draws the check mark and fills the bar by hand. He also sits at his desk, rolls the chair about, sips his drink and thinks between jobs. Working and not working come from your own logs. Hurdles, distractions and next steps are yours to write, with tappable ideas to start from. All the other visuals are still in the view menu.'],
  ['shield','Missed days show as weak spots','A missed day in the middle of a streak no longer disappears. On the Path the brick for that day is cracked, on the Ladder the rung is snapped or cracked, and on the Tree the branch grown that day is thin, drooping and bare. You can still keep going; the weak spot stays as an honest mark.'],
  ['heart','About tab','The About tab (in the side menu, or tap About at the bottom of any page) tells you who built the app, the books behind it, why it exists, and how your data stays on your device.'],
  ['ins','Insights and Board','Insights has a tidy Overview / Board switch, with the single-goal dashboards in their own wrapped row below it. Tap almost any card or chart to open the rows of data behind it. On the Board, build goals fan out from one point as you keep showing up, and quit goals start wide and narrow as clean days add up (a slip widens them again).'],
@@ -3736,6 +3936,9 @@ ACT.wallmake=()=>{const nm=($('#wnn')||{}).value||'';if(!nm.trim()){toast('Type 
  const used=S.goals.map(g=>g.color),free=GCOLORS.filter(c=>!used.includes(c));b.color=(free.length?free:GCOLORS)[Math.floor(Math.random()*(free.length||GCOLORS.length))];
  b.name=nm.trim().slice(0,60);b.why=why;b.sched=Object.assign({},b.sched,{t:'daily'});b.start=todayKey();b.end=addD(b.start,dur-1);delete b.dur;delete b.isNew;
  const ng=normGoal(b);S.goals.push(ng);UI.sel=null;sfx('create');save();closeModal();checkBadges();S.set.mode='wall';save();renderAll();toast('Writing it on the board. Tap it to brainstorm.')};
+
+ACT.wbfadd=el=>{const F=WL.foc,g=F&&gById(F.id),i=document.getElementById('wbinp');if(!g||!i||!F.inK)return;if(wbAddLeaf(g,F.inK,i.value)){i.value='';i.focus()}};
+ACT.wbfx=()=>wbInClose();
 /* ===== splash + init ===== */
 let SPDONE=false,SPSHORT=false;
 function endSplash(){if(SPDONE)return;SPDONE=true;const s=$('#splash');s.classList.add('out');setTimeout(()=>s.remove(),900);afterSplash()}
