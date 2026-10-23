@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#07090f;--panel:#0e121c;--line:#232a3b;--ink:#e9ecf5;--mute:#8d96ad;--acc:#ff8a2b;--acc2:#ff5d73;--onacc:#10131c;--good:#3ddc97;--bad:#ff5d73;--r:14px;--top:58px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -556,6 +556,14 @@ body.shk #app{animation:shk .4s}
 .pgk{padding:12px}.pgbig{display:block;font-size:30px;line-height:1.1;margin:2px 0}
 .pgt{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:4px 8px;font-size:13px}.pgt i{font-style:normal;text-align:right}.pgt b{text-align:right;font-size:12px}
 .pgbars{display:flex;gap:6px;align-items:flex-end;height:96px}.pgbar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%}.pgbar i{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--acc,#7c9cff)}.pgbar span{font-size:9px;opacity:.6;white-space:nowrap}
+
+#quote{font-family:'Bricolage Grotesque',system-ui,sans-serif!important;font-size:15.5px!important;line-height:1.45!important;letter-spacing:.005em;font-weight:400;color:var(--tx,#e8ecf6);-webkit-line-clamp:4!important;padding:2px 0}#quote small{font-size:12px!important;opacity:.7}
+
+.brand>span{background:linear-gradient(100deg,var(--ink) 0%,var(--ink) 38%,var(--acc) 50%,var(--ink) 62%,var(--ink) 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:brandWord 4.8s ease-in-out infinite,brandGlow 3.2s ease-in-out infinite}
+.brand>span small{-webkit-text-fill-color:var(--mute)}
+@keyframes brandWord{0%{background-position:130% 0}60%,100%{background-position:-30% 0}}
+@keyframes brandGlow{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 6px var(--acc))}}
+@media(prefers-reduced-motion:reduce){.brand>span{animation:none;background:none;-webkit-text-fill-color:currentColor;color:var(--ink)}}
 </style></head><body>
 <div id="bgfx"><i></i><i></i><i></i></div>
 <canvas id="fxcv" aria-hidden="true"></canvas>
@@ -770,7 +778,7 @@ const TEMPLATES=[
 {id:'q_custom',t:'break',n:'Custom quit habit',e:'🛑',c:'#fb7185',why:'',metric:'',cue:'',sched:{t:'daily'},win:null,rem:[],limit:null,
  fields:[F('Urges resisted','number','2',{unit:'times'}),F('Trigger','text','Stress at work'),F('What I did instead','text','Took a short walk')],tasks:[]}];
 const tplById=id=>TEMPLATES.find(t=>t.id===id);
-const QUOTES=['Attention is the chisel. Repetition is the hammer.','Show up today. The circuit does not care about your mood.','Small sessions done daily beat big plans done once.','Every finished rep teaches your brain who you are becoming.','The quality of your focus decides what gets wired.','Decide when, where and for how long. Then the fog clears.','A cooling neuron is one session away from warming up.','Discipline is a promise kept to the person you will be in 100 days.','Progress you can see is progress you will repeat.','Rest and sleep are part of the work. That is when it consolidates.','Prepare the setup and the session almost starts itself.','Calm is trained the same way as everything else: daily.','Your brain grows in the struggle, not in the comfort.','Cravings are waves. They rise, they peak, they pass.','A missed day is data. Two missed days is a pattern. Start again today.','You do not rise to your goals, you fall to your systems.','One honest rep beats ten distracted ones.','Wiring is quiet work. The results are loud later.','Make it obvious, make it easy, make it yours.','Strong habits are built from boring Tuesdays.','The old path fades when you stop walking it.','Your future self is watching what you do today.','Consistency is a skill. Train it like any other.','Start before you feel ready. Motivation follows motion.','Every urge you ride out weakens the old circuit.','Protect the first hour and the day follows.','Measure what matters, then be kind about the result.','Slow growth is still growth. Keep firing.','Deep focus is a trained muscle, not a gift.','What you repeat becomes what you are good at.','Do the smallest version today. Keep the chain alive.','Neurons that fire together wire together.','Clarity comes from action, not from more thinking.','You are not behind. You are building.','Today is one vote for the person you want to be.'];
+const QUOTES=['Attention is the chisel. Repetition is the hammer.','Show up today. The circuit does not care about your mood.','Small sessions done daily beat big plans done once.','Every finished rep teaches your brain who you are becoming.','The quality of your focus decides what gets wired.','Decide when, where and for how long. Then the fog clears.','A cooling neuron is one session away from warming up.','Discipline is a promise kept to the person you will be in 100 days.','Progress you can see is progress you will repeat.','Rest and sleep are part of the work. That is when it consolidates.','Prepare the setup and the session almost starts itself.','Calm is trained the same way as everything else: daily.','Your brain grows in the struggle, not in the comfort.','Cravings are waves. They rise, they peak, they pass.','A missed day is data. Two missed days is a pattern. Start again today.','You do not rise to your goals, you fall to your systems.','One honest rep beats ten distracted ones.','Wiring is quiet work. The results are loud later.','Make it obvious, make it easy, make it yours.','Strong habits are built from boring Tuesdays.','The old path fades when you stop walking it.','Your future self is watching what you do today.','Consistency is a skill. Train it like any other.','Start before you feel ready. Motivation follows motion.','Every urge you ride out weakens the old circuit.','Protect the first hour and the day follows.','Measure what matters, then be kind about the result.','Slow growth is still growth. Keep firing.','Deep focus is a trained muscle, not a gift.','What you repeat becomes what you are good at.','Do the smallest version today. Keep the chain alive.','Neurons that fire together wire together.','Clarity comes from action, not from more thinking.','You are not behind. You are building.','Today is one vote for the person you want to be.','Discipline is a promise you keep to the person you will be next month.','Motivation starts the habit. Repetition owns it.','You do not rise to your goals. You fall to the level of your routine.','The rep you do not feel like doing is the one that builds the circuit.','Consistency is not intensity. It is returning, again and again.','Neurons that fire together wire together. Fire on purpose.','Sleep is when the day\'s practice is filed into long-term memory.','Every time you retrieve a skill, you strengthen the path to it.','Attention decides what gets wired. Guard it.','A tired brain still learns from a small, finished session.','Boredom in practice is often the sign that a skill is becoming automatic.','The brain adapts to what you repeat, not to what you intend.','Do the smaller version today. The streak is built from small versions.','Never miss twice. One slip is data, two is the start of a new pattern.','Your future self is built by the next ten minutes.','Rest is part of training. Plan it, do not drift into it.','A plan you can follow on your worst day is the real plan.','Make the cue obvious and the first step tiny.','Progress is quiet. Check the trend, not the day.','Measure the result, not just the effort. Both matter, and they are different.','Missing data is not failure. Record it, then look again.','Trading is repeated decisions under uncertainty. Process first, outcome second.','A good trade can lose and a bad trade can win. Judge the process.','Protect your capital and your attention. You need both tomorrow.','The market rewards patience and punishes impulse. Train the pause.','Risk is decided before the entry, not after the fear.','Journal the trade, the reason and the feeling. Patterns hide in the notes.','Skipping a setup that does not fit your rules is also a trade well done.','Revenge trading is an emotion with a ticker symbol. Step away.','Discipline in trading is following your own rules when nobody is watching.','One session, one plan, one review. Repeat for years.','Calm is a skill. It is trained in small, boring reps.','Stress narrows attention. Breathe slowly and widen it again.','Your emotions are information, not instructions.','The goal is not to feel ready. The goal is to start the next rep.','Habits are votes for the kind of person you are becoming.','Make it easy to do the right thing and slightly hard to do the wrong one.','Slow progress is still progress. The brain does not hurry and does not forget.','What you practice, you become faster at. What you avoid, you become more afraid of.','Review weekly, adjust one thing, and keep going.'];
 const SPLASH_Q=['Your brain grows while you struggle, not while you win.','What you repeat, you wire.','Fire together. Wire together.','Small reps. Strong circuits.','Quiet discipline, loud results.','Today is one vote for who you are becoming.','Every session leaves a trace in your brain.','Focus is the doorway to every skill.','Cravings pass. Circuits change.','Begin again, as many times as it takes.'];
 const TAGLINE='Wire your habits. Orbit your goals.';
 const APPNAME='NeuroOrbitSynapse';
@@ -1687,7 +1695,7 @@ function drawTree(now,dt){const t=now*.001,g=focusG(),rd=reduced();BHIT=[];
 Object.assign(GI,{vm_universe:'M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5zM3 12c0-2.2 4-4 9-4s9 1.8 9 4s-4 4-9 4s-9-1.8-9-4z',vm_synapse:'M5 19l5-6l4 3l5-10M4.5 18.5a1.2 1.2 0 1 0 .01 0M18.5 5.5a1.2 1.2 0 1 0 .01 0M10 13a1.2 1.2 0 1 0 .01 0',vm_path:'M3 19h5v-4h5v-4h5V7h3',vm_ladder:'M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8',vm_tree:'M12 21v-7M12 14c-4 0-6-3-5-6c1-3 3-4 5-4s4 1 5 4c1 3-1 6-5 6z',vm_house:'M3 11l9-7l9 7M5 10v10h14V10M10 20v-6h4v6',vm_wall:'M3 4h18v12H3zM8 20h8M12 16v4M6.5 8.5h6M6.5 12h9'});
 /* ===== Board view (the main visual): a stick man in front of a giant chalkboard. Build goals on the left, quit goals on the right. New goals are written by hand; tap a goal to brainstorm it. ===== */
 const WL={w:{},bar:{},cnt:{},ck:{},hold:{},lay:{},lw:{},foc:null,q:[],task:null,dust:[],init:false,nt:'build',man:{x:0,d:1,ph:0,v:0,pt:2,sub:'stand',tx:null,T:{},lift:0,cheer:0}};
-const WL_FONT='"Bradley Hand","Segoe Print","Chalkboard SE","Comic Neue","Comic Sans MS",cursive';
+const WL_FONT='"Patrick Hand","Bricolage Grotesque",system-ui,sans-serif';try{document.fonts&&document.fonts.load('20px "Patrick Hand"')}catch(e){}
 function wallReplay(g){const ids=g?[g.id]:ORDER.map(x=>x.id);ids.forEach(id=>{WL.w[id]=0;WL.bar[id]=0;WL.ck[id]=0;WL.hold[id]=true;if(!WL.q.some(x=>x.id===id))WL.q.push({type:'write',id})});WL.task=null}
 function wallBarTarget(g){const real=clamp(gStats(g).prog||0,0,1);return PV.m==='start'?0:PV.m==='done'?1:RP.on?real*rpP():real}
 function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];mapwrap.classList.toggle('wfoc',!!WL.foc);
@@ -1709,18 +1717,18 @@ function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];mapwrap
  const cell={},adds=[];let fsMin=22;
  secs.forEach(sc=>{const cnt=sc.list.length+1,cols=cnt>10?2:1,rows=Math.ceil(cnt/cols),cw=(sc.w-bw*.03)/cols,ch=Math.min(ih/rows,bh*.2);sc.fs=clamp(Math.min(ch*.3,cw*.1,19),8,19);fsMin=Math.min(fsMin,sc.fs)});
  secs.forEach(sc=>{const cnt=sc.list.length+1,cols=cnt>10?2:1,rows=Math.ceil(cnt/cols),cw=(sc.w-bw*.03)/cols,ch=Math.min(ih/rows,bh*.2),fs=fsMin;
-  cx.font='700 '+fs+'px '+WL_FONT;
+  cx.font='400 '+fs+'px '+WL_FONT;
   for(let i=0;i<cnt;i++){const col=Math.floor(i/rows),row=i%rows,x=sc.x+bw*.012+col*cw,y=iy+row*ch;
    if(i===sc.list.length){adds.push({t:sc.t,x,y,w:cw,h:ch,fs});continue}
    const g=sc.list[i],nx=x+fs*1.9,maxW=cw-fs*1.9-fs*3.2;let nm=g.name,tw=cx.measureText(nm).width;while(nm.length>3&&tw>maxW){nm=nm.slice(0,-2);tw=cx.measureText(nm+'…').width;if(tw<=maxW){nm+='…';break}}tw=cx.measureText(nm).width;
    cell[g.id]={g,i,x,y,w:cw,h:ch,fs,nx,nm,tw,by:y+ch*.4,barY:y+ch*.58,barW:cw-fs*1.1}}});
  /* headings, divider, counter */
- const hf=clamp(bh*.065,12,22);cx.font='700 '+hf+'px '+WL_FONT;cx.textAlign='left';cx.fillStyle=CH;
+ const hf=clamp(bh*.065,12,22);cx.font='400 '+hf+'px '+WL_FONT;cx.textAlign='left';cx.fillStyle=CH;
  cx.fillText('Build'+(B.length?' · '+B.length:''),ix+bw*.03,by+bh*.075);cx.fillStyle='rgba(255,140,160,.95)';cx.fillText('Quit'+(Q.length?' · '+Q.length:''),ix+hw+bw*.03,by+bh*.075);
  cx.strokeStyle='rgba(246,248,238,.5)';cx.lineWidth=1.6;cx.beginPath();cx.moveTo(ix+bw*.03,by+bh*.095);cx.quadraticCurveTo(ix+hw*.5,by+bh*.108,ix+hw-bw*.03,by+bh*.093);cx.stroke();
  cx.strokeStyle='rgba(255,140,160,.55)';cx.beginPath();cx.moveTo(ix+hw+bw*.03,by+bh*.095);cx.quadraticCurveTo(ix+hw*1.5,by+bh*.108,ix+bw-bw*.03,by+bh*.093);cx.stroke();
  cx.setLineDash([3,5]);cx.strokeStyle='rgba(246,248,238,.22)';cx.beginPath();cx.moveTo(ix+hw,by+bh*.05);cx.lineTo(ix+hw,by+bh*.97);cx.stroke();cx.setLineDash([]);
- const done0=gs.filter(g=>dueState(g).s==='done').length;cx.textAlign='right';cx.fillStyle='rgba(246,248,238,.55)';cx.font='600 '+Math.max(9,hf*.62)+'px '+WL_FONT;cx.fillText(n?'today '+done0+'/'+n:'',ix+bw-bw*.02,by+bh*.03+hf*.3);
+ const done0=gs.filter(g=>dueState(g).s==='done').length;cx.textAlign='right';cx.fillStyle='rgba(246,248,238,.55)';cx.font='400 '+Math.max(9,hf*.62)+'px '+WL_FONT;cx.fillText(n?'today '+done0+'/'+n:'',ix+bw-bw*.02,by+bh*.03+hf*.3);
  /* first run: everything already on the board; later new goals get written live */
  if(!WL.init){gs.forEach(g=>{WL.w[g.id]=1;WL.bar[g.id]=wallBarTarget(g);WL.ck[g.id]=dueState(g).s==='done'?1:0;WL.cnt[g.id]=doneCount(g)});WL.init=true;M.x=W*.5}
  gs.forEach(g=>{if(WL.w[g.id]==null){WL.w[g.id]=0;WL.bar[g.id]=0;WL.ck[g.id]=0;WL.hold[g.id]=true;WL.cnt[g.id]=doneCount(g);WL.q.push({type:'write',id:g.id})}
@@ -1780,18 +1788,18 @@ function drawWall(now,dt){const t=now*.001,rd=reduced(),M=WL.man;BHIT=[];mapwrap
   if(false){cx.fillStyle='rgba(255,255,255,.06)';cx.fillRect(x,y+2,c.w-2,c.h-4)}
   if(w>0){cx.strokeStyle=rgba(g.color,.95);cx.lineWidth=1.8;const s2=fs*.95;cx.beginPath();cx.moveTo(x+fs*.5,c.by-s2*.85);cx.lineTo(x+fs*.5+s2,c.by-s2*.9);cx.lineTo(x+fs*.5+s2*1.02,c.by+s2*.1);cx.lineTo(x+fs*.5-.5,c.by+s2*.05);cx.closePath();cx.stroke();
    const ckp=WL.ck[g.id]==null?(done?1:0):WL.ck[g.id];if(ckp>0){cx.strokeStyle='rgba(120,255,170,.95)';cx.lineWidth=2.2;const P=[[x+fs*.7,c.by-s2*.4],[x+fs*1.05,c.by-s2*.05],[x+fs*1.6,c.by-s2*1.15]];cx.beginPath();cx.moveTo(P[0][0],P[0][1]);const a1=Math.min(1,ckp/.35);cx.lineTo(P[0][0]+(P[1][0]-P[0][0])*a1,P[0][1]+(P[1][1]-P[0][1])*a1);if(ckp>.35){const b1=(ckp-.35)/.65;cx.lineTo(P[1][0]+(P[2][0]-P[1][0])*b1,P[1][1]+(P[2][1]-P[1][1])*b1)}cx.stroke()}
-   cx.font='700 '+fs+'px '+WL_FONT;cx.textAlign='left';cx.save();cx.beginPath();cx.rect(c.nx-2,c.by-fs*1.2,c.tw*w+4,fs*1.8);cx.clip();cx.fillStyle=CH;cx.fillText(c.nm,c.nx,c.by);cx.fillText(c.nm,c.nx+.5,c.by+.4);cx.restore()}
+   cx.font='400 '+fs+'px '+WL_FONT;cx.textAlign='left';cx.save();cx.beginPath();cx.rect(c.nx-2,c.by-fs*1.2,c.tw*w+4,fs*1.8);cx.clip();cx.fillStyle=CH;cx.fillText(c.nm,c.nx,c.by);cx.fillText(c.nm,c.nx+.5,c.by+.4);cx.restore()}
   if(w>=1||(WL.task&&WL.task.id===g.id&&WL.task.stage==='bar')){const bx2=x+fs*.6,bw2=c.barW,bh2=fs*.62;cx.strokeStyle='rgba(246,248,238,.6)';cx.lineWidth=1.3;cx.strokeRect(bx2,c.barY,bw2,bh2);
    cx.strokeStyle=rgba(g.color,.95);cx.lineWidth=1.6;const fw=bw2*pr;cx.save();cx.beginPath();cx.rect(bx2,c.barY,fw,bh2);cx.clip();for(let hxx=bx2-bh2;hxx<bx2+fw+bh2;hxx+=5){cx.beginPath();cx.moveTo(hxx,c.barY+bh2);cx.lineTo(hxx+bh2,c.barY);cx.stroke()}cx.restore();
-   cx.fillStyle='rgba(246,248,238,.78)';cx.font='600 '+Math.max(8,fs*.62)+'px '+WL_FONT;cx.textAlign='right';cx.fillText((PV.m==='start'?0:PV.m==='done'?lenDays(g):Math.round(pr*lenDays(g)))+'/'+lenDays(g),x+c.w-fs*.4,c.by);
+   cx.fillStyle='rgba(246,248,238,.78)';cx.font='400 '+Math.max(8,fs*.62)+'px '+WL_FONT;cx.textAlign='right';cx.fillText((PV.m==='start'?0:PV.m==='done'?lenDays(g):Math.round(pr*lenDays(g)))+'/'+lenDays(g),x+c.w-fs*.4,c.by);
    if(fa<.5)BHIT.push({g,x:c.x,w:c.w,y0:c.y,y1:c.y+c.h,wall:true,d0:g.start,d1:g.end})}
   cx.restore()});
  /* "+ add" spots */
  adds.forEach(a=>{const fs=a.fs,q=a.t==='quit';cx.save();cx.lineCap='round';cx.setLineDash([4,5]);cx.strokeStyle=q?'rgba(255,140,160,.55)':'rgba(246,248,238,.5)';cx.lineWidth=1.4;const rx=a.x+fs*.5,ry=a.y+a.h*.22,rw=Math.min(a.w-fs,fs*9),rh=Math.min(a.h*.56,fs*2.1);cx.strokeRect(rx,ry,rw,rh);cx.setLineDash([]);
-  cx.fillStyle=q?'rgba(255,170,185,.9)':'rgba(246,248,238,.82)';cx.font='700 '+fs*1.05+'px '+WL_FONT;cx.textAlign='left';cx.fillText('+ new '+(q?'quit':'goal'),rx+fs*.6,ry+rh*.5+fs*.35);cx.restore();
+  cx.fillStyle=q?'rgba(255,170,185,.9)':'rgba(246,248,238,.82)';cx.font='400 '+fs*1.05+'px '+WL_FONT;cx.textAlign='left';cx.fillText('+ new '+(q?'quit':'goal'),rx+fs*.6,ry+rh*.5+fs*.35);cx.restore();
   if(fa<.5)BHIT.push({add:a.t,g:null,x:a.x,w:a.w,y0:a.y,y1:a.y+a.h,wall:true})});cx.globalAlpha=1;
  if(WL.foc)wallFocusDraw(now,dt,t,rd,bx,by,bw,bh,CH,u);
- if(!n){cx.fillStyle='rgba(246,248,238,.5)';cx.font='600 '+clamp(bh*.05,11,16)+'px '+WL_FONT;cx.textAlign='center';cx.fillText('Tap "+ new goal" and he will write it up',ix+bw/2,by+bh*.62)}
+ if(!n){cx.fillStyle='rgba(246,248,238,.5)';cx.font='400 '+clamp(bh*.05,11,16)+'px '+WL_FONT;cx.textAlign='center';cx.fillText('Tap "+ new goal" and he will write it up',ix+bw/2,by+bh*.62)}
  /* chalk dust */
  WL.dust=WL.dust.filter(p=>(p.l-=dt*1.1)>0);WL.dust.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;cx.fillStyle='rgba(246,248,238,'+p.l*.7+')';cx.fillRect(p.x,p.y,1.6,1.6)});
  /* stool or rolling ladder under his feet, then the man */
@@ -1905,7 +1913,7 @@ function wallFocusDraw(now,dt,t,rd,bx,by,bw,bh,CH,u){
  cx.save();cx.globalAlpha=a;cx.lineCap='round';cx.lineJoin='round';cx.textAlign='left';
  const rr=(x,y,w,h,r)=>{cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()};
  /* header chips */
- {const items=[['back','‹ Back'],['fire',done?'Undo today':q?'Clean day':'Fire'],['full','Details'],['rep','Rewrite']];let f2=hf*.82;cx.font='700 '+f2+'px '+WL_FONT;let tot=items.reduce((s2,i)=>s2+cx.measureText(i[1]).width+f2*1.5,0)+(items.length-1)*6;const av=bw-pad*2;if(tot>av){f2*=av/tot;cx.font='700 '+f2+'px '+WL_FONT}
+ {const items=[['back','‹ Back'],['fire',done?'Undo today':q?'Clean day':'Fire'],['full','Details'],['rep','Rewrite']];let f2=hf*.82;cx.font='400 '+f2+'px '+WL_FONT;let tot=items.reduce((s2,i)=>s2+cx.measureText(i[1]).width+f2*1.5,0)+(items.length-1)*6;const av=bw-pad*2;if(tot>av){f2*=av/tot;cx.font='400 '+f2+'px '+WL_FONT}
   let x=left;const y=by+bh*.03,h=f2*1.9;items.forEach(i=>{const w=cx.measureText(i[1]).width+f2*1.5;cx.strokeStyle=i[0]==='fire'?'rgba(120,255,170,.9)':'rgba(246,248,238,.65)';cx.lineWidth=1.5;rr(x,y,w,h,h/2);cx.stroke();if(i[0]==='fire'){cx.fillStyle='rgba(120,255,170,.1)';cx.fill()}cx.fillStyle=i[0]==='fire'?'rgba(150,255,190,.98)':CH;cx.fillText(i[1],x+f2*.75,y+h*.66);if(live)BHIT.push({wb:i[0],x,w,y0:y,y1:y+h,wall:true});x+=w+6})}
  cx.strokeStyle='rgba(246,248,238,.3)';cx.lineWidth=1.3;cx.beginPath();cx.moveTo(left,topY-hf*.5);cx.lineTo(right,topY-hf*.5);cx.stroke();
  /* scrolling content */
@@ -1913,25 +1921,25 @@ function wallFocusDraw(now,dt,t,rd,bx,by,bw,bh,CH,u){
  let y=topY-F.sc;const vis=(y0,y1)=>y1>topY-hf*.3&&y0<botY;
  /* root */
  {const rh=hf*2.9;cx.strokeStyle=g.color;cx.lineWidth=2.2;rr(left,y,right-left,rh,hf*.7);cx.stroke();cx.fillStyle=rgba(g.color,.09);cx.fill();
-  cx.font='700 '+hf*1.2+'px '+WL_FONT;cx.fillStyle=CH;let nm=g.name;const mw=right-left-hf*2;while(nm.length>3&&cx.measureText(nm).width>mw)nm=nm.slice(0,-2);cx.fillText(nm===g.name?nm:nm+'…',left+hf,y+hf*1.45);
-  const L=lenDays(g),day=clamp(diffD(g.start,todayKey())+1,0,L);cx.font='600 '+fs*.85+'px '+WL_FONT;cx.fillStyle='rgba(246,248,238,.7)';cx.fillText((q?'Quit':'Build')+' · '+L+' days · day '+day+' · '+(done?(q?'clean day logged':'fired today'):'not logged today'),left+hf,y+hf*2.45);y+=rh+hf*.9}
+  cx.font='400 '+hf*1.2+'px '+WL_FONT;cx.fillStyle=CH;let nm=g.name;const mw=right-left-hf*2;while(nm.length>3&&cx.measureText(nm).width>mw)nm=nm.slice(0,-2);cx.fillText(nm===g.name?nm:nm+'…',left+hf,y+hf*1.45);
+  const L=lenDays(g),day=clamp(diffD(g.start,todayKey())+1,0,L);cx.font='400 '+fs*.85+'px '+WL_FONT;cx.fillStyle='rgba(246,248,238,.7)';cx.fillText((q?'Quit':'Build')+' · '+L+' days · day '+day+' · '+(done?(q?'clean day logged':'fired today'):'not logged today'),left+hf,y+hf*2.45);y+=rh+hf*.9}
  const spineX=left+pad*.8,sp0=y-hf*.9,lx=spineX+pad*1.7,lw=right-lx-pad*.2;
  (F.data||[]).forEach(b=>{
-  cx.font='700 '+hf*.98+'px '+WL_FONT;const tw=cx.measureText(b.name).width,cw=tw+hf*1.5,chh=hf*1.75;
+  cx.font='400 '+hf*.98+'px '+WL_FONT;const tw=cx.measureText(b.name).width,cw=tw+hf*1.5,chh=hf*1.75;
   cx.strokeStyle=b.c;cx.lineWidth=2;if(vis(y,y+chh)){rr(lx-pad*.6,y,cw,chh,chh/2);cx.stroke();cx.fillStyle=rgba(b.c,.14);cx.fill();cx.fillStyle=CH;cx.fillText(b.name,lx-pad*.6+hf*.75,y+chh*.68);
    cx.strokeStyle=rgba(b.c,.85);cx.beginPath();cx.moveTo(spineX,y+chh/2);cx.quadraticCurveTo(spineX+pad*.3,y+chh/2,lx-pad*.6,y+chh/2);cx.stroke()}
   y+=chh+hf*.55;
-  cx.font='600 '+fs+'px '+WL_FONT;
+  cx.font='400 '+fs+'px '+WL_FONT;
   b.leaves.forEach(lf=>{const del=lf.k?hf*1.5:0,lines=wbWrap(lf.t,lw-del),hh=lines.length*lh,key=lf.k?lf.k+':'+lf.i:null,rv=key&&WL.lw[key]!=null?WL.lw[key]:1;
    if(key){let n=0;const ls=lines.map((s2,i)=>{n+=s2.length;return{s:s2,x:lx,y:y+i*lh+fs,w:cx.measureText(s2).width}});WL.lay[key]={lines:ls,n,fs,x:lx,nx:lx,w:lw};
     if(F.want===key){F.scT=clamp(F.sc+(y-(topY+(botY-topY)*.4)),0,F.max||1e9);F.want=null}}
    if(vis(y,y+hh)){let shown=Math.floor(rv*lines.reduce((s2,l)=>s2+l.length,0)),acc=0;cx.fillStyle=CH;
     lines.forEach((s2,i)=>{const k2=Math.max(0,Math.min(s2.length,shown-acc));acc+=s2.length;if(k2>0)cx.fillText(s2.slice(0,k2),lx,y+i*lh+fs)});
     cx.strokeStyle=rgba(b.c,.75);cx.lineWidth=1.4;cx.beginPath();cx.moveTo(lx,y+hh+fs*.15);cx.lineTo(right-del*.2,y+hh+fs*.15);cx.stroke();
-    if(lf.k){cx.fillStyle='rgba(246,248,238,.55)';cx.font='700 '+fs*1.1+'px '+WL_FONT;cx.fillText('×',right-hf*.9,y+fs);cx.font='600 '+fs+'px '+WL_FONT;if(live)BHIT.push({wb:'del',k:lf.k,i:lf.i,x:right-hf*1.6,w:hf*1.8,y0:Math.max(y-4,topY),y1:Math.min(y+Math.max(hh,hf*1.6),botY),wall:true})}}
+    if(lf.k){cx.fillStyle='rgba(246,248,238,.55)';cx.font='400 '+fs*1.1+'px '+WL_FONT;cx.fillText('×',right-hf*.9,y+fs);cx.font='400 '+fs+'px '+WL_FONT;if(live)BHIT.push({wb:'del',k:lf.k,i:lf.i,x:right-hf*1.6,w:hf*1.8,y0:Math.max(y-4,topY),y1:Math.min(y+Math.max(hh,hf*1.6),botY),wall:true})}}
    y+=hh+fs*.6});
   if(b.k){/* suggestion chips and a way to write your own */
-   const chips=b.sug.map(s2=>({t:'+ '+s2,v:s2,k:'sug'})).concat([{t:'✎ write my own',k:'own'}]);let cxp=lx,cy=y;const ch=fs*1.9,gap=6;cx.font='600 '+fs*.92+'px '+WL_FONT;
+   const chips=b.sug.map(s2=>({t:'+ '+s2,v:s2,k:'sug'})).concat([{t:'✎ write my own',k:'own'}]);let cxp=lx,cy=y;const ch=fs*1.9,gap=6;cx.font='400 '+fs*.92+'px '+WL_FONT;
    chips.forEach(c2=>{let w=Math.min(cx.measureText(c2.t).width+fs*1.3,lw);if(cxp+w>right&&cxp>lx){cxp=lx;cy+=ch+gap}
     if(vis(cy,cy+ch)){cx.setLineDash([4,4]);cx.strokeStyle=rgba(b.c,.7);cx.lineWidth=1.3;rr(cxp,cy,w,ch,ch/2);cx.stroke();cx.setLineDash([]);cx.fillStyle=c2.k==='own'?CH:rgba(b.c,1);cx.save();cx.beginPath();cx.rect(cxp+2,cy,w-4,ch);cx.clip();cx.fillText(c2.t,cxp+fs*.65,cy+ch*.67);cx.restore();
      if(live)BHIT.push({wb:c2.k,k:b.k,v:c2.v,x:cxp,w,y0:Math.max(cy,topY),y1:Math.min(cy+ch,botY),wall:true})}
@@ -2200,8 +2208,8 @@ const MODES=[['universe','Orbit'],['synapse','Synapse'],['path','Path'],['ladder
 /* ===== Home view ===== */
 const greet=()=>{const h=NOW().getHours();return h<5?'Late night':h<12?'Good morning':h<17?'Good afternoon':h<21?'Good evening':'Good night'};
 let QI=Math.floor(Math.random()*QUOTES.length),QT=null;
-function showQuote(){const q=$('#quote');if(!q)return;q.style.opacity=0;setTimeout(()=>{q.innerHTML=esc(QUOTES[QI%QUOTES.length])+`<small>${esc(APPNAME)}</small>`;q.style.opacity=1},650);QI++}
-function startQuotes(){clearInterval(QT);const q=$('#quote');q.innerHTML=esc(QUOTES[QI%QUOTES.length])+`<small>${esc(APPNAME)}</small>`;QI++;QT=setInterval(()=>{if(!document.hidden&&UI.view==='home')showQuote()},9000)}
+function showQuote(){const q=$('#quote');if(!q)return;q.style.opacity=0;setTimeout(()=>{q.innerHTML=esc(QUOTES[QI%QUOTES.length]);q.style.opacity=1},650);QI++}
+function startQuotes(){clearInterval(QT);const q=$('#quote');q.innerHTML=esc(QUOTES[QI%QUOTES.length]);QI++;QT=setInterval(()=>{if(!document.hidden&&UI.view==='home')showQuote()},9000)}
 function tickClock(){const n=NOW(),c=$('#clock');if(!c)return;c.textContent=n.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'  |  '+n.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 function hbars(){const n=NOW(),y=n.getFullYear(),m=n.getMonth(),dm=new Date(y,m+1,0).getDate(),dl=dm-n.getDate(),yd=Math.round((new Date(y+1,0,1)-new Date(y,0,1))/864e5),yday=Math.round((new Date(y,m,n.getDate())-new Date(y,0,1))/864e5)+1;
  return `<span>${dl} days left in ${n.toLocaleDateString(undefined,{month:'long'})}</span><span>${yd-yday} days left in ${y}</span>`}
