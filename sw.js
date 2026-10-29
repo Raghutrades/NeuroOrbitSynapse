@@ -1,7 +1,7 @@
 /* NeuroOrbitSynapse service worker.
    Strategy: network first (so an upload to GitHub is picked up at once), cache as the offline fallback.
    VERSION and SHELL are maintained by tools/sync.py. Bump VERSION on every release. */
-const VERSION = 'nos-v7.1.0';
+const VERSION = 'nos-v7.2.0';
 /*SHELL:start*/
 const SHELL = ['./','index.html','manifest.webmanifest','maskable.svg','maskable-512.png','monochrome-512.png','mono.svg','icon-192.png','apple-touch-icon.png','favicon-32.png','badge-96.png','icon.svg','icon-512.png'];
 /*SHELL:end*/
