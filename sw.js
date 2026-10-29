@@ -1,9 +1,9 @@
 /* NeuroOrbitSynapse service worker.
    Strategy: network first (so an upload to GitHub is picked up at once), cache as the offline fallback.
    VERSION and SHELL are maintained by tools/sync.py. Bump VERSION on every release. */
-const VERSION = 'nos-v7.2.0';
+const VERSION = 'nos-v7.4.0';
 /*SHELL:start*/
-const SHELL = ['./','index.html','manifest.webmanifest','maskable.svg','maskable-512.png','monochrome-512.png','mono.svg','icon-192.png','apple-touch-icon.png','favicon-32.png','badge-96.png','icon.svg','icon-512.png'];
+const SHELL = ['./','index.html','manifest.webmanifest','nos7-apple-touch-icon.png','nos7-maskable.svg','nos7-mono.svg','nos7-monochrome-512.png','nos7-icon-192.png','nos7-icon-512.png','nos7-icon.svg','nos7-badge-96.png','nos7-maskable-512.png','nos7-favicon-32.png'];
 /*SHELL:end*/
 
 self.addEventListener('install', e => {
@@ -41,7 +41,7 @@ self.addEventListener('message', e => {
   e.waitUntil(new Promise(res => setTimeout(() => {
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
       if (cs.some(c => c.visibilityState === 'visible')) return res();
-      self.registration.showNotification(d.title, { body: d.body, tag: d.tag, icon: 'icon-192.png', badge: 'badge-96.png', requireInteraction: true, vibrate: [300, 120, 300], data: {} }).then(res, res);
+      self.registration.showNotification(d.title, { body: d.body, tag: d.tag, icon: 'nos7-icon-192.png', badge: 'nos7-badge-96.png', requireInteraction: true, vibrate: [300, 120, 300], data: {} }).then(res, res);
     }, res);
   }, Math.min(w, 5 * 3600 * 1000))));
 });

@@ -2,7 +2,7 @@
   "name": "NeuroOrbitSynapse",
   "short_name": "NeuroOrbit",
   "description": "Wire your habits. Orbit your goals.",
-  "id": "./",
+  "id": "./?nos=7",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -11,16 +11,16 @@
   "theme_color": "#050a1a",
   "categories": ["productivity", "health", "lifestyle"],
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "monochrome-512.png", "sizes": "512x512", "type": "image/png", "purpose": "monochrome" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "nos7-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "nos7-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "nos7-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "nos7-monochrome-512.png", "sizes": "512x512", "type": "image/png", "purpose": "monochrome" },
+    { "src": "nos7-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ],
   "shortcuts": [
-    { "name": "Board", "url": "./?view=home", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
-    { "name": "Plan", "url": "./?view=plan", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
-    { "name": "Insights", "url": "./?view=ins", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
-    { "name": "Journal", "url": "./?view=jour", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+    { "name": "Board", "url": "./?view=home", "icons": [{ "src": "nos7-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Plan", "url": "./?view=plan", "icons": [{ "src": "nos7-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Insights", "url": "./?view=ins", "icons": [{ "src": "nos7-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Journal", "url": "./?view=jour", "icons": [{ "src": "nos7-icon-192.png", "sizes": "192x192" }] }
   ]
 }
